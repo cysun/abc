@@ -12,3 +12,8 @@ dist
 
 # Backpack build
 build
+
+#env
+.env
+
+secret.js
