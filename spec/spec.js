@@ -166,6 +166,30 @@ describe('ABC', () => {
             })
     });
 
+    it('(Failure) Verify user with wrong token', async () => {
+        const options = {
+            method: "PUT",
+            url: `${homepage}${verification_end_point}invalid_token`,
+            json: true
+        }
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            })
+    });
+
+    it('(Failure) Verify user without token', async () => {
+        const options = {
+            method: "PUT",
+            url: `${homepage}${verification_end_point}`,
+            json: true
+        }
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(404);
+            })
+    });
+
     it('(Success) Verify user', async () => {
         const user = await User.findById(first_user_id);
         const options = {

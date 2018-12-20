@@ -241,6 +241,16 @@ import MyHeader from "~/components/Header.vue";
 export default {
   components: {
     MyHeader
+  },
+  async asyncData(context) {
+    if (process.server) {
+      // const cookiesRes = context.req.headers.cookie.getAll();
+      // console.log(context.app.$cookies.getAll());
+      // context.app.$cookies.set("token", "My token", {
+      //   path: "/",
+      //   maxAge: 60 * 60 * 24 * 7
+      // });
+    }
   }
 };
 </script>
