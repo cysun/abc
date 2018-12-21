@@ -52,6 +52,39 @@ async function getUserFromJWT(req, res, next) {
     req.user = user;
   next();
 }
+
+async function getRoles(req, res, next) {
+  //Check if the user object exists in request object
+  //If so
+  if (req.user) {
+    //Check roles
+    if (req.user.roles.length > 0) {
+      req.roles = {}
+      req.user.roles.forEach(element => {
+        //Attach roles in array into distinct properties
+        switch (element.name) {
+          case "Act Poster":
+            req.roles.act_poster = true;
+            break;
+          case "Reward Provider":
+            req.roles.reward_provider = true;
+            break;
+          case "Manager":
+            req.roles.manager = true;
+            break;
+          case "Administrator":
+            req.roles.reward_provider = true;
+            req.roles.administrator = true;
+            req.roles.act_poster = true;
+            req.roles.manager = true;
+            break;
+        }
+      });
+      res.locals.roles = req.roles;
+    }
+  }
+  next();
+}
 // Require API routes
 const usersRouter = require('./routes/users')
 const actsRouter = require('./routes/acts')
@@ -70,6 +103,7 @@ mongoose.connect(process.env.DBURL, {
 
 // Import API Routes
 app.use(getUserFromJWT);
+app.use(getRoles);
 app.use('/', baseRouter);
 app.use('/acts', actsRouter);
 app.use('/users', usersRouter);

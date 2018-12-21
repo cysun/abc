@@ -69,7 +69,7 @@ router.get('/', async function (req, res, next) {
       search['users_under_review.id'] = req.user.id;
     else if (type == 'COMPLETED')
       search['completed_users.id'] = req.user.id;
-      else if (type == 'REJECTED')
+    else if (type == 'REJECTED')
       search['rejected_users.id'] = req.user.id;
 
     //Handle invalid page
@@ -122,7 +122,7 @@ router.get('/', async function (req, res, next) {
         acts = values[0];
         count = values[1];
       })
-      const act_count = count;
+    const act_count = count;
     count = Math.ceil(count / 10);
     const total = []
     for (let i = 0; i < count; i++)
@@ -162,6 +162,31 @@ router.get('/', async function (req, res, next) {
   catch (err) {
     next(createError(400, err.message))
   }
-});
+})
+
+//Create act
+router.post('/', async function (req, res, next) {
+  try {
+    if (!req.roles || !req.roles.act_poster) {
+      throw new Error("You do not have authorization");
+    }
+    // if (req.file)
+    //     req.body.picture = './tmp/' + req.file.filename
+    req.body.provider = req.user;
+    let act = await Act.initialize(req.body);
+    await act.save();
+    // user = user.toObject();
+    // delete user.password;
+    // res.redirect('/acts?success=Success');
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+  // finally {
+  //   //Delete uploaded file
+  //   if (req.file)
+  //     fs.unlinkSync(req.body.profile_picture);
+  // }
+})
 
 module.exports = router

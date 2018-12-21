@@ -135,17 +135,33 @@
             </nav>
           </div>
           <aside class="col-lg-4 single-left">
-            <div class="single-gd">
-              <img src="images/a3.jpg" class="img-fluid" alt>
+            <div class="single-gd" v-if="data.roles && data.roles.act_poster">
+              <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
+              <div
+                v-if="status_message"
+                class="alert"
+                :class="{'alert-danger': status_state == 'Error', 'alert-success': status_state == 'Success'}"
+              >
+                <strong>{{status_state}}:</strong>
+                {{status_message}}
+              </div>
               <h4>Add Act</h4>
-              <form action="/acts" method="post">
-                <input class="form-control" type="text" name="name" placeholder="Name" required>
+              <form @submit.prevent="addAct">
+                <input
+                  class="form-control"
+                  v-model="add_act.name"
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  required
+                >
                 <textarea
                   rows="10"
                   class="form-control"
                   name="description"
                   placeholder="Description"
                   required
+                  v-model="add_act.description"
                 ></textarea>
                 <input
                   class="form-control"
@@ -153,15 +169,16 @@
                   name="reward_points"
                   placeholder="Reward points"
                   required
+                  v-model="add_act.reward_points"
                 >
-                <label for="file">Image should be 1600 X 800</label>
-                <input class="form-control" id="file" type="file" name="file">
+                <!-- <label for="file">Image should be 1600 X 800</label>
+                <input class="form-control" id="file" type="file" name="file">-->
                 <div class="button">
                   <input class="form-control" type="submit" value="Submit">
                 </div>
               </form>
             </div>
-            <div class="single-gd">
+            <!-- <div class="single-gd">
               <h4>Our Progress</h4>
               <div class="progress">
                 <div
@@ -213,7 +230,7 @@
                   aria-valuemax="100"
                 ></div>
               </div>
-            </div>
+            </div>-->
             <div class="single-gd tech-btm">
               <h4>Top stories of the week</h4>
               <div class="blog-grids">
@@ -375,13 +392,20 @@ export default {
     return {
       title: "Acts",
       error: "",
+      status_message: "",
+      status_state: "",
       first_name: "",
       last_name: "",
       email: "",
       password: "",
       image: null,
       logged_in: true,
-      page: "acts"
+      page: "acts",
+      add_act: {
+        name: "",
+        description: "",
+        reward_points: 0
+      }
       // query: this.$route.query
     };
   },
@@ -453,6 +477,45 @@ export default {
     type_changed() {
       // console.log(this.query.type);
       this.$router.push(`/acts?type=${this.query.type}`);
+    },
+    async addAct() {
+      // alert("Hello World");
+      //Send act
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      const params = new URLSearchParams();
+
+      params.append("name", this.add_act.name);
+      params.append("description", this.add_act.description);
+      params.append("reward_points", this.add_act.reward_points);
+      await axios
+        .post("/api/acts", params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          // vue_context.data = res.data;
+          // console.log(res);
+          vue_context.status_state = "Success";
+          vue_context.status_message = res.data.message;
+          vue_context.add_act.name = "";
+          vue_context.add_act.description = "";
+          vue_context.add_act.reward_points = 0;
+        })
+        .catch(function(err) {
+
+          vue_context.status_state = "Error";
+          vue_context.status_message = err.response.data.message;
+
+          // if (err.response.status == 400) {
+          //   vue_context.$router.redirect("/logout");
+          // }
+          // console.log(err.response.data.message);
+        });
+      //If error, display error
+      //If success, display success message with hint of manager's final say
+      //Then clear the form
     },
     async search() {
       // this.$nuxt.$loading.start();

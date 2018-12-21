@@ -410,6 +410,10 @@ actSchema.statics.getUniqueImageName = async function (length_of_random_string =
 actSchema.statics.initialize = async function (data) {
 
     let act = new this({});
+
+    if (!data.name || !data.description || !data.reward_points)
+        throw new Error("Incomplete request");
+
     // Sanitize all required fields
     let name = sanitize(data.name);
     let description = sanitize(data.description);
