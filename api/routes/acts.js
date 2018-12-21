@@ -44,7 +44,8 @@ router.get('/', async function (req, res, next) {
     const enabled = {
       state: true
     };
-    search.enabled = enabled;
+
+
 
     let page = parseInt(sanitize(req.query.page));
     let act_type = sanitize(req.query.act_type);
@@ -52,6 +53,11 @@ router.get('/', async function (req, res, next) {
     let type = sanitize(req.query.type);
     let order = parseInt(sanitize(req.query.order));
     const this_object = this;
+
+    //This ensures that when an act poster tries to get his acts
+    //Enabled and disabled acts are returned
+    if (type != "MY_ACTS")
+      search.enabled = enabled;
 
     // if (type == "undefined")
     //     type = req.cookies.type;
@@ -71,6 +77,8 @@ router.get('/', async function (req, res, next) {
       search['completed_users.id'] = req.user.id;
     else if (type == 'REJECTED')
       search['rejected_users.id'] = req.user.id;
+    else if (type == 'MY_ACTS')
+      search['act_provider.id'] = req.user.id;
 
     //Handle invalid page
     if (!page || page < 1)
@@ -80,7 +88,10 @@ router.get('/', async function (req, res, next) {
     if (!act_type || globals.act_types.indexOf(act_type) === -1)
       act_type = "AVAILABLE";
 
-    search.state = act_type;
+    //This ensures that when an act poster tries to get his acts
+    //Available and unavailable acts are returned
+    if (type != "MY_ACTS")
+      search.state = act_type;
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)

@@ -45,6 +45,8 @@
                 <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">Under Review</option>
                 <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">Completed</option>
                 <option value="REJECTED" :selected="!query.type == 'REJECTED'">Rejected</option>
+                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
+                <option v-if="data.roles && data.roles.act_poster" value="MY_ACTS" :selected="!query.type == 'MY_ACTS'">My Acts</option>
               </select>
             </span>
             <button
@@ -83,6 +85,12 @@
                 </p>
 
                 <p class="truncate_text_3_lines">{{act.description}}</p>
+                <div v-if="act.act_provider.id == data.user.id">
+                  <span v-if="act.state == 'AVAILABLE'" class="badge badge-info">Available</span>
+                  <span v-if="act.state == 'NOT_AVAILABLE'" class="badge badge-info">Not Available</span>
+                  <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
+                  <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
+                </div>
                 <ul class="blog_list">
                   <li>
                     <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
