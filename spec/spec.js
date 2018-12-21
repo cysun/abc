@@ -3,6 +3,7 @@
 require('dotenv').load();
 const homepage = "http://localhost:3000"
 const registration_end_point = "/api/users/register";
+const login_end_point = "/api/users/login";
 const verification_end_point = "/api/verify/";
 let request_promise = require('request-promise');
 request_promise = request_promise.defaults({ jar: true });
@@ -11,7 +12,7 @@ const secret = require('../secret');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-async function sendIncompleteValuesToEndPointWithForm(type_of_incomplete_data, request_type, input_array, end_point, expected_status_code) {
+async function sendIncompleteValuesToEndPointWithFormData(type_of_incomplete_data, request_type, input_array, end_point, expected_status_code) {
     const options = {
         method: request_type,
         uri: `${homepage}${end_point}`,
@@ -40,8 +41,41 @@ async function sendIncompleteValuesToEndPointWithForm(type_of_incomplete_data, r
             //     console.info(res.points);
             // })
             .catch(function (err) {
-                // console.info(err.error.message)
-                // console.info(err.statusCode);
+                expect(err.statusCode).toBe(expected_status_code)
+            }));
+    }
+    await Promise.all(promises);
+}
+
+async function sendIncompleteValuesToEndPointWithForm(type_of_incomplete_data, request_type, input_array, end_point, expected_status_code) {
+    const options = {
+        method: request_type,
+        uri: `${homepage}${end_point}`,
+        json: true
+    };
+    const promises = [];
+    for (let i = 0; i < input_array.length; i++) {
+        let obj = {};
+        for (let j = 0; j < input_array.length; j++) {
+
+            if (type_of_incomplete_data == "incomplete") {
+                if (j != i)
+                    obj[input_array[j][0]] = input_array[j][1];
+            } else if (type_of_incomplete_data == "empty") {
+                if (j != i) {
+                    obj[input_array[j][0]] = input_array[j][1];
+                } else
+                    obj[input_array[j][0]] = "";
+            }
+
+        }
+        //Send these incomplete values
+        options.form = obj
+        promises.push(request_promise(options)
+            // .then(function (res) {
+            //     console.info(res.points);
+            // })
+            .catch(function (err) {
                 expect(err.statusCode).toBe(expected_status_code)
             }));
     }
@@ -75,8 +109,8 @@ describe('ABC', () => {
         ];
 
         //Try to register with one empty field
-        promises.push(sendIncompleteValuesToEndPointWithForm('incomplete', 'POST', registration_array, '/api/users/register', 400));
-        promises.push(sendIncompleteValuesToEndPointWithForm('empty', 'POST', registration_array, '/api/users/register', 400));
+        promises.push(sendIncompleteValuesToEndPointWithFormData('incomplete', 'POST', registration_array, '/api/users/register', 400));
+        promises.push(sendIncompleteValuesToEndPointWithFormData('empty', 'POST', registration_array, '/api/users/register', 400));
 
         await Promise.all(promises);
 
@@ -166,27 +200,29 @@ describe('ABC', () => {
             })
     });
 
-    it('(Failure) Verify user with wrong token', async () => {
+    it('(Failure) Verify user with wrong token', async (done) => {
         const options = {
             method: "PUT",
             url: `${homepage}${verification_end_point}invalid_token`,
             json: true
         }
-        await request_promise(options)
+        request_promise(options)
             .catch(function (err) {
                 expect(err.statusCode).toBe(400);
+                done();
             })
     });
 
-    it('(Failure) Verify user without token', async () => {
+    it('(Failure) Verify user without token', async (done) => {
         const options = {
             method: "PUT",
             url: `${homepage}${verification_end_point}`,
             json: true
         }
-        await request_promise(options)
+        request_promise(options)
             .catch(function (err) {
                 expect(err.statusCode).toBe(404);
+                done();
             })
     });
 
@@ -206,7 +242,7 @@ describe('ABC', () => {
             })
     });
 
-    it('(Failure) Registration with already verified email', async () => {
+    it('(Failure) Registration with already verified email', async (done) => {
         const registration_form = {
             email: "email@email.com",
             first_name: "first_name",
@@ -219,13 +255,14 @@ describe('ABC', () => {
             formData: registration_form,
             json: true
         }
-        await request_promise(options)
+        request_promise(options)
             .catch(function (err) {
                 expect(err.statusCode).toBe(400);
+                done();
             })
     });
 
-    it('(Failure) Registering when already logged in', async () => {
+    it('(Failure) Registering when already logged in', async (done) => {
         const registration_form = {
             email: "email2@email.com",
             first_name: "first_name",
@@ -239,12 +276,84 @@ describe('ABC', () => {
             json: true
         }
         request_promise.cookie('token=' + user_jwt);
-        await request_promise(options)
+        request_promise(options)
             .auth(null, null, true, user_jwt)
             .catch(function (err) {
                 expect(err.statusCode).toBe(400);
+                done();
             })
         request_promise.cookie('token=');
+    });
+
+    it('(Failure) Disabled user cannot log in', async (done) => {
+        const login_form = {
+            email: "email1@email.com",
+            password: "password1!Q"
+        }
+        const options = {
+            method: "POST",
+            url: `${homepage}${login_end_point}`,
+            form: login_form,
+            json: true
+        }
+        request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+                done();
+            })
+    });
+
+    it('(Failure) Invalid login credentials should fail', async (done) => {
+        const login_form = {
+            email: "email@email.com",
+            password: "password"
+        }
+        const options = {
+            method: "POST",
+            url: `${homepage}${login_end_point}`,
+            form: login_form,
+            json: true
+        }
+        request_promise(options)
+            .catch(function (err) {
+                // console.info(err.error.message);
+                expect(err.statusCode).toBe(400);
+                done();
+            })
+    });
+
+    it('(Failure) Empty login credentials should fail', async () => {
+        const promises = [];
+        //Login with incomplete fields
+        const login_array = [
+            ["email", "email@email.com"],
+            ["password", "password1!Q"]
+        ];
+
+        //Try to login with one empty field
+        promises.push(sendIncompleteValuesToEndPointWithForm('incomplete', 'POST', login_array, '/api/users/login', 400));
+        promises.push(sendIncompleteValuesToEndPointWithForm('empty', 'POST', login_array, '/api/users/login', 400));
+
+        await Promise.all(promises);
+    });
+
+    it('(Success) Login with valid details', async (done) => {
+        const login_form = {
+            email: "email@email.com",
+            password: "password1!Q"
+        }
+        const options = {
+            method: "POST",
+            url: `${homepage}${login_end_point}`,
+            form: login_form,
+            json: true
+        }
+        request_promise(options)
+            .then(function (res) {
+                // console.info(res);
+                expect(res.token).toBeDefined();
+                done();
+            })
     });
 
     afterAll(async () => {

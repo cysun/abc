@@ -2,9 +2,9 @@
   <header>
     <div class="container">
       <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="/">
+        <nuxt-link to="/" class="navbar-brand">
           <span class="fab fa-asymmetrik"></span> ABC
-        </a>
+        </nuxt-link>
         <div class="dropdown">
           <button
             class="navbar-toggler ml-md-auto"
@@ -40,7 +40,7 @@
               <a class="nav-link" href="/contact">Contact</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/login">Login</a>
+              <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">Login</nuxt-link>
             </li>
             <li class="nav-item" :class="{active: page == 'sign_up'}">
               <nuxt-link class="nav-link" to="/sign_up">Sign up</nuxt-link>

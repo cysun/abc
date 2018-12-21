@@ -10,35 +10,13 @@
         </div>
         <div class="row contact_full w3-agile-grid">
           <div class="col-md-12 contact-us w3-agile-grid">
-            <div class="row">
-              <div class="col-md-6 styled-input">
-                <input
-                  type="text"
-                  id="first_name"
-                  name="first_name"
-                  v-model="first_name"
-                  placeholder="First name"
-                  required
-                >
-              </div>
-              <div class="col-md-6 styled-input">
-                <input
-                  type="text"
-                  id="last_name"
-                  name="last_name"
-                  v-model="last_name"
-                  placeholder="Last name"
-                  required
-                >
-              </div>
-            </div>
             <div class="styled-input">
               <input
                 type="email"
                 id="email"
                 name="email"
-                v-model="email"
                 placeholder="Email"
+                v-model="email"
                 required
               >
             </div>
@@ -47,24 +25,13 @@
                 type="password"
                 id="password"
                 name="password"
-                v-model="password"
                 placeholder="Password"
+                v-model="password"
                 required
               >
             </div>
-            <div class="styled-input white">
-              <div>
-                <label for="profile_picture">Profile picture</label>
-              </div>
-              <input @change="fileChanged" type="file" name="file" id="profile_picture">
-            </div>
             <div class="click mt-3">
-              <input
-                id="create_account_button"
-                @click="register"
-                type="submit"
-                value="CREATE AN ACCOUNT"
-              >
+              <input type="submit" @click="login" id="login_button" value="LOGIN">
             </div>
           </div>
         </div>
@@ -107,27 +74,22 @@ export default {
     //     console.log(res);
     //   });
   },
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    //If user is logged in, redirect to main page
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-
-    //Check if user is logged in
-    //If so, redirect to main page
     // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
+    //Logged in users can't access this page
+    // console.log(context.app)
+    // if (context.app.$cookies.get("token")) context.redirect("/");
     // }
+    // if (process.client) {
+    // console.log(context.app.$cookies.getAll())
     if (context.app.$cookies.get("token")) {
       context.redirect("/");
     }
+    // }
   },
   data() {
     return {
-      title: "Sign up",
+      title: "Log in",
       error: "",
       first_name: "",
       last_name: "",
@@ -135,17 +97,17 @@ export default {
       password: "",
       image: null,
       logged_in: false,
-      page: "sign_up"
+      page: "login"
     };
   },
   methods: {
     fileChanged(event) {
       this.image = event.target.files[0];
     },
-    register() {
+    login() {
       //Check if there an empty input field
       //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
+      if (!this.email || !this.password)
         this.error = "All fields must be present";
       else {
         //If all fields are present
@@ -164,22 +126,27 @@ export default {
 
         this.$nuxt.$loading.start();
 
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
+        // application/x-www-form-urlencoded format
+        const params = new URLSearchParams();
 
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
+        params.append("email", this.email);
+        params.append("password", this.password);
 
         axios
-          .post("/api/users/register", formData)
+          .post("/api/users/login", params)
           .then(function(res) {
-            //Redirect to verification page
             vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
+            //Save cookies
+            vue_context.$cookies.set("token", res.data.token, {
+              path: "/",
+              maxAge: 3600000
             });
+            vue_context.$cookies.set("refresh_token", res.data.refresh_token, {
+              path: "/",
+              maxAge: 31536000000
+            });
+            //Redirect to acts page
+            vue_context.$router.replace("/acts");
           })
           .catch(function(err) {
             vue_context.$nuxt.$loading.finish();
@@ -198,17 +165,3 @@ export default {
   // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

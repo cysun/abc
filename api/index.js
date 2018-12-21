@@ -11,6 +11,8 @@ const jwt = require('jsonwebtoken');
 // Create express instnace
 const app = express()
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 async function getUserFromJWT(req, res, next) {

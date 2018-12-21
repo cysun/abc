@@ -36,12 +36,15 @@ module.exports = {
     '~/assets/css/fontawesome-all.css',
     '~/assets/css/style.css'
   ],
+  loading: {
+    color: 'blue'
+  },
 
   modules: [
     // Simple usage
     'cookie-universal-nuxt',
     // With options
-    ['cookie-universal-nuxt', { alias: 'cookiz' }],
+    // ['cookie-universal-nuxt', { alias: 'cookiz' }],
   ],
   /*
   ** Add axios globally
