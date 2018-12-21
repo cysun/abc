@@ -2,7 +2,7 @@ const accepeted_images = [
     "png", "jpg", "jpeg", "bmp"
 ];
 const user_act_types = [
-    "AVAILABLE", "UNDER_REVIEW", "COMPLETED"
+    "AVAILABLE", "UNDER_REVIEW", "COMPLETED", "REJECTED"
 ];
 
 const act_types = [

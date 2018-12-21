@@ -50,6 +50,7 @@
                 v-model="password"
                 placeholder="Password"
                 required
+                @keyup.enter="register"
               >
             </div>
             <div class="styled-input white">

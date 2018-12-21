@@ -54,6 +54,7 @@ async function getUserFromJWT(req, res, next) {
 }
 // Require API routes
 const usersRouter = require('./routes/users')
+const actsRouter = require('./routes/acts')
 const baseRouter = require('./routes/base')
 
 mongoose.connection.on('connected', () =>
@@ -70,6 +71,7 @@ mongoose.connect(process.env.DBURL, {
 // Import API Routes
 app.use(getUserFromJWT);
 app.use('/', baseRouter);
+app.use('/acts', actsRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

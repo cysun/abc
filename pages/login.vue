@@ -28,6 +28,7 @@
                 placeholder="Password"
                 v-model="password"
                 required
+                @keyup.enter="login"
               >
             </div>
             <div class="click mt-3">

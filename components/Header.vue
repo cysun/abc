@@ -21,14 +21,14 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mx-auto text-center">
-            <li :class="{active: !page}" class="nav-item mr-lg-3">
+            <li v-if="!logged_in" :class="{active: !page}" class="nav-item mr-lg-3">
               <nuxt-link to="/" class="nav-link">
                 Home
                 <span class="sr-only">(current)</span>
               </nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <a class="nav-link" href="/acts">Acts</a>
+              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
               <a class="nav-link" href="/rewards">Rewards</a>
@@ -39,10 +39,10 @@
             <li class="nav-item mr-lg-3">
               <a class="nav-link" href="/contact">Contact</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="!logged_in">
               <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">Login</nuxt-link>
             </li>
-            <li class="nav-item" :class="{active: page == 'sign_up'}">
+            <li class="nav-item" v-if="!logged_in" :class="{active: page == 'sign_up'}">
               <nuxt-link class="nav-link" to="/sign_up">Sign up</nuxt-link>
             </li>
             <li class="nav-item" v-if="logged_in">
