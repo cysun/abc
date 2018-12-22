@@ -65,6 +65,9 @@ router.get('/', async function (req, res, next) {
     if (!type || globals.user_act_types.indexOf(type) === -1)
       type = "AVAILABLE";
 
+      //Deleted acts should not show up
+      search['deleted'] = false;
+
 
     if (type == "AVAILABLE") {
       //Only return acts this user has not completed
@@ -256,6 +259,29 @@ router.put('/:id/state', async function (req, res, next) {
       throw new Error("You do not have authorization");
 
     act.state = new_state;
+    await act.save();
+
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+
+})
+
+//Delete act
+router.put('/:id/delete', async function (req, res, next) {
+  try {
+    if (!req.roles || !req.roles.act_poster) {
+      throw new Error("You do not have authorization");
+    }
+
+    const act = await Act.findById(req.params.id);
+
+    //Only the admin or act poster who uploaded this act can delete it
+    if (!req.roles.administrator && req.user.id != act.act_provider.id)
+      throw new Error("You do not have authorization");
+
+    act.deleted = true;
     await act.save();
 
     res.json({ message: "Success" });

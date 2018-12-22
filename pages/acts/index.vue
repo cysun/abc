@@ -121,10 +121,27 @@
                     <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
                   <div class="col-md-5">
-                    <span>
+                    <span v-if="!act.delete">
                       <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">Edit</button>
                       <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
                       <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">Cancel</button>
+                    </span>
+                    <span v-if="!act.edit">
+                      <button
+                        v-if="!act.delete"
+                        @click="delete_act(index)"
+                        class="btn btn-danger"
+                      >Delete</button>
+                      <button
+                        v-if="act.delete"
+                        @click="delete_act(index)"
+                        class="btn btn-primary"
+                      >Cancel</button>
+                      <button
+                        v-if="act.delete"
+                        @click="confirm_delete_act(index)"
+                        class="btn btn-danger"
+                      >Confirm</button>
                     </span>
                   </div>
                 </div>
@@ -456,6 +473,7 @@ export default {
       image: null,
       logged_in: true,
       page: "acts",
+      deleted_acts: {},
       add_act: {
         name: "",
         description: "",
@@ -537,6 +555,50 @@ export default {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
       else this.$set(this.data.acts[index], "edit", false);
+    },
+    delete_act(index) {
+      if (!this.data.acts[index].delete)
+        this.$set(this.data.acts[index], "delete", true);
+      else this.$set(this.data.acts[index], "delete", false);
+    },
+    async confirm_delete_act(index) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Store act and it's current index
+      this.$set(this.deleted_acts, index, this.data.acts[index]);
+      // this.deleted_acts.push({act: this.data.acts[index], index: index});
+      //Remove act from array
+      this.data.acts.splice(index, 1);
+      //Make request to delete act
+
+      await axios
+        .put(`/api/acts/${vue_context.deleted_acts[index]._id}/delete`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, place act back
+          vue_context.data.acts.splice(
+            index,
+            0,
+            vue_context.deleted_acts[index]
+          );
+          delete_act(index)
+          // vue_context.$set(
+          //   vue_context.data.acts[index],
+          //   "state",
+          //   vue_context.data.acts[index].previous_data.state
+          // );
+          //Tell the user that the act could not be deleted
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the act could not be deleted",
+            position: "topRight"
+          });
+        });
+      delete this.deleted_acts[index];
     },
     async change_act_state(index) {
       const token = this.$cookies.get("token");

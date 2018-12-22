@@ -49,6 +49,10 @@ let actSchema = new mongoose.Schema({
         required: true,
         default: 'AVAILABLE'
     },
+    deleted: {
+        type: Boolean,
+        default: false
+    },
     creation_date: {
         type: Date,
         default: Date.now
