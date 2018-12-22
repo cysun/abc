@@ -236,4 +236,33 @@ router.put('/:id', async function (req, res, next) {
 
 })
 
+//Change act state
+router.put('/:id/state', async function (req, res, next) {
+  try {
+    if (!req.roles || !req.roles.act_poster) {
+      throw new Error("You do not have authorization");
+    }
+
+    const act = await Act.findById(req.params.id);
+    let new_state;
+
+    if (act.state == "AVAILABLE")
+      new_state = 'NOT_AVAILABLE';
+    else
+      new_state = 'AVAILABLE';
+
+    //Only the admin or act poster who uploaded this act can alter it
+    if (!req.roles.administrator && req.user.id != act.act_provider.id)
+      throw new Error("You do not have authorization");
+
+    act.state = new_state;
+    await act.save();
+
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+
+})
+
 module.exports = router

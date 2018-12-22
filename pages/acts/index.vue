@@ -105,8 +105,18 @@
                 ></textarea>
                 <div class="row" v-if="act.act_provider.id == data.user.id">
                   <div class="col-md-7">
-                    <span v-if="act.state == 'AVAILABLE'" class="badge badge-info" style="cursor: pointer">Available</span>
-                    <span v-if="act.state == 'NOT_AVAILABLE'" class="badge badge-info" style="cursor: pointer">Not Available</span>
+                    <span
+                      @click="change_act_state(index)"
+                      v-if="act.state == 'AVAILABLE'"
+                      class="badge badge-info"
+                      style="cursor: pointer"
+                    >Available</span>
+                    <span
+                      @click="change_act_state(index)"
+                      v-if="act.state == 'NOT_AVAILABLE'"
+                      class="badge badge-info"
+                      style="cursor: pointer"
+                    >Not Available</span>
                     <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
                     <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
@@ -527,6 +537,44 @@ export default {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
       else this.$set(this.data.acts[index], "edit", false);
+    },
+    async change_act_state(index) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Store previous state of act
+      this.$set(this.data.acts[index], "previous_data", {
+        state: this.data.acts[index].state
+      });
+      //Get new state
+      let new_state;
+      if (this.data.acts[index].previous_data.state == "AVAILABLE")
+        new_state = "NOT_AVAILABLE";
+      else new_state = "AVAILABLE";
+      //Change state of act
+      this.$set(this.data.acts[index], "state", new_state);
+      //Make request to change state of act
+
+      await axios
+        .put(`/api/acts/${vue_context.data.acts[index]._id}/state`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, revert state of act
+          vue_context.$set(
+            vue_context.data.acts[index],
+            "state",
+            vue_context.data.acts[index].previous_data.state
+          );
+          //Tell the user that the act could not be altered
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the act state could not be altered",
+            position: "topRight"
+          });
+        });
     },
     async save_act(index) {
       // iziToast.show({
