@@ -15,6 +15,7 @@ module.exports = {
       { rel: 'stylesheet', href: '//fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900,900i&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese' }
     ],
     script: [
+      { src: 'js/iziToast.min.js' },
       { src: 'js/jquery-2.1.4.min.js' },
       { src: 'js/bootstrap.js' },
       { src: 'js/waypoints.min.js' },
@@ -34,7 +35,8 @@ module.exports = {
     '~/assets/css/bootstrap.css',
     '~/assets/css/flexslider.css',
     '~/assets/css/fontawesome-all.css',
-    '~/assets/css/style.css'
+    '~/assets/css/style.css',
+    '~/assets/css/iziToast.min.css'
   ],
   loading: {
     color: 'blue'

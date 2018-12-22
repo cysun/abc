@@ -46,7 +46,11 @@
                 <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">Completed</option>
                 <option value="REJECTED" :selected="!query.type == 'REJECTED'">Rejected</option>
                 <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
-                <option v-if="data.roles && data.roles.act_poster" value="MY_ACTS" :selected="!query.type == 'MY_ACTS'">My Acts</option>
+                <option
+                  v-if="data.roles && data.roles.act_poster"
+                  value="MY_ACTS"
+                  :selected="!query.type == 'MY_ACTS'"
+                >My Acts</option>
               </select>
             </span>
             <button
@@ -74,7 +78,14 @@
               </div>-->
               <div class="blog_info">
                 <h5>
-                  <a href>{{act.name}}</a>
+                  <nuxt-link v-if="!act.edit" :to="{path: 'act/' + act._id}">{{act.name}}</nuxt-link>
+                  <input
+                    :id="'act_name' + index"
+                    v-if="act.edit"
+                    type="text"
+                    class="form-control"
+                    :value="act.name"
+                  >
                 </h5>
                 <p>
                   By {{act.act_provider.first_name}} {{act.act_provider.last_name}}
@@ -84,17 +95,40 @@
                   ></a>
                 </p>
 
-                <p class="truncate_text_3_lines">{{act.description}}</p>
-                <div v-if="act.act_provider.id == data.user.id">
-                  <span v-if="act.state == 'AVAILABLE'" class="badge badge-info">Available</span>
-                  <span v-if="act.state == 'NOT_AVAILABLE'" class="badge badge-info">Not Available</span>
-                  <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
-                  <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
+                <p v-if="!act.edit" class="truncate_text_3_lines">{{act.description}}</p>
+                <textarea
+                  :id="'act_description' + index"
+                  v-if="act.edit"
+                  class="form-control"
+                  rows="4"
+                  :value="act.description"
+                ></textarea>
+                <div class="row" v-if="act.act_provider.id == data.user.id">
+                  <div class="col-md-7">
+                    <span v-if="act.state == 'AVAILABLE'" class="badge badge-info" style="cursor: pointer">Available</span>
+                    <span v-if="act.state == 'NOT_AVAILABLE'" class="badge badge-info" style="cursor: pointer">Not Available</span>
+                    <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
+                    <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
+                  </div>
+                  <div class="col-md-5">
+                    <span>
+                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">Edit</button>
+                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
+                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">Cancel</button>
+                    </span>
+                  </div>
                 </div>
                 <ul class="blog_list">
                   <li>
                     <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
-                    {{act.reward_points}}
+                    <span v-if="!act.edit">{{act.reward_points}}</span>
+                    <input
+                      :id="'act_reward_points' + index"
+                      v-if="act.edit"
+                      type="number"
+                      style="width: 40px"
+                      :value="act.reward_points"
+                    >
                     <i>|</i>
                   </li>
                   <li>
@@ -302,6 +336,7 @@ import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
+let iziToast;
 
 let vue_context;
 
@@ -314,6 +349,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
+    iziToast = require("iziToast");
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
     //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
@@ -330,6 +366,7 @@ export default {
     // console.log("I ran");
     // console.log();
     //Get acts
+    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -412,7 +449,7 @@ export default {
       add_act: {
         name: "",
         description: "",
-        reward_points: 0
+        reward_points: ""
       }
       // query: this.$route.query
     };
@@ -486,6 +523,97 @@ export default {
       // console.log(this.query.type);
       this.$router.push(`/acts?type=${this.query.type}`);
     },
+    edit_act(index) {
+      if (!this.data.acts[index].edit)
+        this.$set(this.data.acts[index], "edit", true);
+      else this.$set(this.data.acts[index], "edit", false);
+    },
+    async save_act(index) {
+      // iziToast.show({
+      //   title: "Hey",
+      //   color: 'red',
+      //   message: "What would you like to add?",
+      //   position: 'topRight',
+      //   icon: 'fa fa-heart'
+      // });
+
+      // iziToast.error({
+      //   title: "Error",
+      //   message: "Illegal operation",
+      //   position: 'topRight'
+      // });
+
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Get new name, description and reward points
+      const name = document.getElementById("act_name" + index).value;
+      const description = document.getElementById("act_description" + index)
+        .value;
+      const reward_points = document.getElementById("act_reward_points" + index)
+        .value;
+      const enabled_state = this.data.acts[index].enabled.state;
+      //Save previous name, description and reward points and enabled_state
+      this.$set(this.data.acts[index], "previous_data", {
+        name: this.data.acts[index].name,
+        description: this.data.acts[index].description,
+        reward_points: this.data.acts[index].reward_points,
+        enabled: enabled_state
+      });
+      //Update to new name, desription and reward points
+      this.$set(this.data.acts[index], "name", name);
+      this.$set(this.data.acts[index], "description", description);
+      this.$set(this.data.acts[index], "reward_points", reward_points);
+      //Remember to disable the act
+      this.$set(this.data.acts[index].enabled, "state", false);
+      //Remove input fields
+      this.edit_act(index);
+      //Edit this act
+      const params = new URLSearchParams();
+
+      params.append("name", name);
+      params.append("description", description);
+      params.append("reward_points", reward_points);
+
+      await axios
+        .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, revert to old name and description
+          vue_context.$set(
+            vue_context.data.acts[index],
+            "name",
+            vue_context.data.acts[index].previous_data.name
+          );
+          vue_context.$set(
+            vue_context.data.acts[index],
+            "description",
+            vue_context.data.acts[index].previous_data.description
+          );
+          vue_context.$set(
+            vue_context.data.acts[index],
+            "reward_points",
+            vue_context.data.acts[index].previous_data.reward_points
+          );
+
+          //Revert to previous state
+          vue_context.$set(
+            vue_context.data.acts[index].enabled,
+            "state",
+            vue_context.data.acts[index].previous_data.enabled
+          );
+
+          //Tell the user that the act could not be edited
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the act could not be edited",
+            position: "topRight"
+          });
+        });
+    },
     async addAct() {
       // alert("Hello World");
       //Send act
@@ -512,7 +640,6 @@ export default {
           vue_context.add_act.reward_points = 0;
         })
         .catch(function(err) {
-
           vue_context.status_state = "Error";
           vue_context.status_message = err.response.data.message;
 

@@ -193,11 +193,47 @@ router.post('/', async function (req, res, next) {
   } catch (err) {
     next(createError(400, err.message))
   }
-  // finally {
-  //   //Delete uploaded file
-  //   if (req.file)
-  //     fs.unlinkSync(req.body.profile_picture);
-  // }
+})
+// finally {
+//   //Delete uploaded file
+//   if (req.file)
+//     fs.unlinkSync(req.body.profile_picture);
+// }
+
+//Edit act
+router.put('/:id', async function (req, res, next) {
+  try {
+    if (!req.roles || !req.roles.act_poster) {
+      throw new Error("You do not have authorization");
+    }
+
+    //Make sure all details were sent
+    if (!req.body.name || !req.body.description || !req.body.reward_points)
+      throw new Error("Incomplete request");
+
+    const name = sanitize(req.body.name);
+    const description = sanitize(req.body.description);
+    const reward_points = sanitize(req.body.reward_points);
+
+    if (!name || !description || !reward_points)
+      throw new Error("Incomplete request");
+
+    const act = await Act.findById(req.params.id);
+    //Only the admin or act poster who uploaded this act can alter it
+    if (!req.roles.administrator && req.user.id != act.act_provider.id)
+      throw new Error("You do not have authorization");
+
+    act.enabled.state = false;
+    act.name = name;
+    act.description = description;
+    act.reward_points = reward_points;
+    await act.save();
+
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+
 })
 
 module.exports = router

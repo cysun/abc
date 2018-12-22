@@ -1,0 +1,256 @@
+<template>
+  <div>
+    <my-header :logged_in="logged_in" :page="page"/>
+    <my-banner :title="title"/>
+    <section class="banner-bottom-w3ls-agileinfo py-5">
+	<!--/blog-->
+	<div class="container py-md-3">
+		<h2 class="heading mb-lg-5 mb-4">{{title}}</h2>
+		<div class="row inner-sec-wthree-agileits">
+			<div class="col-lg-12 blog-sp">
+				<article class="blog-x row">
+					<!-- <div class="blog-img w3-agile-grid">
+						<img src="{{act.image}}" alt="" class="img-fluid" />
+					</div> -->
+					<div class="blog_info">
+						<p>By
+							<a href="#" class="user-blog">{{act.act_provider.first_name}} {{act.act_provider.last_name}}</a>
+						</p>
+
+						<p>{{act.description}}</p>
+						{{#if act.users_who_completed_this_act}}
+						<div class='justify-content-center'>
+							{{!-- <h4>Proof of completion</h4>
+							<img height='50%' width='50%' src='{{act.users_who_completed_this_act.proof_of_completion}}'> --}}
+							<a href='{{act.users_who_completed_this_act.proof_of_completion}}'>View proof of completion</a>
+						</div>
+						{{/if}}
+						<br>
+						{{#if_eq act.users_who_completed_this_act.state 'COMPLETED'}}
+						{{else}}
+						<form class='form-inline justify-content-center' method='POST' action='/acts/{{act._id}}/complete' enctype="multipart/form-data">
+							<input type='file' class='form-control' name='file'>
+							<input type='submit' value='{{upload_text}}' class='btn btn-primary'>
+						</form>
+						{{/if_eq}}
+						<br>
+						<ul class="blog_list">
+							<li>
+								<span title='Rewards points' class="fa fa-credit-card" aria-hidden="true"></span>
+								{{act.reward_points}}
+								<i>|</i>
+							</li>
+							<li>
+								<span title='Popularity' class="fa fa-angle-double-down" aria-hidden="true"></span>
+								{{act.total_number_of_clicks}}
+								<i>|</i>
+							</li>
+							<li>
+								<span title='Favorites' class="fa fa-heart" aria-hidden="true"></span>
+								{{act.total_number_of_completions}}
+								{{!-- <i>|</i> --}}
+							</li>
+							{{!-- <li>
+								<a href="#">
+									<span class="fa fa-tag" aria-hidden="true"></span>
+									13</a>
+							</li> --}}
+						</ul>
+						{{!-- <ul class="blog_list">
+							<li>
+								<span class="fa fa-angle-double-down" aria-hidden="true"></span>
+								{{act.users_who_clicked_on_this_act.length}}
+								<i>|</i>
+							</li>
+							<li>
+								<span class="fa fa-heart" aria-hidden="true"></span>
+								{{act.users_who_completed_this_act.length}}
+								<i>|</i>
+							</li>
+						</ul> --}}
+					</div>
+					<div class="clearfix"></div>
+				</article>
+				{{!-- <div class="comment-top w3-agile-grid">
+					<h4>Comments</h4>
+					<div class="media mb-3">
+						<img src="images/t1.jpg" alt="" class="img-fluid">
+						<div class="media-body">
+							<h5 class="mt-0">Joseph Goh</h5>
+							<p>Lorem Ipsum convallis diam consequat magna vulputate malesuada. id dignissim sapien velit id felis ac cursus
+								eros.
+								Cras a ornare elit.</p>
+						</div>
+					</div>
+					<div class="media">
+						<img src="images/t2.jpg" alt="" class="img-fluid">
+						<div class="media-body">
+							<h5 class="mt-0">Richard Spark</h5>
+							<p>Lorem Ipsum convallis diam consequat magna vulputate malesuada. id dignissim sapien velit id felis ac cursus
+								eros.
+								Cras a ornare elit.</p>
+						</div>
+					</div>
+				</div>
+				<div class="comment-top">
+					<h4>Leave a Comment</h4>
+					<div class="comment-bottom">
+						<form action="#" method="post">
+							<input class="form-control" type="text" name="Name" placeholder="Name" required="">
+							<input class="form-control" type="email" name="Email" placeholder="Email" required="">
+
+							<input class="form-control" type="text" name="Subject" placeholder="Subject" required="">
+
+							<textarea name="Message" placeholder="Message..." required=""></textarea>
+
+							<input class="form-control" type="submit" value="Send">
+						</form>
+					</div>
+				</div> --}}
+			</div>
+		</div>
+	</div>
+</section>
+  </div>
+</template>
+<script>
+import axios from "~/plugins/axios";
+import MyBanner from "~/components/Banner.vue";
+import MyHeader from "~/components/Header.vue";
+// import base64Img from 'base64-img';
+function getCookie(cookiename, cookies) {
+  // Get name followed by anything except a semicolon
+  var cookiestring = RegExp("" + cookiename + "[^;]+").exec(cookies);
+  // Return everything after the equal sign, or an empty string if the cookie name not found
+  return decodeURIComponent(
+    !!cookiestring ? cookiestring.toString().replace(/^[^=]+./, "") : ""
+  );
+}
+
+let vue_context;
+
+export default {
+  components: {
+    MyBanner,
+    MyHeader
+  },
+  created: function() {
+    vue_context = this;
+  },
+  async mounted() {
+    // this.$nextTick(() => {
+    //   this.$nuxt.$loading.start();
+    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
+    // });
+    // for (let i = 0; i < 1000; i++)
+    //   await axios.get("/api/users/users").then(function(res) {
+    //     vue_context.title = res.title;
+    //     console.log(res);
+    //   });
+  },
+  // async asyncData({ query, req }) {
+  async asyncData(context) {
+    //   console.log("I ran");
+    //If user is logged in, redirect to main page
+    // context.redirect("/");
+    //getCook("connect.sid", req.headers.cookie);
+    // console.log(context.req.headers.cookie);
+
+    //Check if user is logged in
+    //If so, redirect to main page
+    // if (process.server) {
+    //   if (getCookie("token", context.req.headers.cookie)) {
+    //     context.redirect("/");
+    //   }
+    // }
+    // if (context.app.$cookies.get("token")) {
+    //   context.redirect("/");
+    // }
+  },
+  data() {
+    return {
+      title: "Sign up",
+      error: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      image: null,
+      logged_in: false,
+      page: "sign_up"
+    };
+  },
+  methods: {
+    fileChanged(event) {
+      this.image = event.target.files[0];
+    },
+    register() {
+      //Check if there an empty input field
+      //If so, display error
+      if (!this.first_name || !this.last_name || !this.email || !this.password)
+        this.error = "All fields must be present";
+      else {
+        //If all fields are present
+        //Convert image to base64 if exists
+        // if (this.image)
+        // {
+        //   const base64_image = base64Img.base64Sync
+        // }
+        //Send json to server
+        // const json = {
+        //   first_name: this.first_name,
+        //   last_name: this.last_name,
+        //   email: this.email,
+        //   password: this.password
+        // };
+
+        this.$nuxt.$loading.start();
+
+        const formData = new FormData();
+        if (this.image) formData.append("file", this.image, this.image.name);
+
+        formData.append("first_name", this.first_name);
+        formData.append("last_name", this.last_name);
+        formData.append("email", this.email);
+        formData.append("password", this.password);
+
+        axios
+          .post("/api/users/register", formData)
+          .then(function(res) {
+            //Redirect to verification page
+            vue_context.$nuxt.$loading.finish();
+            vue_context.$router.push({
+              path: "/verify_account"
+            });
+          })
+          .catch(function(err) {
+            vue_context.$nuxt.$loading.finish();
+            if (err.response) vue_context.error = err.response.data.message;
+          });
+
+        //Else
+      }
+    }
+  }
+  // mounted() {
+  //   this.msg = "Works";
+  // }
+  // created: function() {
+  //   this.msg = "Works"
+  // }
+};
+</script>
+
+<style scoped>
+/*.title {
+  margin: 30px 0;
+}
+.users {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.user {
+  margin: 10px 0;
+}*/
+</style>
