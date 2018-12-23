@@ -104,14 +104,22 @@
                   rows="4"
                   :value="act.description"
                 ></textarea>
+                <div v-if="act.__t == 'Event'">
+                  <div>
+                    <span class="badge badge-light">Start time: {{act.start_time}}</span>
+                  </div>
+                  <div>
+                    <span class="badge badge-light">End time: {{act.end_time}}</span>
+                  </div>
+                </div>
                 <div class="row" v-if="act.act_provider.id == data.user.id">
                   <div class="col-md-7">
-                    <span
+                    <a
+                      href="#"
+                      class="badge badge-info"
                       @click="change_act_state(index)"
                       v-if="act.state == 'AVAILABLE'"
-                      class="badge badge-info"
-                      style="cursor: pointer"
-                    >Available</span>
+                    >Available</a>
                     <span
                       @click="change_act_state(index)"
                       v-if="act.state == 'NOT_AVAILABLE'"
@@ -426,6 +434,7 @@ import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
+import moment from "moment";
 let iziToast;
 
 let vue_context;
@@ -504,6 +513,17 @@ export default {
         // });
         // console.log(res);
         data = res.data;
+        //Loop through data and format date
+        data.acts.forEach(element => {
+          if (element.__t == "Event") {
+            element.start_time = moment(element.start_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
+            element.end_time = moment(element.end_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
+          }
+        });
       })
       .catch(function(err) {
         // console.log(context.app.$cookies.getAll());
@@ -820,11 +840,13 @@ export default {
       if (this.upload_type == "event") {
         params.append(
           "start_time",
-          new Date(document.getElementById("start_time").value + 'Z')
+          // new Date(document.getElementById("start_time").value + 'Z')
+          new Date(document.getElementById("start_time").value)
         );
         params.append(
           "end_time",
-          new Date(document.getElementById("end_time").value + 'Z')
+          // new Date(document.getElementById("end_time").value + 'Z')
+          new Date(document.getElementById("end_time").value)
         );
       }
       await axios
@@ -840,6 +862,8 @@ export default {
           vue_context.status_message = res.data.message;
           vue_context.add_act.name = "";
           vue_context.add_act.description = "";
+          document.getElementById("end_time").value = "";
+          document.getElementById("start_time").value = "";
           vue_context.add_act.reward_points = 0;
         })
         .catch(function(err) {
