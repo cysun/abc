@@ -18,6 +18,25 @@ var upload = multer({
 
 const router = Router()
 
+
+//Get events
+router.get('/calendar', async function (req, res, next) {
+  //Get all events in the range
+  const events = await Event_Act.find({
+    start_time: {$gte: req.query.start},
+    end_time: {$lte: req.query.end}
+  }, {name: 1, start_time: 1, end_time: 1}).lean();
+  
+  events.forEach(element => {
+    element.title = element.name;
+    element.start = element.start_time;
+    element.end = element.end_time;
+    element.url = `acts/${element._id}`;
+  });
+
+  res.json(events);
+});
+
 //Show acts
 router.get('/', async function (req, res, next) {
   try {

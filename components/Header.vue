@@ -33,6 +33,9 @@
             <li class="nav-item mr-lg-3" v-if="logged_in">
               <a class="nav-link" href="/rewards">Rewards</a>
             </li>
+            <li class="nav-item mr-lg-3" v-if="logged_in">
+              <nuxt-link to="/calendar" class="nav-link" :class="{active: page == 'calendar'}">Calendar</nuxt-link>
+            </li>
             <li class="nav-item mr-lg-3">
               <a class="nav-link" href="/about">About</a>
             </li>
