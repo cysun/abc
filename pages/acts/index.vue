@@ -63,6 +63,7 @@
           </div>
         </div>
         <br>
+
         <br>
         <div class="row inner-sec-wthree-agileits">
           <div class="col-lg-8 blog-sp" ref="acts_come_here">
@@ -214,7 +215,12 @@
                 <strong>{{status_state}}:</strong>
                 {{status_message}}
               </div>
-              <h4>Add Act</h4>
+              <select @change="upload_type_changed" class="form-control" v-model="upload_type">
+                <option value="act">Add Act</option>
+                <option value="event">Add Event</option>
+              </select>
+              <br>
+              <!-- <h4>Add Act</h4> -->
               <form @submit.prevent="addAct">
                 <input
                   class="form-control"
@@ -232,6 +238,63 @@
                   required
                   v-model="add_act.description"
                 ></textarea>
+                <div v-if="upload_type == 'event'" class="control-group">
+                  <div
+                    class="controls input-append date form_datetime"
+                    data-date="2019-01-01T05:25:07Z"
+                    data-date-format="yyyy-mm-ddThh:ii"
+                    data-link-field="dtp_input1"
+                  >
+                    <input
+                      size="16"
+                      placeholder="Start time"
+                      type="text"
+                      class="form-control"
+                      value
+                      id="start_time"
+                    >
+                    <span class="add-on">
+                      <i class="icon-remove"></i>
+                    </span>
+                    <span class="add-on">
+                      <i class="icon-th"></i>
+                    </span>
+                  </div>
+                  <input type="hidden" id="dtp_input1" value>
+                  <div
+                    class="controls input-append date form_datetime"
+                    data-date="2019-01-01T05:25:07Z"
+                    data-date-format="yyyy-mm-ddThh:ii"
+                    data-link-field="dtp_input1"
+                  >
+                    <input
+                      size="16"
+                      id="end_time"
+                      placeholder="End time"
+                      type="text"
+                      class="form-control"
+                      value
+                    >
+                    <span class="add-on">
+                      <i class="icon-remove"></i>
+                    </span>
+                    <span class="add-on">
+                      <i class="icon-th"></i>
+                    </span>
+                  </div>
+                  <input type="hidden" id="dtp_input1" value>
+                  <script>
+                    $(".form_datetime").datetimepicker({
+                      weekStart: 1,
+                      todayBtn: 1,
+                      autoclose: 1,
+                      todayHighlight: 1,
+                      startView: 2,
+                      forceParse: 0,
+                      showMeridian: 1
+                    });
+                  </script>
+                </div>
                 <input
                   class="form-control"
                   type="number"
@@ -372,11 +435,25 @@ export default {
     MyBanner,
     MyHeader
   },
+  // head() {
+  //   return {
+  //     script: [
+  //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
+  //       // { src: 'js/collapse.js' },
+  //       // { src: 'js/transition.js' },
+  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js' }
+  //     ],
+  //     link: [
+  //       {href:"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css", rel:"stylesheet"}
+  //     ]
+  //   }
+  // },
   created: function() {
     vue_context = this;
   },
   async mounted() {
     iziToast = require("iziToast");
+
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
     //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
@@ -474,10 +551,13 @@ export default {
       logged_in: true,
       page: "acts",
       deleted_acts: {},
+      upload_type: "act",
       add_act: {
         name: "",
         description: "",
-        reward_points: ""
+        reward_points: "",
+        start_time: "",
+        end_time: ""
       }
       // query: this.$route.query
     };
@@ -551,6 +631,9 @@ export default {
       // console.log(this.query.type);
       this.$router.push(`/acts?type=${this.query.type}`);
     },
+    upload_type_changed() {
+      // console.log(this.upload_type);
+    },
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
@@ -585,7 +668,7 @@ export default {
             0,
             vue_context.deleted_acts[index]
           );
-          delete_act(index)
+          delete_act(index);
           // vue_context.$set(
           //   vue_context.data.acts[index],
           //   "state",
@@ -734,8 +817,18 @@ export default {
       params.append("name", this.add_act.name);
       params.append("description", this.add_act.description);
       params.append("reward_points", this.add_act.reward_points);
+      if (this.upload_type == "event") {
+        params.append(
+          "start_time",
+          new Date(document.getElementById("start_time").value + 'Z')
+        );
+        params.append(
+          "end_time",
+          new Date(document.getElementById("end_time").value + 'Z')
+        );
+      }
       await axios
-        .post("/api/acts", params, {
+        .post(`/api/acts/${vue_context.upload_type}`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }

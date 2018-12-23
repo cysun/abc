@@ -2104,7 +2104,7 @@ team-members .team-desc h4 {
         background: rgba(0, 0, 0, 0.8);
         padding: 1em 0;
     }
-    .dropdown-menu {
+    /* .dropdown-menu {
         min-width: auto;
         padding: 0;
         margin: 0;
@@ -2113,7 +2113,7 @@ team-members .team-desc h4 {
         background-color: transparent;
         border: none;
         border-radius: 0.25rem;
-    }
+    } */
     .dropdown-item {
         font-weight: normal;
         color: #eee;

@@ -2,6 +2,7 @@ const { Router } = require('express')
 const User = require('../../models/User');
 const globals = require('../../globals');
 const Act = require('../../models/Act');
+const Event_Act = require('../../models/Event');
 var createError = require('http-errors');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
@@ -119,7 +120,9 @@ router.get('/', async function (req, res, next) {
 
 
 
-    const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    //For some unknown reason, the below command gives this error: Projection cannot have a mix of inclusion and exclusion.
+    // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    const promised_acts = Act.find(search).sort({ [sort]: order }).skip(offset).limit(10).lean();
     const promised_count = Act.find(search).countDocuments();
 
 
@@ -174,12 +177,14 @@ router.get('/', async function (req, res, next) {
     // res.render('acts', { type, current_page, query: req.query, count, title: "Acts", acts, total_acts: total, user: req.user, roles: req.roles });
   }
   catch (err) {
+    console.log(err)
     next(createError(400, err.message))
   }
 })
 
 //Create act
-router.post('/', async function (req, res, next) {
+router.post('/:type', async function (req, res, next) {
+  
   try {
     if (!req.roles || !req.roles.act_poster) {
       throw new Error("You do not have authorization");
@@ -187,7 +192,18 @@ router.post('/', async function (req, res, next) {
     // if (req.file)
     //     req.body.picture = './tmp/' + req.file.filename
     req.body.provider = req.user;
-    let act = await Act.initialize(req.body);
+    let act;
+    if(req.params.type == 'act')
+    act = await Act.initialize(req.body);
+
+    // //Handling events
+    else if (req.params.type == 'event')
+    {
+      act = await Event_Act.initialize(req.body);
+      act.start_time = req.body.start_time;
+      act.end_time = req.body.end_time;
+    }
+
     await act.save();
     // user = user.toObject();
     // delete user.password;
