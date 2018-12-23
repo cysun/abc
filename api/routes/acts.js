@@ -66,8 +66,8 @@ router.get('/', async function (req, res, next) {
     if (!type || globals.user_act_types.indexOf(type) === -1)
       type = "AVAILABLE";
 
-      //Deleted acts should not show up
-      search['deleted'] = false;
+    //Deleted acts should not show up
+    search['deleted'] = false;
 
 
     if (type == "AVAILABLE") {
@@ -184,7 +184,7 @@ router.get('/', async function (req, res, next) {
 
 //Create act
 router.post('/:type', async function (req, res, next) {
-  
+
   try {
     if (!req.roles || !req.roles.act_poster) {
       throw new Error("You do not have authorization");
@@ -193,12 +193,11 @@ router.post('/:type', async function (req, res, next) {
     //     req.body.picture = './tmp/' + req.file.filename
     req.body.provider = req.user;
     let act;
-    if(req.params.type == 'act')
-    act = await Act.initialize(req.body);
+    if (req.params.type == 'act')
+      act = await Act.initialize(req.body);
 
     // //Handling events
-    else if (req.params.type == 'event')
-    {
+    else if (req.params.type == 'event') {
       act = await Event_Act.initialize(req.body);
       act.start_time = req.body.start_time;
       act.end_time = req.body.end_time;
@@ -246,6 +245,23 @@ router.put('/:id', async function (req, res, next) {
     act.name = name;
     act.description = description;
     act.reward_points = reward_points;
+
+    //If this is an event
+    if (act.__t == 'Event') {
+      //Make sure all fields were sent
+      if (!req.body.start_time || !req.body.end_time)
+        throw new Error("Incomplete request");
+
+      const start_time = sanitize(req.body.start_time);
+      const end_time = sanitize(req.body.end_time);
+
+      if (!start_time || !end_time)
+        throw new Error("Incomplete request");
+
+        //Attach new values to it
+        act.start_time = start_time;
+        act.end_time = end_time
+    }
     await act.save();
 
     res.json({ message: "Success" });

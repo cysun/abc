@@ -106,10 +106,67 @@
                 ></textarea>
                 <div v-if="act.__t == 'Event'">
                   <div>
-                    <span class="badge badge-light">Start time: {{act.start_time}}</span>
+                    <span v-if="!act.edit" class="badge badge-light">Start time: {{act.formated_start_time}}</span>
+                    <div v-if="act.edit">
+                      <div
+                        class="controls input-append date form_datetime"
+                        data-date-format="yyyy-mm-ddThh:ii"
+                        data-link-field="dtp_input1"
+                      >
+                        <input
+                          size="16"
+                          placeholder="Start time"
+                          type="text"
+                          class="form-control"
+                          :value="act.start_time"
+                          :id="'act_start_time' + index"
+                        >
+                        <span class="add-on">
+                          <i class="icon-remove"></i>
+                        </span>
+                        <span class="add-on">
+                          <i class="icon-th"></i>
+                        </span>
+                      </div>
+                      <input type="hidden" id="dtp_input1" value>
+                    </div>
                   </div>
                   <div>
-                    <span class="badge badge-light">End time: {{act.end_time}}</span>
+                    <span v-if="!act.edit" class="badge badge-light">End time: {{act.formated_end_time}}</span>
+                    <div v-if="act.edit">
+                      <div
+                        class="controls input-append date form_datetime"
+                        data-date-format="yyyy-mm-ddThh:ii"
+                        data-link-field="dtp_input1"
+                      >
+                        <input
+                          size="16"
+                          placeholder="End time"
+                          type="text"
+                          class="form-control"
+                          :value="act.end_time"
+                          :id="'act_end_time' + index"
+                        >
+                        <span class="add-on">
+                          <i class="icon-remove"></i>
+                        </span>
+                        <span class="add-on">
+                          <i class="icon-th"></i>
+                        </span>
+                      </div>
+                      <input type="hidden" id="dtp_input1" value>
+                      <script>
+                        $(".form_datetime").datetimepicker({
+                          weekStart: 1,
+                          todayBtn: 1,
+                          autoclose: 1,
+                          todayHighlight: 1,
+                          startView: 2,
+                          forceParse: 0,
+                          showMeridian: 1,
+                        });
+                      </script>
+                    </div>
                   </div>
                 </div>
                 <div class="row" v-if="act.act_provider.id == data.user.id">
@@ -249,7 +306,6 @@
                 <div v-if="upload_type == 'event'" class="control-group">
                   <div
                     class="controls input-append date form_datetime"
-                    data-date="2019-01-01T05:25:07Z"
                     data-date-format="yyyy-mm-ddThh:ii"
                     data-link-field="dtp_input1"
                   >
@@ -271,7 +327,6 @@
                   <input type="hidden" id="dtp_input1" value>
                   <div
                     class="controls input-append date form_datetime"
-                    data-date="2019-01-01T05:25:07Z"
                     data-date-format="yyyy-mm-ddThh:ii"
                     data-link-field="dtp_input1"
                   >
@@ -516,12 +571,15 @@ export default {
         //Loop through data and format date
         data.acts.forEach(element => {
           if (element.__t == "Event") {
-            element.start_time = moment(element.start_time).format(
+            element.formated_start_time = moment(element.start_time).format(
               "MMMM Do YYYY, h:mm:ss a"
             );
-            element.end_time = moment(element.end_time).format(
+            element.formated_end_time = moment(element.end_time).format(
               "MMMM Do YYYY, h:mm:ss a"
             );
+
+            element.start_time = element.start_time.substring(0, element.start_time.length - 8);
+            element.end_time = element.end_time.substring(0, element.end_time.length - 8);
           }
         });
       })
@@ -766,6 +824,13 @@ export default {
       const reward_points = document.getElementById("act_reward_points" + index)
         .value;
       const enabled_state = this.data.acts[index].enabled.state;
+      //If this is an event, get new start and end time too
+      let start_time, end_time;
+
+      if (this.data.acts[index].__t == "Event") {
+        start_time = document.getElementById("act_start_time" + index).value;
+        end_time = document.getElementById("act_end_time" + index).value;
+      }
       //Save previous name, description and reward points and enabled_state
       this.$set(this.data.acts[index], "previous_data", {
         name: this.data.acts[index].name,
@@ -773,10 +838,31 @@ export default {
         reward_points: this.data.acts[index].reward_points,
         enabled: enabled_state
       });
+      //If this is an event, save previous start and end times
+      if (this.data.acts[index].__t == "Event"){
+        this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time);
+        this.$set(this.data.acts[index].previous_data, "end_time", this.data.acts[index].formated_end_time);
+      }
+      // if (this.data.acts[index].__t == "Event") {
+      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
+      //     start_time: this.data.acts[index].formated_start_time,
+      //     end_time: this.data.acts[index].formated_end_time
+      //   });
+      // }
       //Update to new name, desription and reward points
       this.$set(this.data.acts[index], "name", name);
       this.$set(this.data.acts[index], "description", description);
       this.$set(this.data.acts[index], "reward_points", reward_points);
+      //If this is an event
+      //Update to new start and end times
+      if (this.data.acts[index].__t == "Event") {
+        this.$set(this.data.acts[index], "formated_start_time", moment(start_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            ));
+        this.$set(this.data.acts[index], "formated_end_time", moment(end_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            ));
+      }
       //Remember to disable the act
       this.$set(this.data.acts[index].enabled, "state", false);
       //Remove input fields
@@ -787,6 +873,12 @@ export default {
       params.append("name", name);
       params.append("description", description);
       params.append("reward_points", reward_points);
+
+      //If this is an event, edit its start and end times
+      if (this.data.acts[index].__t == "Event") {
+        params.append("start_time", start_time);
+        params.append("end_time", end_time);
+      }
 
       await axios
         .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
@@ -819,10 +911,26 @@ export default {
             vue_context.data.acts[index].previous_data.enabled
           );
 
+          //If this is an event, revert to old start and end times
+          if (vue_context.data.acts[index].__t == "Event") {
+            vue_context.$set(
+              vue_context.data.acts[index],
+              "formated_start_time",
+              vue_context.data.acts[index].previous_data.start_time
+            );
+            vue_context.$set(
+              vue_context.data.acts[index],
+              "formated_end_time",
+              vue_context.data.acts[index].previous_data.end_time
+            );
+          }
+
           //Tell the user that the act could not be edited
+          let type_of_act = "act";
+          if (vue_context.data.acts[index].__t == "Event") type_of_act = "event";
           iziToast.error({
             title: "Error",
-            message: "Sorry, the act could not be edited",
+            message: `Sorry, the ${type_of_act} could not be edited`,
             position: "topRight"
           });
         });
