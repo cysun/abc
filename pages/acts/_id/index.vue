@@ -23,7 +23,7 @@
                     </h6>
                   </div>
                   <input
-                    :id="'act_name' + index"
+                    id="act_name"
                     v-if="data.edit"
                     type="text"
                     class="form-control"
@@ -40,7 +40,7 @@
 
                 <p v-if="!data.edit">{{data.act.description}}</p>
                 <textarea
-                  :id="'act_description' + index"
+                  id="act_description"
                   v-if="data.edit"
                   class="form-control"
                   rows="4"
@@ -61,7 +61,7 @@
                           type="text"
                           class="form-control"
                           :value="data.act.start_time"
-                          :id="'act_start_time' + index"
+                          id="act_start_time"
                         >
                         <span class="add-on">
                           <i class="icon-remove"></i>
@@ -87,7 +87,7 @@
                           type="text"
                           class="form-control"
                           :value="data.act.end_time"
-                          :id="'act_end_time' + index"
+                          id="act_end_time"
                         >
                         <span class="add-on">
                           <i class="icon-remove"></i>
@@ -149,7 +149,7 @@
                     class="btn btn-primary"
                   >
                 </div>
-                <div v-if="data.__t == 'Event'">
+                <!-- <div v-if="data.__t == 'Event'">
                   <div>
                     <span
                       v-if="!data.edit"
@@ -167,7 +167,7 @@
                           type="text"
                           class="form-control"
                           :value="data.start_time"
-                          :id="'act_start_time' + index"
+                          id="act_start_time"
                         >
                         <span class="add-on">
                           <i class="icon-remove"></i>
@@ -219,7 +219,7 @@
                       </script>
                     </div>
                   </div>
-                </div>
+                </div> -->
                 <div class="row" v-if="data.act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
@@ -241,30 +241,30 @@
                     <span v-if="!data.delete">
                       <button
                         v-if="!data.edit"
-                        @click="edit_act(index)"
+                        @click="edit_act"
                         class="btn btn-primary"
                       >Edit</button>
-                      <button v-if="data.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
+                      <button v-if="data.edit" @click="save_act" class="btn btn-primary">Save</button>
                       <button
                         v-if="data.edit"
-                        @click="edit_act(index)"
+                        @click="edit_act"
                         class="btn btn-danger"
                       >Cancel</button>
                     </span>
                     <span v-if="!data.edit">
                       <button
                         v-if="!data.delete"
-                        @click="delete_act(index)"
+                        @click="delete_act"
                         class="btn btn-danger"
                       >Delete</button>
                       <button
                         v-if="data.delete"
-                        @click="delete_act(index)"
+                        @click="delete_act"
                         class="btn btn-primary"
                       >Cancel</button>
                       <button
                         v-if="data.delete"
-                        @click="confirm_delete_act(index)"
+                        @click="confirm_delete_act"
                         class="btn btn-danger"
                       >Confirm</button>
                     </span>
@@ -275,11 +275,11 @@
                     <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
                     <span v-if="!data.edit">{{data.act.reward_points}}</span>
                     <input
-                      :id="'act_reward_points' + index"
+                      id="act_reward_points"
                       v-if="data.edit"
                       type="number"
                       style="width: 40px"
-                      :value="data.reward_points"
+                      :value="data.act.reward_points"
                     >
                     <i>|</i>
                   </li>
@@ -667,46 +667,40 @@ export default {
     upload_type_changed() {
       // console.log(this.upload_type);
     },
-    edit_act(index) {
-      if (!this.data.acts[index].edit)
-        this.$set(this.data.acts[index], "edit", true);
-      else this.$set(this.data.acts[index], "edit", false);
+    edit_act() {
+      if (!this.data.edit)
+        this.$set(this.data, "edit", true);
+      else this.$set(this.data, "edit", false);
     },
-    delete_act(index) {
-      if (!this.data.acts[index].delete)
-        this.$set(this.data.acts[index], "delete", true);
-      else this.$set(this.data.acts[index], "delete", false);
+    delete_act() {
+      if (!this.data.delete)
+        this.$set(this.data, "delete", true);
+      else this.$set(this.data, "delete", false);
     },
-    async confirm_delete_act(index) {
+    async confirm_delete_act() {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
-
-      //Store act and it's current index
-      this.$set(this.deleted_acts, index, this.data.acts[index]);
-      // this.deleted_acts.push({act: this.data.acts[index], index: index});
-      //Remove act from array
-      this.data.acts.splice(index, 1);
       //Make request to delete act
 
       await axios
-        .put(`/api/acts/${vue_context.deleted_acts[index]._id}/delete`, {
+        .put(`/api/acts/${vue_context.data.act._id}/delete`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
         })
+        .then(function(res){
+          //If successful
+          //Show success message
+          iziToast.success({
+            title: "Success",
+            message: "The act was successfully deleted",
+            position: "topRight"
+          });
+          //Navigate (replace) to previous page
+          vue_context.$router.go(-1);
+        })
         .catch(function(err) {
           //If error, place act back
-          vue_context.data.acts.splice(
-            index,
-            0,
-            vue_context.deleted_acts[index]
-          );
-          delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
           //Tell the user that the act could not be deleted
           iziToast.error({
             title: "Error",
@@ -714,7 +708,6 @@ export default {
             position: "topRight"
           });
         });
-      delete this.deleted_acts[index];
     },
     async deleteProof(index, id) {
 
@@ -810,7 +803,7 @@ export default {
           });
         });
     },
-    async save_act(index) {
+    async save_act() {
       // iziToast.show({
       //   title: "Hey",
       //   color: 'red',
@@ -829,37 +822,37 @@ export default {
       const refresh_token = this.$cookies.get("refresh_token");
 
       //Get new name, description and reward points
-      const name = document.getElementById("act_name" + index).value;
-      const description = document.getElementById("act_description" + index)
+      const name = document.getElementById("act_name").value;
+      const description = document.getElementById("act_description")
         .value;
-      const reward_points = document.getElementById("act_reward_points" + index)
+      const reward_points = document.getElementById("act_reward_points")
         .value;
-      const enabled_state = this.data.acts[index].enabled.state;
+      const enabled_state = this.data.act.enabled.state;
       //If this is an event, get new start and end time too
       let start_time, end_time;
 
-      if (this.data.acts[index].__t == "Event") {
-        start_time = document.getElementById("act_start_time" + index).value;
-        end_time = document.getElementById("act_end_time" + index).value;
+      if (this.data.act.__t == "Event") {
+        start_time = document.getElementById("act_start_time").value;
+        end_time = document.getElementById("act_end_time").value;
       }
       //Save previous name, description and reward points and enabled_state
-      this.$set(this.data.acts[index], "previous_data", {
-        name: this.data.acts[index].name,
-        description: this.data.acts[index].description,
-        reward_points: this.data.acts[index].reward_points,
+      this.$set(this.data.act, "previous_data", {
+        name: this.data.act.name,
+        description: this.data.act.description,
+        reward_points: this.data.act.reward_points,
         enabled: enabled_state
       });
       //If this is an event, save previous start and end times
-      if (this.data.acts[index].__t == "Event") {
+      if (this.data.act.__t == "Event") {
         this.$set(
-          this.data.acts[index].previous_data,
+          this.data.act.previous_data,
           "start_time",
-          this.data.acts[index].formated_start_time
+          this.data.act.formated_start_time
         );
         this.$set(
-          this.data.acts[index].previous_data,
+          this.data.act.previous_data,
           "end_time",
-          this.data.acts[index].formated_end_time
+          this.data.act.formated_end_time
         );
       }
       // if (this.data.acts[index].__t == "Event") {
@@ -869,27 +862,27 @@ export default {
       //   });
       // }
       //Update to new name, desription and reward points
-      this.$set(this.data.acts[index], "name", name);
-      this.$set(this.data.acts[index], "description", description);
-      this.$set(this.data.acts[index], "reward_points", reward_points);
+      this.$set(this.data.act, "name", name);
+      this.$set(this.data.act, "description", description);
+      this.$set(this.data.act, "reward_points", reward_points);
       //If this is an event
       //Update to new start and end times
-      if (this.data.acts[index].__t == "Event") {
+      if (this.data.act.__t == "Event") {
         this.$set(
-          this.data.acts[index],
+          this.data.act,
           "formated_start_time",
           moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
         );
         this.$set(
-          this.data.acts[index],
+          this.data.act,
           "formated_end_time",
           moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
         );
       }
       //Remember to disable the act
-      this.$set(this.data.acts[index].enabled, "state", false);
+      this.$set(this.data.act.enabled, "state", false);
       //Remove input fields
-      this.edit_act(index);
+      this.edit_act();
       //Edit this act
       const params = new URLSearchParams();
 
@@ -898,13 +891,13 @@ export default {
       params.append("reward_points", reward_points);
 
       //If this is an event, edit its start and end times
-      if (this.data.acts[index].__t == "Event") {
+      if (this.data.act.__t == "Event") {
         params.append("start_time", start_time);
         params.append("end_time", end_time);
       }
 
       await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
+        .put(`/api/acts/${vue_context.data.act._id}`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -912,45 +905,45 @@ export default {
         .catch(function(err) {
           //If error, revert to old name and description
           vue_context.$set(
-            vue_context.data.acts[index],
+            vue_context.data.act,
             "name",
-            vue_context.data.acts[index].previous_data.name
+            vue_context.data.act.previous_data.name
           );
           vue_context.$set(
-            vue_context.data.acts[index],
+            vue_context.data.act,
             "description",
-            vue_context.data.acts[index].previous_data.description
+            vue_context.data.act.previous_data.description
           );
           vue_context.$set(
-            vue_context.data.acts[index],
+            vue_context.data.act,
             "reward_points",
-            vue_context.data.acts[index].previous_data.reward_points
+            vue_context.data.act.previous_data.reward_points
           );
 
           //Revert to previous state
           vue_context.$set(
-            vue_context.data.acts[index].enabled,
+            vue_context.data.act.enabled,
             "state",
-            vue_context.data.acts[index].previous_data.enabled
+            vue_context.data.act.previous_data.enabled
           );
 
           //If this is an event, revert to old start and end times
-          if (vue_context.data.acts[index].__t == "Event") {
+          if (vue_context.data.act.__t == "Event") {
             vue_context.$set(
-              vue_context.data.acts[index],
+              vue_context.data.act,
               "formated_start_time",
-              vue_context.data.acts[index].previous_data.start_time
+              vue_context.data.act.previous_data.start_time
             );
             vue_context.$set(
-              vue_context.data.acts[index],
+              vue_context.data.act,
               "formated_end_time",
-              vue_context.data.acts[index].previous_data.end_time
+              vue_context.data.act.previous_data.end_time
             );
           }
 
           //Tell the user that the act could not be edited
           let type_of_act = "act";
-          if (vue_context.data.acts[index].__t == "Event")
+          if (vue_context.data.act.__t == "Event")
             type_of_act = "event";
           iziToast.error({
             title: "Error",
