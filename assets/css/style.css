@@ -2116,7 +2116,7 @@ team-members .team-desc h4 {
     } */
     .dropdown-item {
         font-weight: normal;
-        color: #eee;
+        /* color: #eee; */
     }
     .steps-reach {
         padding: 0 5px;

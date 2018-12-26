@@ -116,7 +116,7 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
           //   }
           // )
           await Act.findOneAndUpdate(
-            {'users_who_completed_this_act.id': act[0].users_who_completed_this_act.id },
+            { 'users_who_completed_this_act.id': act[0].users_who_completed_this_act.id },
             {
               $push: {
                 'users_who_completed_this_act.$.proof_of_completion': user.proof_of_completion,
@@ -124,7 +124,7 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
             }
           )
           await Act.findOneAndUpdate(
-            {'users_under_review.id': act[0].users_who_completed_this_act.id },
+            { 'users_under_review.id': act[0].users_who_completed_this_act.id },
             {
               $push: {
                 'users_under_review.$.proof_of_completion': user.proof_of_completion,
@@ -136,9 +136,9 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
         // throw new Error("not real error")
 
       })
-      // .catch(function (err) {
+    // .catch(function (err) {
 
-      // })
+    // })
 
 
 
@@ -374,6 +374,20 @@ router.get('/:id', async function (req, res, next) {
   res.json({ act, user: req.user, proofs: user_act });
 });
 
+router.put('/:id/enable/:state', async function (req, res, next) {
+  //Only managers and admins can get here
+  //Change the state of the act accordingly
+  try {
+    await Act.findByIdAndUpdate(
+      req.params.id,
+      { 'enabled.state': req.params.state }
+    )
+    res.json({message: "Success"});
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+});
+
 //Show acts
 router.get('/', async function (req, res, next) {
   try {
@@ -419,8 +433,22 @@ router.get('/', async function (req, res, next) {
     // if (type == "undefined")
     //     type = req.cookies.type;
 
+    //If this is a manager, the default view should be All acts
+    if (req.roles.manager)
+      if (!type || globals.user_act_types.indexOf(type) === -1)
+        type = "ALL";
+
+    if (type == "ALL")
+      delete search.enabled;
+    else if (type == "ENABLED")
+      search.enabled.state = true;
+    else if (type == "DISABLED")
+      search.enabled.state = false;
+
     if (!type || globals.user_act_types.indexOf(type) === -1)
       type = "AVAILABLE";
+
+
 
     //Deleted acts should not show up
     search['deleted'] = false;

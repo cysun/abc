@@ -27,6 +27,23 @@
                 <span class="sr-only">(current)</span>
               </nuxt-link>
             </li>
+
+            <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                :class="{active: page == 'manage_acts' || page == 'manage_proofs' }"
+              >Manage</a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <nuxt-link to="/manage/acts" class="dropdown-item" :class="{active: page == 'manage_acts'}">Acts</nuxt-link>
+                <a class="dropdown-item" href="single.html">Proofs</a>
+              </div>
+            </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
               <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
             </li>
@@ -34,7 +51,11 @@
               <a class="nav-link" href="/rewards">Rewards</a>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link to="/calendar" class="nav-link" :class="{active: page == 'calendar'}">Calendar</nuxt-link>
+              <nuxt-link
+                to="/calendar"
+                class="nav-link"
+                :class="{active: page == 'calendar'}"
+              >Calendar</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3">
               <a class="nav-link" href="/about">About</a>
@@ -52,7 +73,7 @@
               <a class="nav-link" href="/logout">Log out</a>
             </li>
           </ul>
-          <div class="buttons">
+          <!-- <div class="buttons">
             <a href="tel:+12 445 8976 2334">
               <p>
                 <i class="fas mr-1 fa-phone"></i>+12 445 8976 2334
@@ -66,7 +87,7 @@
                 <i class="fas mr-1 fa-envelope"></i>abc@finance.com
               </p>
             </a>
-          </div>
+          </div>-->
         </div>
       </nav>
     </div>
@@ -75,6 +96,6 @@
 
 <script>
 export default {
-  props: ["logged_in", "page"]
+  props: ["logged_in", "page", "roles"]
 };
 </script>

@@ -134,13 +134,14 @@
                   //}
                 </script>
                 <br>
-                <div class="form-inline justify-content-center">
+                <div v-if="data.act.enabled.state" class="form-inline justify-content-center">
                   <input
                     @change="fileChanged"
                     type="file"
                     multiple
                     class="form-control"
                     name="file"
+                    id="file_input"
                   >
                   <input
                     @click="uploadProof"
@@ -622,6 +623,7 @@ export default {
               "proof_of_completion",
               res.data
             );
+            document.getElementById('file_input').value = null;
         })
         .catch(function(err) {
           // vue_context.$nuxt.$loading.finish();
