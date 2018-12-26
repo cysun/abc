@@ -351,7 +351,7 @@ router.get('/:id', async function (req, res, next) {
   //Get user's relationship with act from user table
   //Combine and deliver
 
-  const promised_act = Act.findById(req.params.id, "act_provider description enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
+  const promised_act = Act.findById(req.params.id, "act_provider start_time end_time description enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
   const promised_user = User.findOne(
     { _id: req.user.id, 'acts.id': req.params.id },
     { 'acts.$': 1 }

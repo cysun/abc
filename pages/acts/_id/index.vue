@@ -46,6 +46,71 @@
                   rows="4"
                   :value="data.act.description"
                 ></textarea>
+                <div v-if="data.act.__t == 'Event'">
+                  <div>
+                    <span v-if="!data.edit" class="badge badge-light">Start time: {{data.act.formated_start_time}}</span>
+                    <div v-if="data.edit">
+                      <div
+                        class="controls input-append date form_datetime"
+                        data-date-format="yyyy-mm-ddThh:ii"
+                        data-link-field="dtp_input1"
+                      >
+                        <input
+                          size="16"
+                          placeholder="Start time"
+                          type="text"
+                          class="form-control"
+                          :value="data.act.start_time"
+                          :id="'act_start_time' + index"
+                        >
+                        <span class="add-on">
+                          <i class="icon-remove"></i>
+                        </span>
+                        <span class="add-on">
+                          <i class="icon-th"></i>
+                        </span>
+                      </div>
+                      <input type="hidden" id="dtp_input1" value>
+                    </div>
+                  </div>
+                  <div>
+                    <span v-if="!data.edit" class="badge badge-light">End time: {{data.act.formated_end_time}}</span>
+                    <div v-if="data.edit">
+                      <div
+                        class="controls input-append date form_datetime"
+                        data-date-format="yyyy-mm-ddThh:ii"
+                        data-link-field="dtp_input1"
+                      >
+                        <input
+                          size="16"
+                          placeholder="End time"
+                          type="text"
+                          class="form-control"
+                          :value="data.act.end_time"
+                          :id="'act_end_time' + index"
+                        >
+                        <span class="add-on">
+                          <i class="icon-remove"></i>
+                        </span>
+                        <span class="add-on">
+                          <i class="icon-th"></i>
+                        </span>
+                      </div>
+                      <input type="hidden" id="dtp_input1" value>
+                      <script>
+                        $(".form_datetime").datetimepicker({
+                          weekStart: 1,
+                          todayBtn: 1,
+                          autoclose: 1,
+                          todayHighlight: 1,
+                          startView: 2,
+                          forceParse: 0,
+                          showMeridian: 1,
+                        });
+                      </script>
+                    </div>
+                  </div>
+                </div>
                 <div
                   style="margin-bottom: 5px"
                   v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
@@ -420,19 +485,19 @@ export default {
         // data.user = res.data.user;
         // console.log(res.data)
         //Loop through data and format date
-        if (data.__t == "Event") {
-          data.formated_start_time = moment(data.start_time).format(
+        if (data.act.__t == "Event") {
+          data.act.formated_start_time = moment(data.act.start_time).format(
             "MMMM Do YYYY, h:mm:ss a"
           );
-          data.formated_end_time = moment(data.end_time).format(
+          data.act.formated_end_time = moment(data.act.end_time).format(
             "MMMM Do YYYY, h:mm:ss a"
           );
 
-          data.start_time = data.start_time.substring(
+          data.act.start_time = data.act.start_time.substring(
             0,
-            data.start_time.length - 8
+            data.act.start_time.length - 8
           );
-          data.end_time = data.end_time.substring(0, data.end_time.length - 8);
+          data.act.end_time = data.act.end_time.substring(0, data.act.end_time.length - 8);
         }
       })
       .catch(function(err) {
