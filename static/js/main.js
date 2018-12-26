@@ -22,9 +22,9 @@ jQuery(document).ready(function ($) {
 $(document).ready(function () {
     $().UItoTop({ easingType: "easeOutQuart" });
 });
-$(function () {
-    SyntaxHighlighter.all();
-});
+// $(function () {
+//     SyntaxHighlighter.all();
+// });
 $(window).load(function () {
     $(".flexslider").flexslider({
         animation: "slide",

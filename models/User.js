@@ -119,6 +119,16 @@ let userSchema = new mongoose.Schema({
             default: 'UNDER_REVIEW'
         },
         time: Date,
+        proof_of_completion: [{
+            original_name: {
+                type: String
+            },
+            new_name: {
+                type: String,
+                unique: true,
+                sparse: true
+            }
+        }],
         // completed_time: Date,
         // proof_of_completion: {
         //     type: String,

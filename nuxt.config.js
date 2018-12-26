@@ -15,18 +15,19 @@ module.exports = {
       { rel: 'stylesheet', href: '//fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900,900i&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese' },
     ],
     script: [
-      { src: 'js/iziToast.min.js' },
-      { src: 'js/jquery-2.1.4.min.js' },
-      { src: 'js/bootstrap.js' },
-      { src: 'js/waypoints.min.js' },
-      { src: 'js/counterup.min.js' },
-      { src: 'js/responsiveslides.min.js' },
-      { src: 'js/bootstrap-datetimepicker.js' },
-      { src: 'js/SmoothScroll.min.js' },
-      { src: 'js/move-top.js' },
-      { src: 'js/easing.js' },
-      { src: 'js/jquery.flexslider.js' },
-      { src: 'js/main.js' }
+      { src: '/js/iziToast.min.js' },
+      { src: '/js/jquery-2.1.4.min.js' },
+      { src: 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' },
+      { src: '/js/bootstrap.js' },
+      { src: '/js/waypoints.min.js' },
+      { src: '/js/counterup.min.js' },
+      { src: '/js/responsiveslides.min.js' },
+      { src: '/js/bootstrap-datetimepicker.js' },
+      { src: '/js/SmoothScroll.min.js' },
+      { src: '/js/move-top.js' },
+      { src: '/js/easing.js' },
+      { src: '/js/jquery.flexslider.js' },
+      { src: '/js/main.js' }
     ]
   },
   /*

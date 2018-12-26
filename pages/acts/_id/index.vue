@@ -1,77 +1,14 @@
 <template>
   <div>
     <my-header :logged_in="logged_in" :page="page"/>
-    <my-banner :title="title"/>
+    <my-banner/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
-        <div class="form-inline justify-content-center">
-          <div class="form-group" style="margin-right: 10px">
-            <span style="margin-right: 10px">
-              <input
-                type="text"
-                name="search"
-                v-model="query.search"
-                class="form-control"
-                placeholder="Search"
-                @keyup.enter="search"
-              >
-              <select class="form-control" name="sort" v-model="query.sort">
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
-                <option
-                  value="total_number_of_completions"
-                  :selected="query.sort == 'total_number_of_completions'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
-                <option
-                  value="total_number_of_clicks"
-                  :selected="query.sort == 'total_number_of_clicks'"
-                >Popularity</option>
-                <option
-                  value="reward_points"
-                  :selected="query.sort == 'reward_points'"
-                >Reward points</option>
-              </select>
-              
-              <select class="form-control" name="order" v-model="query.order">
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
-              </select>
-              
-              <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">Available</option>
-                <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">Under Review</option>
-                <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">Completed</option>
-                <option value="REJECTED" :selected="!query.type == 'REJECTED'">Rejected</option>
-                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
-                <option
-                  v-if="data.roles && data.roles.act_poster"
-                  value="MY_ACTS"
-                  :selected="!query.type == 'MY_ACTS'"
-                >My Acts</option>
-              </select>
-            </span>
-            <button
-              type="submit"
-              @click="search"
-              class="btn btn-primary"
-              style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
-          </div>
-        </div>
-        <br>
-
-        <br>
+        <!-- <h2 class="heading mb-lg-5 mb-4">title</h2> -->
         <div class="row inner-sec-wthree-agileits">
-          <div class="col-lg-8 blog-sp" ref="acts_come_here">
-            <article
-              style="margin-bottom: 10px"
-              class="blog-x row"
-              v-for="(act, index) in data.acts"
-            >
+          <div class="col-lg-12 blog-sp">
+            <article style="margin-bottom: 10px" class="blog-x row">
               <!-- <div class="blog-img w3-agile-grid">
                 <a>
                   <img src alt class="img-fluid">
@@ -79,35 +16,81 @@
               </div>-->
               <div class="blog_info">
                 <h5>
-                  <nuxt-link v-if="!act.edit" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
+                  <div class="row">
+                    <a class="col-md-9" href="#" v-if="!data.edit">{{data.act.name}}</a>
+                    <h6>
+                      <span class="badge badge-secondary">{{data.proofs.acts[0].state}}</span>
+                    </h6>
+                  </div>
                   <input
                     :id="'act_name' + index"
-                    v-if="act.edit"
+                    v-if="data.edit"
                     type="text"
                     class="form-control"
-                    :value="act.name"
+                    :value="data.act.name"
                   >
                 </h5>
                 <p>
-                  By {{act.act_provider.first_name}} {{act.act_provider.last_name}}
+                  By {{data.act.act_provider.first_name}} {{data.act.act_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
                   ></a>
                 </p>
 
-                <p v-if="!act.edit" class="truncate_text_3_lines">{{act.description}}</p>
+                <p v-if="!data.edit">{{data.act.description}}</p>
                 <textarea
                   :id="'act_description' + index"
-                  v-if="act.edit"
+                  v-if="data.edit"
                   class="form-control"
                   rows="4"
-                  :value="act.description"
+                  :value="data.act.description"
                 ></textarea>
-                <div v-if="act.__t == 'Event'">
+                <div
+                  style="margin-bottom: 5px"
+                  v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
+                  class="justify-content-center"
+                >
+                  <a
+                    data-toggle="popover"
+                    :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
+                    :data-content="'<a id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
+                    data-trigger="focus"
+                    data-html="true"
+                    href="#"
+                  >{{proof.original_name}}</a>
+                </div>
+                <script>
+                  //function deleteProof(index) {
+                    //alert(index);
+                    //console.log(this.__NUXT__.data[0].data)
+                    //console.log(this.__NUXT__.data[0].data.act.name);
+                    //console.log(this);
+                  //}
+                </script>
+                <br>
+                <div class="form-inline justify-content-center">
+                  <input
+                    @change="fileChanged"
+                    type="file"
+                    multiple
+                    class="form-control"
+                    name="file"
+                  >
+                  <input
+                    @click="uploadProof"
+                    type="button"
+                    value="Upload proof of completion"
+                    class="btn btn-primary"
+                  >
+                </div>
+                <div v-if="data.__t == 'Event'">
                   <div>
-                    <span v-if="!act.edit" class="badge badge-light">Start time: {{act.formated_start_time}}</span>
-                    <div v-if="act.edit">
+                    <span
+                      v-if="!data.edit"
+                      class="badge badge-light"
+                    >Start time: {{data.formated_start_time}}</span>
+                    <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
                         data-date-format="yyyy-mm-ddThh:ii"
@@ -118,7 +101,7 @@
                           placeholder="Start time"
                           type="text"
                           class="form-control"
-                          :value="act.start_time"
+                          :value="data.start_time"
                           :id="'act_start_time' + index"
                         >
                         <span class="add-on">
@@ -132,8 +115,11 @@
                     </div>
                   </div>
                   <div>
-                    <span v-if="!act.edit" class="badge badge-light">End time: {{act.formated_end_time}}</span>
-                    <div v-if="act.edit">
+                    <span
+                      v-if="!data.edit"
+                      class="badge badge-light"
+                    >End time: {{data.formated_end_time}}</span>
+                    <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
                         data-date-format="yyyy-mm-ddThh:ii"
@@ -144,7 +130,7 @@
                           placeholder="End time"
                           type="text"
                           class="form-control"
-                          :value="act.end_time"
+                          :value="data.end_time"
                           :id="'act_end_time' + index"
                         >
                         <span class="add-on">
@@ -163,48 +149,56 @@
                           todayHighlight: 1,
                           startView: 2,
                           forceParse: 0,
-                          showMeridian: 1,
+                          showMeridian: 1
                         });
                       </script>
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.act_provider.id == data.user.id">
+                <div class="row" v-if="data.act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
                       href="#"
                       class="badge badge-info"
                       @click="change_act_state(index)"
-                      v-if="act.state == 'AVAILABLE'"
+                      v-if="data.act.state == 'AVAILABLE'"
                     >Available</a>
                     <span
                       @click="change_act_state(index)"
-                      v-if="act.state == 'NOT_AVAILABLE'"
+                      v-if="data.act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
                       style="cursor: pointer"
                     >Not Available</span>
-                    <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
-                    <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
+                    <span v-if="data.act.enabled.state" class="badge badge-info">Enabled</span>
+                    <span v-if="!data.act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
                   <div class="col-md-5">
-                    <span v-if="!act.delete">
-                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">Edit</button>
-                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
-                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">Cancel</button>
-                    </span>
-                    <span v-if="!act.edit">
+                    <span v-if="!data.delete">
                       <button
-                        v-if="!act.delete"
+                        v-if="!data.edit"
+                        @click="edit_act(index)"
+                        class="btn btn-primary"
+                      >Edit</button>
+                      <button v-if="data.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
+                      <button
+                        v-if="data.edit"
+                        @click="edit_act(index)"
+                        class="btn btn-danger"
+                      >Cancel</button>
+                    </span>
+                    <span v-if="!data.edit">
+                      <button
+                        v-if="!data.delete"
                         @click="delete_act(index)"
                         class="btn btn-danger"
                       >Delete</button>
                       <button
-                        v-if="act.delete"
+                        v-if="data.delete"
                         @click="delete_act(index)"
                         class="btn btn-primary"
                       >Cancel</button>
                       <button
-                        v-if="act.delete"
+                        v-if="data.delete"
                         @click="confirm_delete_act(index)"
                         class="btn btn-danger"
                       >Confirm</button>
@@ -214,24 +208,24 @@
                 <ul class="blog_list">
                   <li>
                     <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
-                    <span v-if="!act.edit">{{act.reward_points}}</span>
+                    <span v-if="!data.edit">{{data.act.reward_points}}</span>
                     <input
                       :id="'act_reward_points' + index"
-                      v-if="act.edit"
+                      v-if="data.edit"
                       type="number"
                       style="width: 40px"
-                      :value="act.reward_points"
+                      :value="data.reward_points"
                     >
                     <i>|</i>
                   </li>
                   <li>
                     <span title="Popularity" class="fa fa-angle-double-down" aria-hidden="true"></span>
-                    {{act.total_number_of_clicks}}
+                    {{data.act.total_number_of_clicks}}
                     <i>|</i>
                   </li>
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
-                    {{act.total_number_of_completions}}
+                    {{data.act.total_number_of_completions}}
                     <!-- <i>|</i> -->
                   </li>
                   <!-- <li>
@@ -244,246 +238,75 @@
               </div>
               <div class="clearfix"></div>
             </article>
-            <br>
-            <nav aria-label="Page navigation example" v-if="data.count">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
-                </li>
-
-                <li
-                  v-for="(pages, index) in data.total_acts"
-                  class="page-item"
-                  :class="{active: data.query.page == index + 1}"
-                >
-                  <a
-                    class="page-link"
-                    :class="{disabled: data.query.page == index + 1}"
-                    @click="navigateTo(index + 1)"
-                  >{{index + 1}}</a>
-                </li>
-
-                <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          <aside class="col-lg-4 single-left">
-            <div class="single-gd" v-if="data.roles && data.roles.act_poster">
-              <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
-              <div
-                v-if="status_message"
-                class="alert"
-                :class="{'alert-danger': status_state == 'Error', 'alert-success': status_state == 'Success'}"
-              >
-                <strong>{{status_state}}:</strong>
-                {{status_message}}
-              </div>
-              <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">Add Act</option>
-                <option value="event">Add Event</option>
-              </select>
-              <br>
-              <!-- <h4>Add Act</h4> -->
-              <form @submit.prevent="addAct">
-                <input
-                  class="form-control"
-                  v-model="add_act.name"
-                  type="text"
-                  name="name"
-                  placeholder="Name"
-                  required
-                >
-                <textarea
-                  rows="10"
-                  class="form-control"
-                  name="description"
-                  placeholder="Description"
-                  required
-                  v-model="add_act.description"
-                ></textarea>
-                <div v-if="upload_type == 'event'" class="control-group">
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      placeholder="Start time"
-                      type="text"
-                      class="form-control"
-                      value
-                      id="start_time"
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      id="end_time"
-                      placeholder="End time"
-                      type="text"
-                      class="form-control"
-                      value
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <script>
-                    $(".form_datetime").datetimepicker({
-                      weekStart: 1,
-                      todayBtn: 1,
-                      autoclose: 1,
-                      todayHighlight: 1,
-                      startView: 2,
-                      forceParse: 0,
-                      showMeridian: 1
-                    });
-                  </script>
-                </div>
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  placeholder="Reward points"
-                  required
-                  v-model="add_act.reward_points"
-                >
-                <!-- <label for="file">Image should be 1600 X 800</label>
-                <input class="form-control" id="file" type="file" name="file">-->
-                <div class="button">
-                  <input class="form-control" type="submit" value="Submit">
-                </div>
-              </form>
-            </div>
-            <!-- <div class="single-gd">
-              <h4>Our Progress</h4>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped"
-                  role="progressbar"
-                  style="width: 10%"
-                  aria-valuenow="10"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-success"
-                  role="progressbar"
-                  style="width: 25%"
-                  aria-valuenow="25"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-info"
-                  role="progressbar"
-                  style="width: 50%"
-                  aria-valuenow="50"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-warning"
-                  role="progressbar"
-                  style="width: 75%"
-                  aria-valuenow="75"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-danger"
-                  role="progressbar"
-                  style="width: 100%"
-                  aria-valuenow="100"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
+            <!-- <article class="blog-x row"> -->
+            <!-- <div class="blog-img w3-agile-grid">
+						<img src="act.image" alt="" class="img-fluid" />
             </div>-->
-            <div class="single-gd tech-btm">
-              <h4>Top stories of the week</h4>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a1.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a2.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a3.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-            </div>
-            <div class="single-gd">
-              <h4>Recent Post</h4>
-              <img src="images/a1.jpg" class="img-fluid" alt>
-              <p>
-                Lorem Ipsum convallis diam sapien consequat magna vulputate ornare malesuada. id dignissim velit id felis ac
-                cursus eros.
-                Cras a elit.
-              </p>
-            </div>
-          </aside>
+            <!-- <div class="blog_info">
+						<p>By
+							<a href="#" class="user-blog">act.act_provider.first_name act.act_provider.last_name</a>
+						</p>
+
+						<p>act.description</p>
+						#if act.users_who_completed_this_act
+						<div class='justify-content-center'>
+							!-- <h4>Proof of completion</h4>
+							<img height='50%' width='50%' src='act.users_who_completed_this_act.proof_of_completion'> --
+							<a href='act.users_who_completed_this_act.proof_of_completion'>View proof of completion</a>
+						</div>
+						/if
+						<br>
+						#if_eq act.users_who_completed_this_act.state 'COMPLETED'
+						else
+						<form class='form-inline justify-content-center' method='POST' action='/acts/act._id/complete' enctype="multipart/form-data">
+							<input type='file' class='form-control' name='file'>
+							<input type='submit' value='upload_text' class='btn btn-primary'>
+						</form>
+						/if_eq
+						<br>
+						<ul class="blog_list">
+							<li>
+								<span title='Rewards points' class="fa fa-credit-card" aria-hidden="true"></span>
+								act.reward_points
+								<i>|</i>
+							</li>
+							<li>
+								<span title='Popularity' class="fa fa-angle-double-down" aria-hidden="true"></span>
+								act.total_number_of_clicks
+								<i>|</i>
+							</li>
+							<li>
+								<span title='Favorites' class="fa fa-heart" aria-hidden="true"></span>
+								act.total_number_of_completions
+								!-- <i>|</i> --
+							</li>
+							!-- <li>
+								<a href="#">
+									<span class="fa fa-tag" aria-hidden="true"></span>
+									13</a>
+							</li> --
+						</ul>
+						!-- <ul class="blog_list">
+							<li>
+								<span class="fa fa-angle-double-down" aria-hidden="true"></span>
+								act.users_who_clicked_on_this_act.length
+								<i>|</i>
+							</li>
+							<li>
+								<span class="fa fa-heart" aria-hidden="true"></span>
+								act.users_who_completed_this_act.length
+								<i>|</i>
+							</li>
+						</ul> --
+					</div>
+					<div class="clearfix"></div>
+            </article>-->
+          </div>
         </div>
       </div>
     </section>
   </div>
 </template>
-
 <script>
 import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
@@ -502,6 +325,14 @@ export default {
   // head() {
   //   return {
   //     script: [
+  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' },
+  //     ]
+  //   }
+  // },
+
+  // head() {
+  //   return {
+  //     script: [
   //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
   //       // { src: 'js/collapse.js' },
   //       // { src: 'js/transition.js' },
@@ -517,7 +348,41 @@ export default {
   },
   async mounted() {
     iziToast = require("iziToast");
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
 
+      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
+      //   console.log(event);
+      // });
+      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
+      //   console.log(event);
+      // });
+    });
+
+    $(document).on("click", ".delete_name", function(event) {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      const index = target[0].id;
+      const id = target[0].name;
+      // console.log(target);
+      // return;
+
+      vue_context.deleteProof(index, id);
+
+      //Save the current state of the proof
+      //Remove the proof from the screen
+      //Send request to remove the proof from the database
+      //If something goes wrong, put the proof back
+      //and give an error message
+      // console.log(index, id);
+    });
+
+    //     $('.delete_name').click(function(event) {
+    //     var text = $(event.target).text();
+    //     var target = $(event.target);
+    //     console.log(target)
+    // });
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
     //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
@@ -538,27 +403,11 @@ export default {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
-    if (!context.query.sort) context.query.sort = "";
-    if (!context.query.search) context.query.search = "";
-    if (!context.query.order) context.query.order = "";
-    if (!context.query.page) context.query.page = 1;
-    if (!context.query.type) context.query.type = "AVAILABLE";
-
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
-      .get(
-        `/api/acts?type=${context.query.type}&sort=${
-          context.query.sort
-        }&order=${context.query.order}&search=${context.query.search}&page=${
-          context.query.page
-        }`,
-        {
-          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
-        }
-      )
+      .get(`/api/acts/${context.params.id}`, {
+        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+      })
       .then(function(res) {
         // console.log("I ran");
         // //Redirect to verification page
@@ -568,30 +417,28 @@ export default {
         // });
         // console.log(res);
         data = res.data;
+        // data.user = res.data.user;
+        // console.log(res.data)
         //Loop through data and format date
-        data.acts.forEach(element => {
-          if (element.__t == "Event") {
-            element.formated_start_time = moment(element.start_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            );
-            element.formated_end_time = moment(element.end_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            );
+        if (data.__t == "Event") {
+          data.formated_start_time = moment(data.start_time).format(
+            "MMMM Do YYYY, h:mm:ss a"
+          );
+          data.formated_end_time = moment(data.end_time).format(
+            "MMMM Do YYYY, h:mm:ss a"
+          );
 
-            element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-            element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-          }
-        });
+          data.start_time = data.start_time.substring(
+            0,
+            data.start_time.length - 8
+          );
+          data.end_time = data.end_time.substring(0, data.end_time.length - 8);
+        }
       })
       .catch(function(err) {
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
         if (err.response.status == 400) {
           context.redirect("/logout");
         }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
     //If user is not logged in
     //Delete cookies and redirect to main page
@@ -613,7 +460,17 @@ export default {
     // context.query.sort = "Hello";
     // console.log(context.query);
     // context.query.sort = "Hello";
-    return { query: context.query, data };
+    // console.log(data);
+    if (!data.proofs) {
+      const acts = {
+        acts: [{ state: "" }]
+      };
+      data.proofs = acts;
+    } else if (data.proofs.acts[0].state) {
+      data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
+    }
+    // console.log(data);
+    return { data };
   },
   data() {
     return {
@@ -625,9 +482,9 @@ export default {
       last_name: "",
       email: "",
       password: "",
-      image: null,
+      files: null,
       logged_in: true,
-      page: "acts",
+      page: "",
       deleted_acts: {},
       upload_type: "act",
       add_act: {
@@ -671,7 +528,40 @@ export default {
   },
   methods: {
     fileChanged(event) {
-      this.image = event.target.files[0];
+      this.files = event.target.files;
+      // console.log(this.files);
+    },
+    async uploadProof() {
+      if (!this.files || this.files.length == 0) return;
+      // console.log(this.files.length);
+      // console.log("Hello World");
+      const formData = new FormData();
+      for (let i = 0; i < this.files.length; i++)
+        formData.append("files", this.files[i], this.files[i].name);
+
+      await axios
+        .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
+        .then(function(res) {
+          //Redirect to verification page
+          // vue_context.$nuxt.$loading.finish();
+          // vue_context.$router.push({
+          //   path: "/verify_account"
+          // });
+          if (vue_context.data.proofs.acts[0].proof_of_completion)
+            vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
+              res.data
+            );
+          else
+            vue_context.$set(
+              vue_context.data.proofs.acts[0],
+              "proof_of_completion",
+              res.data
+            );
+        })
+        .catch(function(err) {
+          // vue_context.$nuxt.$loading.finish();
+          // if (err.response) vue_context.error = err.response.data.message;
+        });
     },
     navigateTo(index) {
       var element = this.$refs["acts_come_here"];
@@ -761,6 +651,62 @@ export default {
         });
       delete this.deleted_acts[index];
     },
+    async deleteProof(index, id) {
+
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+
+      //Save the current state of the proof
+      if (!this.data.proofs.acts[0].previous_proof)
+      this.$set(this.data.proofs.acts[0], 'previous_proof', {[index]: this.data.proofs.acts[0].proof_of_completion[index]});
+      else this.$set(this.data.proofs.acts[0].previous_proof, index, this.data.proofs.acts[0].proof_of_completion[index]);
+      
+      //Remove the proof from the screen
+      this.data.proofs.acts[0].proof_of_completion.splice(index, 1);
+      const encoded_id = btoa(id);
+      
+      //Send request to remove the proof from the database
+      await axios
+        .delete(`/api/acts/proof/${encoded_id}`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If something goes wrong, put the proof back
+          vue_context.data.proofs.acts[0].proof_of_completion.splice(
+            index,
+            0,
+            vue_context.data.proofs.acts[0].previous_proof[index]
+          );
+          // delete_act(index);
+          // vue_context.$set(
+          //   vue_context.data.acts[index],
+          //   "state",
+          //   vue_context.data.acts[index].previous_data.state
+          // );
+          //Tell the user that the act could not be deleted
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the proof could not be deleted",
+            position: "topRight"
+          });
+        });
+      
+      // return;
+
+
+      // //Store act and it's current index
+      // this.$set(this.deleted_acts, index, this.data.acts[index]);
+      // // this.deleted_acts.push({act: this.data.acts[index], index: index});
+      // //Remove act from array
+      // this.data.acts.splice(index, 1);
+      // //Make request to delete act
+
+      
+      // delete this.deleted_acts[index];
+    },
     async change_act_state(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
@@ -839,9 +785,17 @@ export default {
         enabled: enabled_state
       });
       //If this is an event, save previous start and end times
-      if (this.data.acts[index].__t == "Event"){
-        this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time);
-        this.$set(this.data.acts[index].previous_data, "end_time", this.data.acts[index].formated_end_time);
+      if (this.data.acts[index].__t == "Event") {
+        this.$set(
+          this.data.acts[index].previous_data,
+          "start_time",
+          this.data.acts[index].formated_start_time
+        );
+        this.$set(
+          this.data.acts[index].previous_data,
+          "end_time",
+          this.data.acts[index].formated_end_time
+        );
       }
       // if (this.data.acts[index].__t == "Event") {
       //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
@@ -856,12 +810,16 @@ export default {
       //If this is an event
       //Update to new start and end times
       if (this.data.acts[index].__t == "Event") {
-        this.$set(this.data.acts[index], "formated_start_time", moment(start_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            ));
-        this.$set(this.data.acts[index], "formated_end_time", moment(end_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            ));
+        this.$set(
+          this.data.acts[index],
+          "formated_start_time",
+          moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
+        );
+        this.$set(
+          this.data.acts[index],
+          "formated_end_time",
+          moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
+        );
       }
       //Remember to disable the act
       this.$set(this.data.acts[index].enabled, "state", false);
@@ -927,7 +885,8 @@ export default {
 
           //Tell the user that the act could not be edited
           let type_of_act = "act";
-          if (vue_context.data.acts[index].__t == "Event") type_of_act = "event";
+          if (vue_context.data.acts[index].__t == "Event")
+            type_of_act = "event";
           iziToast.error({
             title: "Error",
             message: `Sorry, the ${type_of_act} could not be edited`,
@@ -1081,15 +1040,22 @@ export default {
 </script>
 
 <style scoped>
-/*.title {
-  margin: 30px 0;
+[data-style="mypops"] + .popover {
+  background: #4194ca;
 }
-.users {
+[data-style="mypops"] + .popover.bottom .arrow:after {
+  border-bottom-color: #4194ca;
+}
+[data-style="mypops"] + .popover-content {
+}
+.popovermenu {
   list-style: none;
-  margin: 0;
-  padding: 0;
+  padding: 0px;
+  margin: 0px;
 }
-.user {
-  margin: 10px 0;
-}*/
+.popovermenu li {
+}
+.popovermenu li a {
+  color: #fff;
+}
 </style>

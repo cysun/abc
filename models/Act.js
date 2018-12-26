@@ -136,11 +136,16 @@ let actSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         },
-        proof_of_completion: {
-            type: String,
-            unique: true,
-            sparse: true
-        },
+        proof_of_completion: [{
+            original_name: {
+                type: String
+            },
+            new_name: {
+                type: String,
+                unique: true,
+                sparse: true
+            }
+        }],
         review_of_proof: {
             reviewer_id: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -160,6 +165,7 @@ let actSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+            unique: true,
             sparse: true
         },
         first_name: {
@@ -176,17 +182,23 @@ let actSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         },
-        proof_of_completion: {
-            type: String,
-            unique: true,
-            sparse: true
-        }
+        proof_of_completion: [{
+            original_name: {
+                type: String
+            },
+            new_name: {
+                type: String,
+                unique: true,
+                sparse: true
+            }
+        }],
     }],
     rejected_users: [{
         id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+            unique: true,
             sparse: true
         },
         first_name: {
@@ -203,11 +215,16 @@ let actSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         },
-        proof_of_completion: {
-            type: String,
-            unique: true,
-            sparse: true
-        },
+        proof_of_completion: [{
+            original_name: {
+                type: String
+            },
+            new_name: {
+                type: String,
+                unique: true,
+                sparse: true
+            }
+        }],
         review_of_proof: {
             reviewer_id: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -226,6 +243,7 @@ let actSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
+            unique: true,
             sparse: true
         },
         first_name: {
@@ -242,11 +260,16 @@ let actSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         },
-        proof_of_completion: {
-            type: String,
-            unique: true,
-            sparse: true
-        },
+        proof_of_completion: [{
+            original_name: {
+                type: String
+            },
+            new_name: {
+                type: String,
+                unique: true,
+                sparse: true
+            }
+        }],
         review_of_proof: {
             reviewer_id: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -405,6 +428,21 @@ actSchema.statics.getUniqueImageName = async function (length_of_random_string =
             process.env.website + process.env.display_act_picture_folder + random_name + ".png";
         result = await this.findOne({
             image: value
+        });
+    } while (result != null);
+    return random_name;
+};
+
+actSchema.statics.getUniqueProofImageName = async function (length_of_random_string = 32) {
+    let result;
+    let random_name;
+    let value;
+    do {
+        random_name = randomstring.generate(length_of_random_string);
+        value =
+            process.env.website + process.env.display_act_picture_folder + random_name;
+        result = await this.findOne({
+            'proof_of_completion.new_name': {"$regex": value, "$options": "i"}
         });
     } while (result != null);
     return random_name;

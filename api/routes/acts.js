@@ -8,8 +8,13 @@ const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const secret = require('../../secret');
+const mongoose = require('mongoose');
 const fs = require('fs');
 const sanitize = require("sanitize-html");
+const util = require('util');
+const fs_delete_file = util.promisify(fs.unlink);
+const atob = require('atob');
+const fs_rename_file = util.promisify(fs.rename);
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -18,15 +23,242 @@ var upload = multer({
 
 const router = Router()
 
+function uploadMultipleFiles(re, original_name, file_name, req) {
+  let unique_name, ext;
+  return Act.getUniqueProofImageName()
+    .then(function (unique_image_name) {
+      unique_name = unique_image_name;
+      //Get extension for each file
+      ext = re.exec(original_name)[1];
+      //If no extension, use empty string
+      if (ext == undefined)
+        //If no extension, use empty string
+        ext = "";
+      else
+        ext = `.${ext}`;
+    })
+    .then(function () {
+      //Move the file to the acts proof folder with the new name and extension
+      fs_rename_file(`./tmp/${file_name}`, `${process.env.act_picture_folder}${unique_name}${ext}`)
+    })
+    .then(function () {
+      //Save the new file name and the uploaded file name
+      if (!req.user.proof_of_completion)
+        req.user.proof_of_completion = [];
+      req.user.proof_of_completion.push({
+        original_name: original_name,
+        new_name: process.env.website + process.env.display_act_picture_folder + unique_name + ext
+      });
+    })
+}
+
+
+//Upload proof of completion
+router.post('/:id/complete', upload.array('files'), async function (req, res, next) {
+  // const image = './tmp/' + req.file.filename
+  try {
+
+    var re = /(?:\.([^.]+))?$/;
+
+    //Make sure at least one file was uploaded
+    if (req.files.length == 0)
+      //If not, give error
+      throw new Error("No files were uploaded");
+
+    //Get unique names for each file upload
+    let promises = [];
+    for (let i = 0; i < req.files.length; i++)
+      promises.push(uploadMultipleFiles(re, req.files[i].originalname, req.files[i].filename, req));
+
+    await Promise.all(promises);
+
+    //Save changes in the database
+
+    //return json of all proofs for this act for this person
+
+    // Update the act and the user
+    promises = [];
+    const user = req.user;
+    user.state = "UNDER_REVIEW";
+
+    //Get the last user act
+    const promised_act_change = Act.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+      { $unwind: { path: "$users_who_completed_this_act" } },
+      { $match: { 'users_who_completed_this_act.id': mongoose.Types.ObjectId(req.user.id) } },
+      { $sort: { 'users_who_completed_this_act.time_completed': -1 } },
+      { $limit: 1 },
+      { $project: { users_who_completed_this_act: 1 } }
+    ])
+      .then(async function (act) {
+        //Check that it's under review
+        if (!act[0] || act[0].users_who_completed_this_act.state != "UNDER_REVIEW") {
+          //If not
+          //Create a new user act
+          await Act.findByIdAndUpdate(
+            req.params.id,
+            {
+              $push: { 'users_who_completed_this_act': user },
+              $addToSet: { 'users_under_review': user }
+            }
+          )
+        }
+        //If it's under review
+        else {
+          //Add these proofs to the act (users who completed and under review users)
+          // await Act.findOneAndUpdate(
+          //   {'users_who_completed_this_act._id': act[0].users_who_completed_this_act._id },
+          //   {
+          //     $push: {
+          //       'users_who_completed_this_act.$.proof_of_completion': user.proof_of_completion,
+          //       'users_under_review.proof_of_completion': user.proof_of_completion
+          //     }
+          //   }
+          // )
+          await Act.findOneAndUpdate(
+            {'users_who_completed_this_act.id': act[0].users_who_completed_this_act.id },
+            {
+              $push: {
+                'users_who_completed_this_act.$.proof_of_completion': user.proof_of_completion,
+              }
+            }
+          )
+          await Act.findOneAndUpdate(
+            {'users_under_review.id': act[0].users_who_completed_this_act.id },
+            {
+              $push: {
+                'users_under_review.$.proof_of_completion': user.proof_of_completion,
+              }
+            }
+          )
+        }
+
+        // throw new Error("not real error")
+
+      })
+      // .catch(function (err) {
+
+      // })
+
+
+
+
+
+
+
+
+
+
+
+    //else
+    //Create a new Object in users who completed this act and under review users
+    // const promised_act_change = await User.findOne(
+    //   { _id: req.user.id, acts: { $elemMatch: { id: req.params.id, state: "UNDER_REVIEW" } } }
+    // )
+    //   .then(function (user) {
+    //     if (!user)
+    //       return null;
+    //     //If last state of this user_act is 'under review'
+    //     //Add these proofs to the users who completed this act object
+    //     //Add these proofs to the under review acts object
+    //     await Act.findOneAndUpdate(
+    //       {_id: req.params.id, 'users_who_completed_this_act'},
+    //       { $push: { 'acts.$.proof_of_completion': user.proof_of_completion } }
+    //     )
+
+
+    //   })
+
+    // res.end();
+    // return;
+
+    // const promised_act_change = Act.findByIdAndUpdate(
+    //   req.params.id,
+    //   {
+    //     $push: { 'users_who_completed_this_act': user },
+    //     $addToSet: { 'users_under_review': user }
+    //     // $inc: { 'total_number_of_completions': 1 }
+    //   }
+    // )
+
+
+    // //Upsert
+    // const promised_user_change = User.findOneAndUpdate(
+    //   { '_id': user.id, 'acts.id': req.params.id },
+    //   { $set: { 'acts.$': act } },
+    //   async function (err, numberAffected, rawResponse) {
+    //     if (!numberAffected) {
+    //       await User.findByIdAndUpdate(
+    //         user.id,
+    //         { $push: { 'acts': act } }
+    //       )
+    //     }
+    //   }
+
+    // )
+
+
+    const act = {
+      id: req.params.id,
+      state: "UNDER_REVIEW",
+      time: Date.now(),
+      proof_of_completion: user.proof_of_completion
+    }
+
+    //Upsert
+    //Change act to under review
+    //Update time as well
+    //Add the new files that were uploaded as well
+    const promised_user_change = User.findOneAndUpdate(
+      { '_id': user.id, 'acts.id': req.params.id },
+      {
+        $set: { 'acts.$.state': "UNDER_REVIEW", 'acts.$.time': Date.now() },
+        $addToSet: { 'acts.$.proof_of_completion': user.proof_of_completion }
+      },
+      async function (err, numberAffected, rawResponse) {
+        if (!numberAffected) {
+          //If not exists, insert act
+          await User.findByIdAndUpdate(
+            user.id,
+            { $push: { 'acts': act } }
+          )
+        }
+      }
+
+    )
+
+
+
+
+
+
+    promises.push(promised_act_change, promised_user_change);
+    await Promise.all(promises);
+
+    // //Redirect to calling page with success message
+    // res.redirect(url.parse(req.headers.referer).pathname + '?Success=' + 'Success');
+
+    //Return only the new uploads
+    res.json(req.user.proof_of_completion)
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+  // finally {
+  //   //Delete uploaded file
+  //   if (req.file)
+  //     fs.unlinkSync(image);
+  // }
+})
+
 
 //Get events
 router.get('/calendar', async function (req, res, next) {
   //Get all events in the range
   const events = await Event_Act.find({
-    start_time: {$gte: req.query.start},
-    end_time: {$lte: req.query.end}
-  }, {name: 1, start_time: 1, end_time: 1}).lean();
-  
+    start_time: { $gte: req.query.start },
+    end_time: { $lte: req.query.end }
+  }, { name: 1, start_time: 1, end_time: 1 }).lean();
+
   events.forEach(element => {
     element.title = element.name;
     element.start = element.start_time;
@@ -35,6 +267,111 @@ router.get('/calendar', async function (req, res, next) {
   });
 
   res.json(events);
+});
+
+// //Get individual act
+// router.get('/:id', async function (req, res, next) {
+//   // console.log(req.headers.referer);
+//   // try {
+//   //     let error_occured = false;
+//   //     let user = await User.findOne({});
+//   //     user.deleteProfilePicture();
+//   //     await user.save()
+//   //     res.send("Finished");
+//   // } catch (error) {
+//   //     res.send(error);
+//   // }
+
+//   //Get act
+//   const promised_act = Act.aggregate([
+//     {
+//       //Get specific act
+//       $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+//     },
+//     {
+//       $unwind: {
+//         //Split document based on users who have completed the act
+//         path: '$users_who_completed_this_act',
+//         //But return at least one document if no one has completed this act
+//         preserveNullAndEmptyArrays: true
+//       }
+//     },
+//     {
+//       $match: {
+//         $or: [
+//           //Get the documents where this user has completed the act
+//           { 'users_who_completed_this_act': req.user.id },
+//           //But return all documents if this user hasn't completed the act
+//           {}
+//         ]
+//       }
+//     },
+//     {
+//       $sort: { 'users_who_completed_this_act.time_completed': -1 }
+//     },
+//     { $limit: 1 },
+//     { $project: { users_who_clicked_on_this_act: false } }
+//   ])
+//   //Add this user to the act click counter
+//   const promised_click_counter = Act.findByIdAndUpdate(
+//     req.params.id,
+//     {
+//       $push: { 'users_who_clicked_on_this_act': req.user },
+//       $inc: { 'total_number_of_clicks': 1 }
+//     }
+//   )
+
+//   let result;
+//   await Promise.all([promised_act, promised_click_counter])
+//     .then(function (values) {
+//       result = values[0][0];
+//     })
+//   // .catch(function (error) {
+//   //     console.log(error);
+//   // })
+//   //Return act with this user as the completed user or no user at all
+//   // let upload_text = res.__('change_upload_text');
+//   if (result.users_who_completed_this_act && result.users_who_completed_this_act.id.valueOf() != req.user.id) {
+//     // upload_text = res.__('upload_text');
+//     delete result.users_who_completed_this_act;
+//   }
+
+
+//   res.json({
+//     act: result,
+//     user: req.user
+//   });
+//   // res.render('act', { title: result.name, act: result, user: req.user, roles: req.roles, upload_text });
+
+// });
+
+//Get individual act
+router.get('/:id', async function (req, res, next) {
+  //Get act from Act table
+  //Get user's relationship with act from user table
+  //Combine and deliver
+
+  const promised_act = Act.findById(req.params.id, "act_provider description enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
+  const promised_user = User.findOne(
+    { _id: req.user.id, 'acts.id': req.params.id },
+    { 'acts.$': 1 }
+  )
+  //Add this user to the act click counter
+  const promised_click_counter = Act.findByIdAndUpdate(
+    req.params.id,
+    {
+      $push: { 'users_who_clicked_on_this_act': req.user },
+      $inc: { 'total_number_of_clicks': 1 }
+    }
+  )
+  const promises = [promised_act, promised_user, promised_click_counter];
+  let act, user_act;
+  await Promise.all(promises)
+    .then(function (values) {
+      act = values[0];
+      user_act = values[1];
+    })
+  res.json({ act, user: req.user, proofs: user_act });
 });
 
 //Show acts
@@ -277,9 +614,9 @@ router.put('/:id', async function (req, res, next) {
       if (!start_time || !end_time)
         throw new Error("Incomplete request");
 
-        //Attach new values to it
-        act.start_time = start_time;
-        act.end_time = end_time
+      //Attach new values to it
+      act.start_time = start_time;
+      act.end_time = end_time
     }
     await act.save();
 
@@ -335,6 +672,61 @@ router.put('/:id/delete', async function (req, res, next) {
     act.deleted = true;
     await act.save();
 
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+
+})
+
+//Delete act proof
+router.delete('/proof/:new_name', async function (req, res, next) {
+  const new_name = atob(req.params.new_name);
+  try {
+    //Only admins and the person who uploaded the proof can delete it
+    const user = await User.findOne(
+      { "acts.proof_of_completion.new_name": new_name },
+    )
+    if (!req.user)
+      throw new Error("You do not have authorization");
+    if (!req.roles.administrator && user._id != req.user.id)
+      throw new Error("You do not have authorization");
+
+    // await User.findOneAndUpdate(
+    //   { "acts.proof_of_completion.new_name": new_name },
+    //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
+    // )
+    // res.json({message: "Success"});
+
+    const promises = [];
+    //Delete the proof from the act object
+    //Remove from users who have completed this act
+    //Remove from users under review and rejected users
+    const promised_delete_proof_from_act = Act.findOneAndUpdate(
+      { "users_who_completed_this_act.proof_of_completion.new_name": new_name },
+      {
+        $pull: {
+          "users_who_completed_this_act.$.proof_of_completion": { new_name: new_name },
+          "rejected_users.$.proof_of_completion": { new_name: new_name },
+          "users_under_review.$.proof_of_completion": { new_name: new_name }
+        }
+      }
+    )
+    //Delete the proof from the user object
+    const promised_delete_proof_from_user = User.findOneAndUpdate(
+      { "acts.proof_of_completion.new_name": new_name },
+      { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
+    )
+    //Delete the proof file
+    const previous_image = process.env.act_picture_folder + new_name.replace(process.env.website + process.env.display_act_picture_folder, '');
+    const promised_delete_file = fs_delete_file(previous_image);
+
+    promises.push(promised_delete_proof_from_act);
+    promises.push(promised_delete_proof_from_user);
+    promises.push(promised_delete_file);
+
+    await Promise.all(promises);
+    //Return success
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message))

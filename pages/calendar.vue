@@ -186,16 +186,16 @@ export default {
       password: "",
       image: null,
       logged_in: true,
-      page: "calendar",
-      events: [
-        {
-          title: "First Event",
-          start: "2018-12-23T12:30:00",
-          end: "2018-12-23T13:00:00",
-          allDay: false,
-          url: `acts/1`
-        }
-      ]
+      page: "calendar"
+      // events: [
+      //   {
+      //     title: "First Event",
+      //     start: "2018-12-23T12:30:00",
+      //     end: "2018-12-23T13:00:00",
+      //     allDay: false,
+      //     url: `acts/1`
+      //   }
+      // ]
     };
   },
   methods: {
