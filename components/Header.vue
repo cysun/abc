@@ -41,7 +41,7 @@
               >Manage</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <nuxt-link to="/manage/acts" class="dropdown-item" :class="{active: page == 'manage_acts'}">Acts</nuxt-link>
-                <a class="dropdown-item" href="single.html">Proofs</a>
+                <nuxt-link to="/manage/proofs" class="dropdown-item" :class="{active: page == 'manage_proofs'}">Proofs</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">

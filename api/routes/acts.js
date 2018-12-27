@@ -52,6 +52,294 @@ function uploadMultipleFiles(re, original_name, file_name, req) {
     })
 }
 
+// //Handle proof
+// router.put('/acts/:act_id/user/:user_id/approve', async function (req, res, next) {
+
+//   //Only managers and admins can navigate to this endpoint
+//   // if (!req.roles.manager) {
+//   //     res.redirect('/');
+//   //     res.end();
+//   //     return;
+//   // }
+
+//   const rejected_user = req.body;
+//   rejected_user.id = req.params.user_id;
+//   rejected_user.state = "REJECTED";
+//   const review_of_proof = {
+//       //Note the person doing the rejection
+//       reviewer_id: req.user.id,
+//       reviewer_name: `${req.user.first_name} ${req.user.last_name}`,
+//       time_of_review: Date.now(),
+//       result: false,
+//       //Note the rejection reason
+//       comments: req.body.reason
+//   }
+//   rejected_user.review_of_proof = review_of_proof;
+
+//   //If accepted
+//   if (req.body.choice == 'approve') {
+//       //Move the user to the completed array
+//       //Increment completed counter
+//       rejected_user.state = "COMPLETED";
+//       rejected_user.review_of_proof.result = true;
+//       await Act.findByIdAndUpdate(
+//           req.params.act_id,
+//           {
+//               //Remove the user from the act under review array
+//               $pull: { users_under_review: { id: req.params.user_id } },
+//               $push: {
+//                   //Add the user to the act logger as completed
+//                   users_who_completed_this_act: rejected_user,
+//                   //Add the user to the act completed array
+//                   completed_users: rejected_user
+//               },
+//               $inc: {total_number_of_completions: 1}
+//           }
+//       )
+//   }
+//   //If rejected
+//   else if (req.body.choice == 'reject') {
+//       await Act.findByIdAndUpdate(
+//           req.params.act_id,
+//           {
+//               //Remove the user from the act under review array
+//               $pull: { users_under_review: { id: req.params.user_id } },
+//               $push: {
+//                   //Add the user to the act logger as rejected
+//                   users_who_completed_this_act: rejected_user,
+//                   //Add the user to the act rejected array
+//                   rejected_users: rejected_user
+//               }
+//           }
+//       )
+//   }
+
+//   //Redirect to calling page
+//   res.redirect(req.headers.referer);
+
+//   // //Get proof that are under review
+//   // const acts = await Act.aggregate([
+//   //     { $group: { _id: '$_id', users: { $push: '$users_under_review' }, act: { $push: '$name' }, reward: { $push: '$reward_points' } } }
+//   // ])
+//   // res.render('manage_proof', { title: "Manage Proofs", acts });
+// });
+
+//Approve user act proof
+router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
+  try {
+    let promises = [];
+    // const user = await User.findById(req.params.user_id)
+    const promised_user = User.findOne(
+      { _id: req.params.user_id, 'acts.id': req.params.act_id },
+      { 'acts.$': true, first_name: true, last_name: true }
+    ).lean();
+    const promised_act = Act.findById(req.params.act_id);
+    
+    let user, act;
+      promises = [promised_user, promised_act];
+      await Promise.all(promises)
+      .then(function(values){
+        user = values[0];
+        act = values[1];
+      })
+
+    const user_who_completed_this_act = Object.assign({}, user);
+    user_who_completed_this_act.id = user_who_completed_this_act._id;
+    delete user_who_completed_this_act._id;
+    user_who_completed_this_act.state = "COMPLETED";
+    user_who_completed_this_act.proof_of_completion = user_who_completed_this_act.acts[0].proof_of_completion;
+    //Add this manager as the reviewer of this proof
+    user_who_completed_this_act.review_of_proof = {
+      reviewer_id: req.user.id,
+      reviewer_name: `${req.user.first_name} ${req.user.last_name}`,
+      //Note the time of the review
+      time_of_review: Date.now(),
+      result: true
+    }
+
+    // console.log(user_who_completed_this_act);
+    // res.end();
+
+    // const user_who_completed_this_act = {
+    //   id: user._id,
+    //   first_name: user.first_name,
+    //   last_name: user.last_name,
+    //   state: "COMPLETED",
+    //   proof_of_completion
+    // }
+
+
+
+    
+    const promised_act_change = Act.findByIdAndUpdate(
+      req.params.act_id,
+      {
+        $push: {
+          //Add this user to the users who have completed this act subdocument of acts
+          users_who_completed_this_act: user_who_completed_this_act,
+          //Add this user to the completed users subdocument of acts subdocument
+          completed_users: user_who_completed_this_act
+        },
+        $pull: {
+          //Remove this user from the users who are under review act subdocument
+          users_under_review: {id: req.params.user_id},
+          //Remove this user from the user who are rejected in the acts subdocument
+          rejected_users: {id: req.params.user_id}
+        },
+        //Increment total number of completions
+        $inc: {total_number_of_completions: 1}
+      })
+    
+    
+    const promised_user_change = User.findOneAndUpdate(
+      {_id: req.params.user_id, 'acts.id': req.params.act_id},
+      {
+        //Change the state of this act to completed in the user object
+        "acts.$.state": "COMPLETED", 
+        "acts.$.time": Date.now(),
+        //Add the points of this act to the user points
+        $inc: {points: act.reward_points}
+      }
+    )
+
+    promises = [promised_act_change, promised_user_change];
+    await Promise.all(promises);
+
+    res.json({message: "Success"});
+
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message))
+  }
+});
+
+//Disapprove user act proof
+router.put('/:act_id/user/:user_id/disapprove', async function (req, res, next) {
+  try {
+    let promises = [];
+    // const user = await User.findById(req.params.user_id)
+    const promised_user = User.findOne(
+      { _id: req.params.user_id, 'acts.id': req.params.act_id },
+      { 'acts.$': true, first_name: true, last_name: true }
+    ).lean();
+    const promised_act = Act.findById(req.params.act_id);
+    
+    let user, act;
+      promises = [promised_user, promised_act];
+      await Promise.all(promises)
+      .then(function(values){
+        user = values[0];
+        act = values[1];
+      })
+
+    const user_who_completed_this_act = Object.assign({}, user);
+    user_who_completed_this_act.id = user_who_completed_this_act._id;
+    delete user_who_completed_this_act._id;
+    user_who_completed_this_act.state = "REJECTED";
+    user_who_completed_this_act.proof_of_completion = user_who_completed_this_act.acts[0].proof_of_completion;
+    //Add this manager as the reviewer of this proof
+    user_who_completed_this_act.review_of_proof = {
+      reviewer_id: req.user.id,
+      reviewer_name: `${req.user.first_name} ${req.user.last_name}`,
+      //Note the time of the review
+      time_of_review: Date.now(),
+      result: false,
+      comments: req.body.comments
+    }
+
+    const promised_act_change = Act.findByIdAndUpdate(
+      req.params.act_id,
+      {
+        $push: {
+          //Add this user to the users who have completed this act subdocument of acts
+          users_who_completed_this_act: user_who_completed_this_act,
+          //Add this user to the rejected users subdocument of acts subdocument
+          rejected_users: user_who_completed_this_act
+        },
+        $pull: {
+          //Remove this user from the users who are under review act subdocument
+          users_under_review: {id: req.params.user_id}
+        }
+      })
+    
+    
+    const promised_user_change = User.findOneAndUpdate(
+      {_id: req.params.user_id, 'acts.id': req.params.act_id},
+      {
+        //Change the state of this act to rejected in the user object
+        "acts.$.state": "REJECTED", 
+        "acts.$.time": Date.now()
+      }
+    )
+
+    promises = [promised_act_change, promised_user_change];
+    await Promise.all(promises);
+
+    res.json({message: "Success"});
+
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message))
+  }
+});
+
+//Show acts that are in review
+router.get('/review', async function (req, res, next) {
+  try {
+    let page = parseInt(sanitize(req.query.page));
+    //Handle invalid page
+    if (!page || page < 1)
+      page = 1
+
+    let offset = (page - 1) * 10;
+    const promised_acts = Act.find({ "users_under_review": { $exists: true, $ne: [] } }).skip(offset).limit(10).lean();
+    const promised_count = Act.find({ "users_under_review": { $exists: true, $ne: [] } }).countDocuments();
+
+    let promises = [promised_acts, promised_count];
+    let acts;
+    let count;
+    let result = {};
+    let counter;
+    await Promise.all(promises)
+      .then(function (values) {
+        // result.result = values[0];
+        // result.total_count = values[1][0]['count'];
+        acts = values[0];
+        count = values[1];
+      })
+    const act_count = count;
+    count = Math.ceil(count / 10);
+    const total = []
+    for (let i = 0; i < count; i++)
+      total.push(1);
+    // acts.forEach(element => {
+    //     if (!element.image)
+    //         element.image = process.env.website + 'images/banner1.jpg';
+    // });
+    let current_page = process.env.website + 'manage/proofs?';
+
+    if (!req.query.page)
+      req.query.page = 1
+
+    //Loop through the query parameters and append them to the url;
+
+    // console.log(req.roles);
+
+    res.json({
+      acts,
+      current_page,
+      act_count,
+      query: req.query,
+      count, title: "Acts", total_acts: total, user: req.user, roles: req.roles
+    });
+
+    // res.json({acts, roles: req.roles});
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message))
+  }
+});
+
 
 //Upload proof of completion
 router.post('/:id/complete', upload.array('files'), async function (req, res, next) {
@@ -382,7 +670,7 @@ router.put('/:id/enable/:state', async function (req, res, next) {
       req.params.id,
       { 'enabled.state': req.params.state }
     )
-    res.json({message: "Success"});
+    res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message))
   }
@@ -434,7 +722,7 @@ router.get('/', async function (req, res, next) {
     //     type = req.cookies.type;
 
     //If this is a manager, the default view should be All acts
-    if (req.roles.manager)
+    if (req.roles && req.roles.manager)
       if (!type || globals.user_act_types.indexOf(type) === -1)
         type = "ALL";
 

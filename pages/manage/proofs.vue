@@ -4,114 +4,72 @@
     <my-banner :title="title"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <div class="container py-md-3">
-        <div class="form-inline justify-content-center">
-          <div class="form-group" style="margin-right: 10px">
-            <span style="margin-right: 10px">
-              <input
-                type="text"
-                name="search"
-                v-model="query.search"
-                class="form-control"
-                placeholder="Search"
-                @keyup.enter="search"
-              >
-              <select class="form-control" name="sort" v-model="query.sort">
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
-                <option
-                  value="total_number_of_completions"
-                  :selected="query.sort == 'total_number_of_completions'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
-                <option
-                  value="total_number_of_clicks"
-                  :selected="query.sort == 'total_number_of_clicks'"
-                >Popularity</option>
-                <option
-                  value="reward_points"
-                  :selected="query.sort == 'reward_points'"
-                >Reward points</option>
-              </select>
-              
-              <select class="form-control" name="order" v-model="query.order">
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
-              </select>
-              
-              <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="ALL" :selected="!query.type == 'ALL'">All</option>
-                <option value="ENABLED" :selected="!query.type == 'ENABLED'">Enabled</option>
-                <option value="DISABLED" :selected="!query.type == 'DISABLED'">Disabled</option>
-                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
-                <option
-                  v-if="data.roles && data.roles.act_poster"
-                  value="MY_ACTS"
-                  :selected="!query.type == 'MY_ACTS'"
-                >My Acts</option>
-              </select>
-            </span>
-            <button
-              type="submit"
-              @click="search"
-              class="btn btn-primary"
-              style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
-          </div>
-        </div>
-        <br>
-        <table class="table table-striped table-hover" ref="acts_come_here">
+        <table ref="acts_come_here" class="table table-striped table-hover">
           <thead>
-            <th scope="col" data-type="string">Poster's name</th>
+            <th scope="col" data-type="string">User's name</th>
             <th scope="col" data-type="number">Act name</th>
             <th scope="col" data-role="annotation">Reward</th>
-            <th scope="col" data-role="annotation">State</th>
+            <th scope="col" data-role="annotation">Proof</th>
+            <th scope="col" data-role="annotation">Approve</th>
+            <th scope="col" data-role="annotation">Reject</th>
             <th scope="col" data-role="annotation">Details</th>
           </thead>
-
-          <tr v-for="(act, index) in data.acts">
-            <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
-            <td>{{act.name}}</td>
-            <td>{{act.reward_points}}</td>
-            <td>
-              <button
-                @click="change_state(index, act.enabled.state)"
-                class="btn"
-                :class="{'btn-danger': act.enabled.state, 'btn-success': !act.enabled.state}"
-              >{{act.enabled.state ? 'Disable':'Enable' }}</button>
-            </td>
-            <td>
-              <nuxt-link :to="'/acts/' + act._id">
-                <button class="btn btn-primary">Details</button>
-              </nuxt-link>
-            </td>
-          </tr>
+          <template v-for="(act, index) in data.acts">
+            <tr v-for="(user, user_index) in act.users_under_review">
+              <td>{{user.first_name}} {{user.last_name}}</td>
+              <td>{{act.name}}</td>
+              <td>{{act.reward_points}}</td>
+              <td>
+                  <a
+                  tabindex="0"
+                  style="cursor: pointer"
+                    data-toggle="popover"
+                    title="Click on a file to view"
+                    :data-content="user.popover_html"
+                    data-trigger="focus"
+                    data-html="true"
+                  >View Proofs</a>
+                <!-- <a href="this.proof_of_completion">View Proof</a> -->
+              </td>
+              <td>
+                <button @click="approve(act._id, user.id, index, user_index)" class="btn btn-success">Approve</button>
+              </td>
+              <td>
+                <input type="text" v-model="user.reject_comment" @keyup.enter="reject(act._id, user.id, index, user_index)" class="form-control" name="reason">
+                <!-- <button type="submit" class="btn btn-danger" name="choice" value="reject">Reject</button> -->
+              </td>
+              <td>
+                <nuxt-link :to="'/acts/' + act._id">
+                  <button class="btn btn-primary">Details</button>
+                </nuxt-link>
+              </td>
+            </tr>
+          </template>
         </table>
         <br>
-            <nav aria-label="Page navigation example" v-if="data.count">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
-                </li>
+        <nav aria-label="Page navigation example" v-if="data.count">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{disabled: data.query.page == '1'}">
+              <a class="page-link" @click="previous">Previous</a>
+            </li>
 
-                <li
-                  v-for="(pages, index) in data.total_acts"
-                  class="page-item"
-                  :class="{active: data.query.page == index + 1}"
-                >
-                  <a
-                    class="page-link"
-                    :class="{disabled: data.query.page == index + 1}"
-                    @click="navigateTo(index + 1)"
-                  >{{index + 1}}</a>
-                </li>
+            <li
+              v-for="(pages, index) in data.total_acts"
+              class="page-item"
+              :class="{active: data.query.page == index + 1}"
+            >
+              <a
+                class="page-link"
+                :class="{disabled: data.query.page == index + 1}"
+                @click="navigateTo(index + 1)"
+              >{{index + 1}}</a>
+            </li>
 
-                <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
-                </li>
-              </ul>
-            </nav>
+            <li class="page-item" :class="{disabled: data.query.page == data.count}">
+              <a class="page-link" @click="next">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </section>
   </div>
@@ -137,6 +95,10 @@ export default {
   },
   async mounted() {
     iziToast = require("iziToast");
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
+
+    });
 
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
@@ -151,80 +113,40 @@ export default {
   async fetch(context) {},
   // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
-    if (!context.query.sort) context.query.sort = "";
-    if (!context.query.search) context.query.search = "";
-    if (!context.query.order) context.query.order = "";
+    //Get paginated acts that have users in review
     if (!context.query.page) context.query.page = 1;
-    if (!context.query.type) context.query.type = "ALL";
-
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
-      .get(
-        `/api/acts?type=${context.query.type}&sort=${
-          context.query.sort
-        }&order=${context.query.order}&search=${context.query.search}&page=${
-          context.query.page
-        }`,
-        {
-          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
-        }
-      )
+      .get(`/api/acts/review?page=${context.query.page}`, {
+        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+      })
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
-        //Loop through data and format date
-        data.acts.forEach(element => {
-          if (element.__t == "Event") {
-            element.formated_start_time = moment(element.start_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            );
-            element.formated_end_time = moment(element.end_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            );
-
-            element.start_time = element.start_time.substring(
-              0,
-              element.start_time.length - 8
-            );
-            element.end_time = element.end_time.substring(
-              0,
-              element.end_time.length - 8
-            );
-          }
-        });
       })
       .catch(function(err) {
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
         if (err.response.status == 400) {
           context.redirect("/logout");
+          // console.log(err);
         }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
-    
+    //Create popover of proofs
+    data.acts.forEach(element => {
+      element.users_under_review.forEach(element => {
+        let user = element;
+        if (!user.popover_html) user.popover_html = "";
+        element.proof_of_completion.forEach(element => {
+          user.popover_html += `<div><a href='${element.new_name}'>${element.original_name}</a></div>`;
+        });
+      });
+    });
     return { query: context.query, data };
   },
   data() {
     return {
-      title: "Manage Acts",
+      title: "Manage Proofs",
       error: "",
       status_message: "",
       status_state: "",
@@ -234,7 +156,7 @@ export default {
       password: "",
       image: null,
       logged_in: true,
-      page: "manage_acts",
+      page: "manage_proofs",
       // roles: this.data.roles,
       deleted_acts: {},
       upload_type: "act",
@@ -278,6 +200,151 @@ export default {
     next();
   },
   methods: {
+    approve(act_id, user_id, act_index, user_index)
+    {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      //Save current location
+      if (!this.data.saved_acts)
+      this.data.saved_acts = {
+        [act_index]: {
+          user_index: user_index,
+          user_proof: this.data.acts[act_index].users_under_review[user_index]
+          }
+      };
+      else
+      this.data.saved_acts[act_index] = {
+          user_index: user_index,
+          user_proof: this.data.acts[act_index].users_under_review[user_index]
+          }
+      //Remove row from screen
+      this.data.acts[act_index].users_under_review.splice(user_index, 1);
+      
+      //If error
+      //Return row to screen
+      //Display error
+      //Send request to approve this user_act
+      axios
+        .put(`/api/acts/${act_id}/user/${user_id}/approve`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          // //If successful
+          // //Show success message
+          // iziToast.success({
+          //   title: "Success",
+          //   message: "The act was successfully deleted",
+          //   position: "topRight"
+          // });
+          // //Navigate (replace) to previous page
+          // vue_context.$router.go(-1);
+        })
+        .catch(function(err) {
+          //If error
+          //If all page
+          // if (vue_context.data.type == "ALL")
+          //   //Revert state
+          //   vue_context.$set(
+          //     vue_context.data.acts[index].enabled,
+          //     "state",
+          //     state
+          //   );
+          // //Else
+          // else {
+          //   //Return the row
+          //   vue_context.data.acts.splice(
+          //     index,
+          //     0,
+          //     vue_context.saved_acts[index]
+          //   );
+          // }
+
+          //Tell the user that the act could not be altered
+        //   iziToast.error({
+        //     title: "Error",
+        //     message: "Sorry, the change could not be saved",
+        //     position: "topRight"
+        //   });
+        });
+    },
+    reject(act_id, user_id, act_index, user_index, value)
+    {
+
+      // alert(this.data.acts[act_index].users_under_review[user_index].reject_comment);
+
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      //Save current location
+      if (!this.data.saved_acts)
+      this.data.saved_acts = {
+        [act_index]: {
+          user_index: user_index,
+          user_proof: this.data.acts[act_index].users_under_review[user_index]
+          }
+      };
+      else
+      this.data.saved_acts[act_index] = {
+          user_index: user_index,
+          user_proof: this.data.acts[act_index].users_under_review[user_index]
+          }
+      
+      
+      //If error
+      //Return row to screen
+      //Display error
+      //Send request to approve this user_act
+      const params = new URLSearchParams();
+
+        params.append("comments", this.data.acts[act_index].users_under_review[user_index].reject_comment);
+      axios
+        .put(`/api/acts/${act_id}/user/${user_id}/disapprove`, params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          // //If successful
+          // //Show success message
+          // iziToast.success({
+          //   title: "Success",
+          //   message: "The act was successfully deleted",
+          //   position: "topRight"
+          // });
+          // //Navigate (replace) to previous page
+          // vue_context.$router.go(-1);
+        })
+        .catch(function(err) {
+          //If error
+          //If all page
+          // if (vue_context.data.type == "ALL")
+          //   //Revert state
+          //   vue_context.$set(
+          //     vue_context.data.acts[index].enabled,
+          //     "state",
+          //     state
+          //   );
+          // //Else
+          // else {
+          //   //Return the row
+          //   vue_context.data.acts.splice(
+          //     index,
+          //     0,
+          //     vue_context.saved_acts[index]
+          //   );
+          // }
+
+          //Tell the user that the act could not be altered
+        //   iziToast.error({
+        //     title: "Error",
+        //     message: "Sorry, the change could not be saved",
+        //     position: "topRight"
+        //   });
+        });
+        //Remove row from screen
+      this.data.acts[act_index].users_under_review.splice(user_index, 1);
+    },
     change_state(index, state) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
@@ -355,12 +422,7 @@ export default {
       scrollToElement(element);
       // window.scrollTo(0, top);
 
-      this.$router.push(
-        `/manage/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}&page=${index}
-        `
-      );
+      this.$router.push(`/manage/proofs?page=${index}`);
     },
     previous() {
       // console.log(this.data.query.page - 1)

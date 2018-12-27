@@ -165,7 +165,6 @@ let actSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            unique: true,
             sparse: true
         },
         first_name: {
@@ -198,7 +197,6 @@ let actSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            unique: true,
             sparse: true
         },
         first_name: {
@@ -243,7 +241,6 @@ let actSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            unique: true,
             sparse: true
         },
         first_name: {
@@ -315,6 +312,21 @@ actSchema.index(
         name: 'Acts index',
         weights: { 'name': 10, 'description': 1 }
     }
+)
+
+actSchema.index(
+    { _id: 1, 'users_under_review.id': 1 },
+    { unique: true }
+)
+
+actSchema.index(
+    { _id: 1, 'completed_users.id': 1 },
+    { unique: true }
+)
+
+actSchema.index(
+    { _id: 1, 'rejected_users.id': 1 },
+    { unique: true }
 )
 
 actSchema.methods.getActs = async function (params) {
@@ -442,7 +454,7 @@ actSchema.statics.getUniqueProofImageName = async function (length_of_random_str
         value =
             process.env.website + process.env.display_act_picture_folder + random_name;
         result = await this.findOne({
-            'proof_of_completion.new_name': {"$regex": value, "$options": "i"}
+            'proof_of_completion.new_name': { "$regex": value, "$options": "i" }
         });
     } while (result != null);
     return random_name;
