@@ -40,8 +40,16 @@
                 :class="{active: page == 'manage_acts' || page == 'manage_proofs' }"
               >Manage</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <nuxt-link to="/manage/acts" class="dropdown-item" :class="{active: page == 'manage_acts'}">Acts</nuxt-link>
-                <nuxt-link to="/manage/proofs" class="dropdown-item" :class="{active: page == 'manage_proofs'}">Proofs</nuxt-link>
+                <nuxt-link
+                  to="/manage/acts"
+                  class="dropdown-item"
+                  :class="{active: page == 'manage_acts'}"
+                >Acts</nuxt-link>
+                <nuxt-link
+                  to="/manage/proofs"
+                  class="dropdown-item"
+                  :class="{active: page == 'manage_proofs'}"
+                >Proofs</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
@@ -70,7 +78,8 @@
               <nuxt-link class="nav-link" to="/sign_up">Sign up</nuxt-link>
             </li>
             <li class="nav-item" v-if="logged_in">
-              <a class="nav-link" href="/logout">Log out</a>
+              <a class="nav-link" @click="logout" href="#">Log out</a>
+              <!-- <a class="nav-link" href="/logout">Log out</a> -->
             </li>
           </ul>
           <!-- <div class="buttons">
@@ -96,6 +105,13 @@
 
 <script>
 export default {
-  props: ["logged_in", "page", "roles"]
+  props: ["logged_in", "page", "roles"],
+  methods: {
+    logout() {
+      this.$cookies.remove("token");
+      this.$cookies.remove("refresh_token");
+      this.$router.push("/");
+    }
+  }
 };
 </script>

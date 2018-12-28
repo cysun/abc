@@ -108,11 +108,77 @@ let rewardSchema = new mongoose.Schema({
             required: true,
             default: 'ON_GOING'
         },
-        time_completed: {
+        time: {
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    total_number_of_users_who_clicked_on_this_reward: {
+        type: Number,
+        default: 0
+    },
+    total_number_of_users_who_got_this_reward: {
+        type: Number,
+        default: 0
+    },
+    reward_ratings: [{
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            sparse: true
+        },
+        first_name: {
+            type: String,
+            required: true,
+            sparse: true
+        },
+        last_name: {
+            type: String,
+            required: true,
+            sparse: true
+        },
+        rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5
+        },
+        comments: String,
+        time: {
+            type: Date,
+            default: Date.now
+        },
+    }],
+    reward_provider_ratings: [{
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            sparse: true
+        },
+        first_name: {
+            type: String,
+            required: true,
+            sparse: true
+        },
+        last_name: {
+            type: String,
+            required: true,
+            sparse: true
+        },
+        rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5
+        },
+        comments: String,
+        time: {
+            type: Date,
+            default: Date.now
+        },
+    }],
 });
 
 rewardSchema.index(

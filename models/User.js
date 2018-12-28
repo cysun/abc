@@ -172,7 +172,7 @@ let userSchema = new mongoose.Schema({
             required: true,
             default: 'ON_GOING'
         },
-        time_completed: {
+        time: {
             type: Date,
             default: Date.now
         }
