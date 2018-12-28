@@ -111,19 +111,24 @@
                     </div>
                   </div>
                 </div>
+                <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
+                  <span class="badge badge-warning">Reason for rejection: {{data.proofs.acts[0].comments}}</span>
+                </div>
                 <div
                   style="margin-bottom: 5px"
                   v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
                   class="justify-content-center"
                 >
                   <a
+                  tabindex="0"
+                    v-if="data.proofs.acts[0].state !== 'COMPLETED'"
                     data-toggle="popover"
                     :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
                     :data-content="'<a id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
                     data-trigger="focus"
                     data-html="true"
-                    href="#"
                   >{{proof.original_name}}</a>
+                  <a v-if="data.proofs.acts[0].state == 'COMPLETED'" :href="proof.new_name">{{proof.original_name}}</a>
                 </div>
                 <script>
                   //function deleteProof(index) {
@@ -134,7 +139,7 @@
                   //}
                 </script>
                 <br>
-                <div v-if="data.act.enabled.state" class="form-inline justify-content-center">
+                <div v-if="data.act.enabled.state && data.proofs.acts[0].state !== 'COMPLETED'" class="form-inline justify-content-center">
                   <input
                     @change="fileChanged"
                     type="file"
@@ -601,6 +606,12 @@ export default {
       if (!this.files || this.files.length == 0) return;
       // console.log(this.files.length);
       // console.log("Hello World");
+
+      //Save current state
+      this.data.current_state = this.data.proofs.acts[0].state
+      //Change state to under review
+      this.data.proofs.acts[0].state = "UNDER REVIEW";
+
       const formData = new FormData();
       for (let i = 0; i < this.files.length; i++)
         formData.append("files", this.files[i], this.files[i].name);
@@ -626,6 +637,10 @@ export default {
             document.getElementById('file_input').value = null;
         })
         .catch(function(err) {
+          //If error
+          //Return state to original value
+          vue_context.data.proofs.acts[0].state = vue_context.data.current_state;
+
           // vue_context.$nuxt.$loading.finish();
           // if (err.response) vue_context.error = err.response.data.message;
         });

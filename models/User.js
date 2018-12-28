@@ -118,6 +118,7 @@ let userSchema = new mongoose.Schema({
             required: true,
             default: 'UNDER_REVIEW'
         },
+        comments: String,
         time: Date,
         proof_of_completion: [{
             original_name: {

@@ -5,6 +5,15 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
+        <!-- <div>
+          <div style="float: left; width: 50%"></div>
+          <div class="progress" style="float: right; width: 50%">
+            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
+          </div>
+        </div> -->
+        <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
+        <div style='clear: both'></div>
+        <br>
         <div class="form-inline justify-content-center">
           <div class="form-group" style="margin-right: 10px">
             <span style="margin-right: 10px">

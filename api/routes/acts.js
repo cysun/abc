@@ -15,6 +15,7 @@ const util = require('util');
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require('atob');
 const fs_rename_file = util.promisify(fs.rename);
+const mail = require('../../mail');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -131,14 +132,14 @@ router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
     // const user = await User.findById(req.params.user_id)
     const promised_user = User.findOne(
       { _id: req.params.user_id, 'acts.id': req.params.act_id },
-      { 'acts.$': true, first_name: true, last_name: true }
+      { 'acts.$': true, first_name: true, last_name: true, email: true }
     ).lean();
     const promised_act = Act.findById(req.params.act_id);
-    
+
     let user, act;
-      promises = [promised_user, promised_act];
-      await Promise.all(promises)
-      .then(function(values){
+    promises = [promised_user, promised_act];
+    await Promise.all(promises)
+      .then(function (values) {
         user = values[0];
         act = values[1];
       })
@@ -170,7 +171,7 @@ router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
 
 
 
-    
+
     const promised_act_change = Act.findByIdAndUpdate(
       req.params.act_id,
       {
@@ -182,30 +183,33 @@ router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
         },
         $pull: {
           //Remove this user from the users who are under review act subdocument
-          users_under_review: {id: req.params.user_id},
+          users_under_review: { id: req.params.user_id },
           //Remove this user from the user who are rejected in the acts subdocument
-          rejected_users: {id: req.params.user_id}
+          rejected_users: { id: req.params.user_id }
         },
         //Increment total number of completions
-        $inc: {total_number_of_completions: 1}
+        $inc: { total_number_of_completions: 1 }
       })
-    
-    
+
+
     const promised_user_change = User.findOneAndUpdate(
-      {_id: req.params.user_id, 'acts.id': req.params.act_id},
+      { _id: req.params.user_id, 'acts.id': req.params.act_id },
       {
         //Change the state of this act to completed in the user object
-        "acts.$.state": "COMPLETED", 
+        "acts.$.state": "COMPLETED",
         "acts.$.time": Date.now(),
         //Add the points of this act to the user points
-        $inc: {points: act.reward_points}
+        $inc: { points: act.reward_points }
       }
     )
 
     promises = [promised_act_change, promised_user_change];
     await Promise.all(promises);
 
-    res.json({message: "Success"});
+    //Send approved proof mail
+    await mail.sendMail(user.email, "Your proof has been approved", `Click <a href='${process.env.website}acts/${req.params.act_id}'>here</a> to view the approved act`);
+
+    res.json({ message: "Success" });
 
   } catch (err) {
     console.log(err);
@@ -220,14 +224,14 @@ router.put('/:act_id/user/:user_id/disapprove', async function (req, res, next) 
     // const user = await User.findById(req.params.user_id)
     const promised_user = User.findOne(
       { _id: req.params.user_id, 'acts.id': req.params.act_id },
-      { 'acts.$': true, first_name: true, last_name: true }
+      { 'acts.$': true, first_name: true, last_name: true, email: true }
     ).lean();
     const promised_act = Act.findById(req.params.act_id);
-    
+
     let user, act;
-      promises = [promised_user, promised_act];
-      await Promise.all(promises)
-      .then(function(values){
+    promises = [promised_user, promised_act];
+    await Promise.all(promises)
+      .then(function (values) {
         user = values[0];
         act = values[1];
       })
@@ -258,16 +262,17 @@ router.put('/:act_id/user/:user_id/disapprove', async function (req, res, next) 
         },
         $pull: {
           //Remove this user from the users who are under review act subdocument
-          users_under_review: {id: req.params.user_id}
+          users_under_review: { id: req.params.user_id }
         }
       })
-    
-    
+
+
     const promised_user_change = User.findOneAndUpdate(
-      {_id: req.params.user_id, 'acts.id': req.params.act_id},
+      { _id: req.params.user_id, 'acts.id': req.params.act_id },
       {
         //Change the state of this act to rejected in the user object
-        "acts.$.state": "REJECTED", 
+        "acts.$.comments": req.body.comments,
+        "acts.$.state": "REJECTED",
         "acts.$.time": Date.now()
       }
     )
@@ -275,7 +280,10 @@ router.put('/:act_id/user/:user_id/disapprove', async function (req, res, next) 
     promises = [promised_act_change, promised_user_change];
     await Promise.all(promises);
 
-    res.json({message: "Success"});
+    //Send approved proof mail
+    await mail.sendMail(user.email, "Your proof has been rejected", `<p>Reason: ${req.body.comments}</p><p>Click <a href='${process.env.website}acts/${req.params.act_id}'>here</a> to change your proof</p>`);
+
+    res.json({ message: "Success" });
 
   } catch (err) {
     console.log(err);
@@ -379,7 +387,7 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
       { $project: { users_who_completed_this_act: 1 } }
     ])
       .then(async function (act) {
-        //Check that it's under review
+        //Check if it's under review
         if (!act[0] || act[0].users_who_completed_this_act.state != "UNDER_REVIEW") {
           //If not
           //Create a new user act
@@ -387,7 +395,9 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
             req.params.id,
             {
               $push: { 'users_who_completed_this_act': user },
-              $addToSet: { 'users_under_review': user }
+              $addToSet: { 'users_under_review': user },
+              // Remove this user from the users who were rejected
+              $pull: { rejected_users: { id: req.user.id } }
             }
           )
         }
@@ -416,7 +426,9 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
             {
               $push: {
                 'users_under_review.$.proof_of_completion': user.proof_of_completion,
-              }
+              },
+              //Remove this user from the users who were rejected
+              // $pull: { rejected_users: { id: mongoose.Types.ObjectId(req.user.id) } }
             }
           )
         }
@@ -796,12 +808,14 @@ router.get('/', async function (req, res, next) {
     // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
     const promised_acts = Act.find(search).sort({ [sort]: order }).skip(offset).limit(10).lean();
     const promised_count = Act.find(search).countDocuments();
+    const promised_user_reward_points = User.findById(req.user.id, { points: true, _id: false });
 
 
 
-    let promises = [promised_acts, promised_count];
+    let promises = [promised_acts, promised_count, promised_user_reward_points];
     let acts;
     let count;
+    let reward_points;
     let result = {};
     let counter;
     await Promise.all(promises)
@@ -810,6 +824,7 @@ router.get('/', async function (req, res, next) {
         // result.total_count = values[1][0]['count'];
         acts = values[0];
         count = values[1];
+        reward_points = values[2];
       })
     const act_count = count;
     count = Math.ceil(count / 10);
@@ -838,6 +853,7 @@ router.get('/', async function (req, res, next) {
     //     req.query.type = type
 
     res.json({
+      reward_points,
       acts,
       type,
       current_page,
