@@ -45,6 +45,22 @@ let rewardSchema = new mongoose.Schema({
         required: true,
         default: 1
     },
+    deleted: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    state: {
+        type: String,
+        enum: ['AVAILABLE', 'NOT_AVAILABLE'],
+        required: true,
+        default: 'AVAILABLE'
+    },
+    enabled: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     reward_provider: {
         id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -62,6 +78,11 @@ let rewardSchema = new mongoose.Schema({
             required: true,
             sparse: true
         },
+        email: {
+            type: String,
+            required: true,
+            sparse: true
+        }
     },
     users_who_clicked_on_this_reward: [{
         id: {
@@ -121,7 +142,7 @@ let rewardSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    reward_ratings: [{
+    reviews: [{
         id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -138,47 +159,25 @@ let rewardSchema = new mongoose.Schema({
             required: true,
             sparse: true
         },
-        rating: {
+        reward_rating: {
             type: Number,
             required: true,
             min: 1,
             max: 5
         },
-        comments: String,
-        time: {
-            type: Date,
-            default: Date.now
-        },
-    }],
-    reward_provider_ratings: [{
-        id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-            sparse: true
-        },
-        first_name: {
-            type: String,
-            required: true,
-            sparse: true
-        },
-        last_name: {
-            type: String,
-            required: true,
-            sparse: true
-        },
-        rating: {
+        reward_comments: String,
+        reward_provider_rating: {
             type: Number,
             required: true,
             min: 1,
             max: 5
         },
-        comments: String,
+        reward_provider_comments: String,
         time: {
             type: Date,
             default: Date.now
         },
-    }],
+    }]
 });
 
 rewardSchema.index(

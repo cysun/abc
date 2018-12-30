@@ -37,7 +37,7 @@
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
-                :class="{active: page == 'manage_acts' || page == 'manage_proofs' }"
+                :class="{active: page == 'manage_acts' || page == 'manage_proofs' || page == 'manage_rewards' }"
               >Manage</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <nuxt-link
@@ -50,13 +50,18 @@
                   class="dropdown-item"
                   :class="{active: page == 'manage_proofs'}"
                 >Proofs</nuxt-link>
+                <nuxt-link
+                  to="/manage/rewards"
+                  class="dropdown-item"
+                  :class="{active: page == 'manage_rewards'}"
+                >Rewards</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
               <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <a class="nav-link" href="/rewards">Rewards</a>
+              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">Rewards</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
               <nuxt-link
