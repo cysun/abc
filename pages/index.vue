@@ -22,7 +22,7 @@
     </section>
     <section class="about py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4">'About Us'</h3>
+        <h3 class="heading mb-md-5 mb-4">{{$t('navs.about.title')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
             <p>

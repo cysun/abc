@@ -1030,6 +1030,168 @@ router.get('/', async function (req, res, next) {
   }
 })
 
+//Show acts
+router.get('/:id/details', async function (req, res, next) {
+
+  try {
+
+
+    //Set bit that indicates open transactions
+    //If closed
+    //Get all users who hae collected this reward
+    //Set bit that indicates completed transactions
+    //If reviews
+    //Get all users reviews
+    //Set a bit that indicates that its reviews thats being returned
+
+    let search = {};
+    if (req.query.search)
+      search = { '$text': { '$search': sanitize(req.query.search) } };
+
+
+    let page = parseInt(sanitize(req.query.page));
+    let act_type = sanitize(req.query.act_type);
+    let sort = sanitize(req.query.sort);
+    let order = parseInt(sanitize(req.query.order));
+    let type = sanitize(req.query.type);
+
+    //If type is not sent,
+    //Make type open transactions
+    if (!type || globals.reward_types.indexOf(type) === -1)
+      type = "OPEN";
+    if (type == "ALL")
+      type = "OPEN";
+
+
+
+    //Handle invalid page
+    if (!page || page < 1)
+      page = 1
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "name";
+
+    //Handle invalid act order category
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    let offset = (page - 1) * 10;
+
+
+    let path, match, group_by;
+    path = '$users_who_claimed_this_reward';
+    group_by = {
+      _id: null,
+      users: {
+        $push: path
+      }
+    }
+
+    if (type == "OPEN") {
+      //If open transactions
+      //Get all users who have open transactions with this reward
+      match = { 'users_who_claimed_this_reward.state': "ON_GOING" };
+    }
+    else if (type == 'CLOSED') {
+      //Get completed users
+      match = { 'users_who_claimed_this_reward.state': "COMPLETED" };
+    }
+    else if (type == 'REVIEWS') {
+      path = '$reviews';
+      match = {};
+      group_by = {
+        _id: null,
+        users: {
+          $push: path
+        }
+      }
+    }
+    //Deleted rewards should not show up
+
+    let results = Reward.aggregate([
+      //Gets Acts this user has completed
+      {
+        $match: {
+          $and: [
+            { _id: mongoose.Types.ObjectId(req.params.id) },
+            search
+          ]
+        }
+      },
+      //Creates an array of many documents with a single (different) act in each one 
+      { $unwind: path },
+      // //Gets the documents with the specified act.name
+      { $match: match },
+      { $group: group_by },
+      { $skip: offset },
+      { $limit: 10 },
+      { $sort: { [sort]: order } },
+      // //Removes the _id
+      { $project: { _id: 0 } }
+    ]);
+
+    let count = Reward.aggregate([
+      //Gets Acts this user has completed
+      {
+        $match: {
+          $and: [
+            { _id: mongoose.Types.ObjectId(req.params.id) },
+            search
+          ]
+        }
+      },
+      //Creates an array of many documents with a single (different) act in each one 
+      { $unwind: path },
+      // //Gets the documents with the specified act.name
+      { $match: match },
+      { $group: { _id: null, count: { $sum: 1 } } },
+      { $project: { _id: 0 } }
+    ]);
+
+    //Return the amount of points this reward has accumulated
+    let points = User.aggregate([
+      //Gets Acts this user has completed
+      {
+        $match: {
+          'rewards.id': mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      //Creates an array of many documents with a single (different) act in each one 
+      { $unwind: '$rewards' },
+      // //Gets the documents with the specified act.name
+      { $match: { 'rewards.id': mongoose.Types.ObjectId(req.params.id) } },
+      { $match: { 'rewards.state': 'COMPLETED' } },
+      {
+        $group: {
+          _id: null, sum: {
+            $sum: '$rewards.value'
+          }
+        }
+      },
+      { $project: { sum: 1, _id: 0 } }
+    ]);
+
+    const promises = [results, count, points]
+    // let results, count, points
+    let returned_results, pages, sum
+    await Promise.all(promises)
+      .then(function (values) {
+        returned_results = values[0];
+        pages = Math.ceil(values[1][0].count / 10);
+        sum = values[2][0].sum;
+        // console.log("Results ", values[0]);
+        // console.log("Count ", values[1]);
+        // console.log("Points ", values[2]);
+      })
+      res.json({data: returned_results, count: pages, sum})
+  }
+  catch (err) {
+    console.log(err)
+    next(createError(400, err.message))
+  }
+})
+
 //Create act
 router.post('/', async function (req, res, next) {
 

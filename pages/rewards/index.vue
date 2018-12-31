@@ -87,7 +87,17 @@
               </div>-->
               <div class="blog_info">
                 <h5>
-                  <nuxt-link v-if="!act.edit" :to="{path: 'rewards/' + act._id}">{{act.name}}</nuxt-link>
+                  <a
+                  style='cursor: pointer'
+                    tabindex="0"
+                    v-if="!act.edit && act.reward_provider.id == data.user.id"
+                    data-toggle="popover"
+                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '\'>View</a>'"
+                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '/details\'>More details</a>'"
+                    data-trigger="focus"
+                    data-html="true"
+                  >{{act.name}}</a>                  
+                  <nuxt-link v-if="!act.edit && act.reward_provider.id !== data.user.id" :to="{path: 'rewards/' + act._id}">{{act.name}}</nuxt-link>
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -570,6 +580,31 @@ export default {
   },
   async mounted() {
     iziToast = require("iziToast");
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
+    });
+
+    $(document).on("click", ".view_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.viewReward(id);
+    });
+    $(document).on("click", ".more_details_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.rewardDetails(id);
+    });
+    
 
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
@@ -767,10 +802,18 @@ export default {
     upload_type_changed() {
       // console.log(this.upload_type);
     },
+    viewReward(id){
+      // alert(id);
+      this.$router.push(`rewards/${id}`)
+    },
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
       else this.$set(this.data.acts[index], "edit", false);
+    },
+    rewardDetails(id){
+      // alert(id);
+      this.$router.push(`rewards/${id}/details`)
     },
     delete_act(index) {
       if (!this.data.acts[index].delete)

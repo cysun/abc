@@ -1,0 +1,7 @@
+{
+    "navs": {
+      "about": {"title": "About us", "link": "about"}, 
+      "menu": {"title": "Menu", "link": "menu"}, 
+      "contact": {"title": "Contact Us", "link": "contact"}
+    }
+  }

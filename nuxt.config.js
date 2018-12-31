@@ -61,7 +61,8 @@ module.exports = {
     // API middleware
     '~/api/index.js',
   ],
+  plugins: ['plugins/i18n.js'],
   router: {
-    middleware: 'get_user_from_jwt'
+    middleware: ['get_user_from_jwt', 'i18n']
   }
 }
