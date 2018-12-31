@@ -90,6 +90,7 @@ const usersRouter = require('./routes/users')
 const actsRouter = require('./routes/acts')
 const baseRouter = require('./routes/base')
 const rewardsRouter = require('./routes/rewards')
+const adminRouter = require('./routes/admin')
 
 mongoose.connection.on('connected', () =>
   console.log(`Mongoose connected to ${process.env.DBURL}`)
@@ -108,6 +109,7 @@ app.use(getRoles);
 app.use('/', baseRouter);
 app.use('/acts', actsRouter);
 app.use('/users', usersRouter);
+app.use('/admin', adminRouter);
 app.use('/rewards', rewardsRouter);
 
 // catch 404 and forward to error handler

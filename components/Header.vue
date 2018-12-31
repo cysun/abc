@@ -70,6 +70,9 @@
                 :class="{active: page == 'calendar'}"
               >Calendar</nuxt-link>
             </li>
+            <li class="nav-item mr-lg-3" v-if="roles && roles.administrator">
+              <nuxt-link class="nav-link" to="/admin">Admin</nuxt-link>
+            </li>
             <li class="nav-item mr-lg-3">
               <a class="nav-link" href="/about">About</a>
             </li>

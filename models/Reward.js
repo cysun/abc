@@ -50,6 +50,10 @@ let rewardSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    creation_date: {
+        type: Date,
+        default: Date.now
+    },
     state: {
         type: String,
         enum: ['AVAILABLE', 'NOT_AVAILABLE'],

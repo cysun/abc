@@ -18,7 +18,7 @@ module.exports = {
       { src: '/js/iziToast.min.js' },
       { src: '/js/jquery-2.1.4.min.js' },
       { src: 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' },
-      { src: '/js/bootstrap.js' },
+      // { src: '/js/bootstrap.js' },
       { src: '/js/waypoints.min.js' },
       { src: '/js/counterup.min.js' },
       { src: '/js/responsiveslides.min.js' },
@@ -34,10 +34,10 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    '~/assets/css/bootstrap.css',
+    // '~/assets/css/bootstrap.css',
     '~/assets/css/flexslider.css',
     '~/assets/css/fontawesome-all.css',
-    '~/assets/css/style.css',
+    // '~/assets/css/style.css',
     '~/assets/css/iziToast.min.css',
     '~/assets/css/bootstrap-datetimepicker.min.css'
   ],
