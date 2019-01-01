@@ -151,7 +151,7 @@
                 </script>
                 <br>
                 
-                <form id="smileys" v-if="data.rewards.rewards[0].state == 'COMPLETED' && !data.review" @submit.prevent="submitRating">
+                <form id="smileys" v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review" @submit.prevent="submitRating">
                   <span class="align-top">Rate the reward: </span>
   <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
 	<input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">

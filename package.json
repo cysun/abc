@@ -32,6 +32,7 @@
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.23.0",
     "mongoose": "^5.4.0",
+    "morgan": "^1.9.1",
     "multer": "^1.4.1",
     "nodemailer": "^4.7.0",
     "nuxt": "latest",
@@ -45,7 +46,8 @@
     "sharp": "^0.21.1",
     "source-map-support": "^0.4.15",
     "util.promisify": "^1.0.0",
-    "vue-i18n": "^8.5.0"
+    "vue-i18n": "^8.5.0",
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "^0.3.0",

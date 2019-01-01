@@ -16,7 +16,7 @@ const util = require('util');
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require('atob');
 const fs_rename_file = util.promisify(fs.rename);
-const mail = require('../../mail');
+const mail = require('../../send_mail');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -750,7 +750,8 @@ router.put('/:reward_id/review', async function (req, res, next) {
       { new: true }
     )
     //Send email to review provider about new review
-    await mail.sendMail(reward.reward_provider.email, "There is a new review of your reward", `Your reward has a new review`);
+    // await mail.sendMail(reward.reward_provider.email, "There is a new review of your reward", `Your reward has a new review`);
+    await mail.sendNewReviewNotice(reward.reward_provider.email);
 
     //Return success message
     res.json({ message: "Success" });
@@ -823,8 +824,10 @@ router.put('/:reward_id/user/:user_id/collected', async function (req, res, next
 
 
     //Email reward provider and reward collector that the transaction is done.
-    const promised_user_mail = mail.sendMail(user.email, "Reward transaction is completed", `Click <a href='${process.env.website}rewards/${reward._id}'>here</a> to rate the reward`);
-    const promised_reward_provider_mail = mail.sendMail(reward.reward_provider.email, "Your reward has been collected", `Click <a href='${process.env.website}rewards/${reward._id}'>here</a> to see the reward`);
+    // const promised_user_mail = mail.sendMail(user.email, "Reward transaction is completed", `Click <a href='${process.env.website}rewards/${reward._id}'>here</a> to rate the reward`);
+    const promised_user_mail = mail.sendRewardTransactionCompleteNotice(user.email, reward._id);
+    // const promised_reward_provider_mail = mail.sendMail(reward.reward_provider.email, "Your reward has been collected", `Click <a href='${process.env.website}rewards/${reward._id}'>here</a> to see the reward`);
+    const promised_reward_provider_mail = mail.sendRewardcollectedNoticeToRewardProvider(reward.reward_provider.email, reward._id);
 
     await Promise.all([promised_user_mail, promised_reward_provider_mail, promised_rewards_change, promised_user_change, promised_reward_provider_change]);
     //Return success message
@@ -1179,12 +1182,14 @@ router.get('/:id/details', async function (req, res, next) {
       .then(function (values) {
         returned_results = values[0];
         pages = Math.ceil(values[1][0].count / 10);
-        sum = values[2][0].sum;
+        sum = 0;
+        if (values[2][0])
+          sum = values[2][0].sum;
         // console.log("Results ", values[0]);
         // console.log("Count ", values[1]);
         // console.log("Points ", values[2]);
       })
-      res.json({data: returned_results, count: pages, sum})
+    res.json({ data: returned_results, count: pages, sum })
   }
   catch (err) {
     console.log(err)

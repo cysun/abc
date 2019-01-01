@@ -42,6 +42,111 @@ async function sendVerificationMail(user_email, verification_code) {
     }
 }
 
+async function sendProofApprovalMail(user_email, act_id) {
+
+    try {
+        await email.send({
+            template: 'act_approval',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: process.env.website,
+                act_id: act_id
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        // logger.error(err);
+        // console.log(err.message)
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
+async function sendProofRejectionMail(user_email, act_id, reason) {
+
+    try {
+        await email.send({
+            template: 'act_rejection',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: process.env.website,
+                act_id,
+                reason
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        // logger.error(err);
+        // console.log(err.message)
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
+async function sendNewReviewNotice(user_email) {
+
+    try {
+        await email.send({
+            template: 'new_review',
+            message: {
+                to: user_email
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        // logger.error(err);
+        // console.log(err.message)
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
+async function sendRewardTransactionCompleteNotice(user_email, reward_id) {
+
+    try {
+        await email.send({
+            template: 'complete_reward_transaction',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: process.env.website,
+                reward_id
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        // logger.error(err);
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
+async function sendRewardcollectedNoticeToRewardProvider(user_email, reward_id) {
+
+    try {
+        await email.send({
+            template: 'reward_collected',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: process.env.website,
+                reward_id
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        // logger.error(err);
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
 module.exports = {
-    sendVerificationMail
+    sendNewReviewNotice,
+    sendVerificationMail,
+    sendProofApprovalMail,
+    sendProofRejectionMail,
+    sendRewardTransactionCompleteNotice,
+    sendRewardcollectedNoticeToRewardProvider
 }

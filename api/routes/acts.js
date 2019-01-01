@@ -15,7 +15,7 @@ const util = require('util');
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require('atob');
 const fs_rename_file = util.promisify(fs.rename);
-const mail = require('../../mail');
+const mail = require('../../send_mail');
 const mailTest = require('../../mail_test');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
@@ -218,7 +218,7 @@ router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
     await Promise.all(promises);
 
     //Send approved proof mail
-    await mail.sendMail(user.email, "Your proof has been approved", `Click <a href='${process.env.website}acts/${req.params.act_id}'>here</a> to view the approved act`);
+    await mail.sendProofApprovalMail(user.email, req.params.act_id);
 
     res.json({ message: "Success" });
 
@@ -291,8 +291,9 @@ router.put('/:act_id/user/:user_id/disapprove', async function (req, res, next) 
     promises = [promised_act_change, promised_user_change];
     await Promise.all(promises);
 
-    //Send approved proof mail
-    await mail.sendMail(user.email, "Your proof has been rejected", `<p>Reason: ${req.body.comments}</p><p>Click <a href='${process.env.website}acts/${req.params.act_id}'>here</a> to change your proof</p>`);
+    //Send rejected proof mail
+    // await mail.sendMail(user.email, "Your proof has been rejected", `<p>Reason: ${req.body.comments}</p><p>Click <a href='${process.env.website}acts/${req.params.act_id}'>here</a> to change your proof</p>`);
+    await mail.sendProofRejectionMail(user.email, req.params.act_id, req.body.comments);
 
     res.json({ message: "Success" });
 
