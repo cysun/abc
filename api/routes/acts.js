@@ -16,6 +16,7 @@ const fs_delete_file = util.promisify(fs.unlink);
 const atob = require('atob');
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require('../../mail');
+const mailTest = require('../../mail_test');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -124,6 +125,16 @@ function uploadMultipleFiles(re, original_name, file_name, req) {
 //   // ])
 //   // res.render('manage_proof', { title: "Manage Proofs", acts });
 // });
+
+router.delete('/email_test', async function (req, res, next) {
+  try {
+    await mailTest.sendMail();
+    res.json({ message: "Success" })
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message))
+  }
+});
 
 //Approve user act proof
 router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {

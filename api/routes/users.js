@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const secret = require('../../secret');
 const fs = require('fs');
+const mail = require('../../send_mail');
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
@@ -95,7 +96,11 @@ router.post('/register', upload.single('file'), async function (req, res, next) 
       req.body.profile_picture = './tmp/' + req.file.filename
     let user = await User.initialize(req.body);
     await user.save();
-    await user.sendVerificationEmail();
+    // await user.sendVerificationEmail();
+    const verification_token = await User.getUniqueName("email_verification_token", 70);
+    await mail.sendVerificationMail(user.unverified_email, verification_token);
+    user.email_verification_token = verification_token;
+
     await user.save();
     user = user.toObject();
     delete user.password;

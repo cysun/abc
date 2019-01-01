@@ -366,35 +366,35 @@ userSchema.methods.attachProfilePicture = async function (profile_picture) {
         throw new Error("Invalid Image");
 }
 
-userSchema.methods.sendVerificationEmail = async function () {
-    let error_occured = false;
-    // Generate unique verification token
-    const verification_token = await this.model('User').getUniqueName("email_verification_token", 70);
-    // Send email to the given address for verification
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.email_address,
-            pass: process.env.email_password
-        }
-    });
+// userSchema.methods.sendVerificationEmail = async function () {
+//     let error_occured = false;
+//     // Generate unique verification token
+//     const verification_token = await this.model('User').getUniqueName("email_verification_token", 70);
+//     // Send email to the given address for verification
+//     const transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: process.env.email_address,
+//             pass: process.env.email_password
+//         }
+//     });
 
-    const mailOptions = {
-        from: process.env.email_address,
-        to: this.unverified_email,
-        subject: 'Verify your account',
-        html: `<p>Click <a href='${process.env.website}verify/${verification_token}'>here</a> to verify your account on ABC</p>`
-    };
+//     const mailOptions = {
+//         from: process.env.email_address,
+//         to: this.unverified_email,
+//         subject: 'Verify your account',
+//         html: `<p>Click <a href='${process.env.website}verify/${verification_token}'>here</a> to verify your account on ABC</p>`
+//     };
 
-    await transporter.sendMail(mailOptions, function (error, info) {
-        if (error)
-            error_occured = true;
-    });
-    if (error_occured)
-        throw new Error("Something went wrong. Please try again later");
+//     await transporter.sendMail(mailOptions, function (error, info) {
+//         if (error)
+//             error_occured = true;
+//     });
+//     if (error_occured)
+//         throw new Error("Something went wrong. Please try again later");
 
-    this.email_verification_token = verification_token;
-};
+//     this.email_verification_token = verification_token;
+// };
 
 userSchema.methods.deleteProfilePicture = async function () {
     //If there is a profile picture
@@ -414,36 +414,36 @@ userSchema.methods.deleteUser = async function () {
     this.enabled = false;
 }
 
-userSchema.methods.sendPasswordResetInstructions = async function () {
-    let error_occured = false;
-    //Get unique password reset token
-    const password_reset_token = await this.model('User').getUniqueName("reset_tokens", 70);
-    //Send password reset instructions to the user
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.email_address,
-            pass: process.env.email_password
-        }
-    });
+// userSchema.methods.sendPasswordResetInstructions = async function () {
+//     let error_occured = false;
+//     //Get unique password reset token
+//     const password_reset_token = await this.model('User').getUniqueName("reset_tokens", 70);
+//     //Send password reset instructions to the user
+//     const transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: process.env.email_address,
+//             pass: process.env.email_password
+//         }
+//     });
 
-    const mailOptions = {
-        from: process.env.email_address,
-        to: this.email,
-        subject: 'Reset your password',
-        html: `<p>Click <a href='${process.env.website}reset/${password_reset_token}'>here</a> to reset your password on ABC</p>`
-    };
+//     const mailOptions = {
+//         from: process.env.email_address,
+//         to: this.email,
+//         subject: 'Reset your password',
+//         html: `<p>Click <a href='${process.env.website}reset/${password_reset_token}'>here</a> to reset your password on ABC</p>`
+//     };
 
-    await transporter.sendMail(mailOptions, function (error, info) {
-        if (error)
-            error_occured = true;
-    });
-    if (error_occured)
-        throw new Error("Something went wrong. Please try again later");
+//     await transporter.sendMail(mailOptions, function (error, info) {
+//         if (error)
+//             error_occured = true;
+//     });
+//     if (error_occured)
+//         throw new Error("Something went wrong. Please try again later");
 
-    //Add it to this user's reset tokens
-    this.reset_tokens.push(password_reset_token);
-}
+//     //Add it to this user's reset tokens
+//     this.reset_tokens.push(password_reset_token);
+// }
 
 userSchema.methods.getActs = async function (params) {
     //Get user's acts (paginated)

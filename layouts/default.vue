@@ -29,12 +29,12 @@ export default {
       link: [
         {
           href:
-            'css/bootstrap.css',
+            '/css/bootstrap.css',
           rel: "stylesheet"
         },
         {
           href:
-            "css/style.css",
+            "/css/style.css",
           rel: "stylesheet"
         }
       ]

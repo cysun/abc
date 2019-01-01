@@ -180,6 +180,7 @@
                                 <ul class="dropdown-menu drp-mnu">
                                     <li> <a href="#"><i class="fa fa-cog"></i> Settings</a> </li>
                                     <li> <a href="#"><i class="fa fa-user"></i> Profile</a> </li>
+                                    <li> <nuxt-link to="/acts"><i class="fa fa-user"></i> Home</nuxt-link> </li>
                                     <li> <a href="#"><i class="fa fa-sign-out"></i> Logout</a> </li>
                                 </ul>
                             </li>

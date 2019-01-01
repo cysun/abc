@@ -24,15 +24,15 @@ export default {
       // ],
       link: [
         {
-          href: "css/admin/bootstrap.css",
+          href: "/css/admin/bootstrap.css",
           rel: "stylesheet"
         },
         {
-          href: "css/admin/style.css",
+          href: "/css/admin/style.css",
           rel: "stylesheet"
         },
         {
-          href: "css/admin/font-awesome.css",
+          href: "/css/admin/font-awesome.css",
           rel: "stylesheet"
         },
         {

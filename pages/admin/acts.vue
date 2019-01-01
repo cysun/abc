@@ -1,8 +1,214 @@
 <template>
   <div>
-    <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
-    <my-banner :title="title"/>
-    <section class="banner-bottom-w3ls-agileinfo py-5">
+<div class="page-container">
+    <div class="left-content">
+        <div class="mother-grid-inner">
+            <!--header start here-->
+            <div class="header-main">
+                <div class="header-left">
+                    <div class="logo-name">
+                        <a href="index.html">
+                            <h1>Shoppy</h1>
+                            <!--<img id="logo" src="" alt="Logo"/>-->
+                        </a>
+                    </div>
+                    <!--search-box-->
+                    <div class="search-box">
+                        <form>
+                            <input type="text" placeholder="Search..." required="">
+                            <input type="submit" value="">
+                        </form>
+                    </div>
+                    <!--//end-search-box-->
+                    <div class="clearfix"> </div>
+                </div>
+                <div class="header-right">
+                    <div class="profile_details_left">
+                        <!--notifications of menu start -->
+                        <ul class="nofitications-dropdown">
+                            <li class="dropdown head-dpdn">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                                        class="fa fa-envelope"></i><span class="badge">3</span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <div class="notification_header">
+                                            <h3>You have 3 new messages</h3>
+                                        </div>
+                                    </li>
+                                    <li><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p4.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor</p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li class="odd"><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p2.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor </p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p3.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor</p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li>
+                                        <div class="notification_bottom">
+                                            <a href="#">See all messages</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown head-dpdn">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                                        class="fa fa-bell"></i><span class="badge blue">3</span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <div class="notification_header">
+                                            <h3>You have 3 new notification</h3>
+                                        </div>
+                                    </li>
+                                    <li><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p5.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor</p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li class="odd"><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p6.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor</p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li><a href="#">
+                                            <div class="user_img"><img src="/images/admin/p7.png" alt=""></div>
+                                            <div class="notification_desc">
+                                                <p>Lorem ipsum dolor</p>
+                                                <p><span>1 hour ago</span></p>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </a></li>
+                                    <li>
+                                        <div class="notification_bottom">
+                                            <a href="#">See all notifications</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="dropdown head-dpdn">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                                        class="fa fa-tasks"></i><span class="badge blue1">9</span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <div class="notification_header">
+                                            <h3>You have 8 pending task</h3>
+                                        </div>
+                                    </li>
+                                    <li><a href="#">
+                                            <div class="task-info">
+                                                <span class="task-desc">Database update</span><span class="percentage">40%</span>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="progress progress-striped active">
+                                                <div class="bar yellow" style="width:40%;"></div>
+                                            </div>
+                                        </a></li>
+                                    <li><a href="#">
+                                            <div class="task-info">
+                                                <span class="task-desc">Dashboard done</span><span class="percentage">90%</span>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="progress progress-striped active">
+                                                <div class="bar green" style="width:90%;"></div>
+                                            </div>
+                                        </a></li>
+                                    <li><a href="#">
+                                            <div class="task-info">
+                                                <span class="task-desc">Mobile App</span><span class="percentage">33%</span>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="progress progress-striped active">
+                                                <div class="bar red" style="width: 33%;"></div>
+                                            </div>
+                                        </a></li>
+                                    <li><a href="#">
+                                            <div class="task-info">
+                                                <span class="task-desc">Issues fixed</span><span class="percentage">80%</span>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="progress progress-striped active">
+                                                <div class="bar  blue" style="width: 80%;"></div>
+                                            </div>
+                                        </a></li>
+                                    <li>
+                                        <div class="notification_bottom">
+                                            <a href="#">See all pending tasks</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div class="clearfix"> </div>
+                    </div>
+                    <!--notification menu end -->
+                    <div class="profile_details">
+                        <ul>
+                            <li class="dropdown profile_details_drop">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <div class="profile_img">
+                                        <span class="prfil-img"><img src="/images/admin/p1.png" alt=""> </span>
+                                        <div class="user-name">
+                                            <p>Malorum</p>
+                                            <span>Administrator</span>
+                                        </div>
+                                        <i class="fa fa-angle-down lnr"></i>
+                                        <i class="fa fa-angle-up lnr"></i>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu drp-mnu">
+                                    <li> <a href="#"><i class="fa fa-cog"></i> Settings</a> </li>
+                                    <li> <a href="#"><i class="fa fa-user"></i> Profile</a> </li>
+                                    <li> <nuxt-link to="/acts"><i class="fa fa-user"></i> Home</nuxt-link> </li>
+                                    <li> <a href="#"><i class="fa fa-sign-out"></i> Logout</a> </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"> </div>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <!--heder end here-->
+            <!-- script-for sticky-nav -->
+            <script>
+                $(document).ready(function () {
+                    var navoffeset = $(".header-main").offset().top;
+                    $(window).scroll(function () {
+                        var scrollpos = $(window).scrollTop();
+                        if (scrollpos >= navoffeset) {
+                            $(".header-main").addClass("fixed");
+                        } else {
+                            $(".header-main").removeClass("fixed");
+                        }
+                    });
+
+                });
+            </script>
+            <!-- /script-for sticky-nav -->
+            <!--inner block start here-->
+             <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
         <!-- <div>
@@ -10,9 +216,9 @@
           <div class="progress" style="float: right; width: 50%">
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
           </div>
-        </div>-->
+        </div> -->
         <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
-        <div style="clear: both"></div>
+        <div style='clear: both'></div>
         <br>
         <div class="form-inline justify-content-center">
           <div class="form-group" style="margin-right: 10px">
@@ -51,23 +257,15 @@
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
                 <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">Available</option>
-                <option value="REQUESTED" :selected="!query.type == 'REQUESTED'">Requested</option>
-                <option value="COLLECTED" :selected="!query.type == 'COLLECTED'">Collected</option>
-                <template v-if="data.roles && data.roles.act_poster">
-                <option disabled>──────────</option>
+                <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">Under Review</option>
+                <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">Completed</option>
+                <option value="REJECTED" :selected="!query.type == 'REJECTED'">Rejected</option>
+                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
-                  value="MY_REWARDS"
-                  :selected="!query.type == 'MY_REWARDS'"
-                >My Rewards</option>
-                <option
-                  value="OPEN"
-                  :selected="!query.type == 'OPEN'"
-                >Open Transactions</option>
-                <option
-                  value="CLOSED"
-                  :selected="!query.type == 'CLOSED'"
-                >Closed Transactions</option>
-                </template>
+                  v-if="data.roles && data.roles.act_poster"
+                  value="MY_ACTS"
+                  :selected="!query.type == 'MY_ACTS'"
+                >My Acts</option>
               </select>
             </span>
             <button
@@ -96,17 +294,7 @@
               </div>-->
               <div class="blog_info">
                 <h5>
-                  <a
-                  style='cursor: pointer'
-                    tabindex="0"
-                    v-if="!act.edit && act.reward_provider.id == data.user.id"
-                    data-toggle="popover"
-                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '\'>View</a>'"
-                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '/details\'>More details</a>'"
-                    data-trigger="focus"
-                    data-html="true"
-                  >{{act.name}}</a>                  
-                  <nuxt-link v-if="!act.edit && act.reward_provider.id !== data.user.id" :to="{path: 'rewards/' + act._id}">{{act.name}}</nuxt-link>
+                  <nuxt-link v-if="!act.edit" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -116,7 +304,7 @@
                   >
                 </h5>
                 <p>
-                  By {{act.reward_provider.first_name}} {{act.reward_provider.last_name}}
+                  By {{act.act_provider.first_name}} {{act.act_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
@@ -133,10 +321,7 @@
                 ></textarea>
                 <div v-if="act.__t == 'Event'">
                   <div>
-                    <span
-                      v-if="!act.edit"
-                      class="badge badge-light"
-                    >Start time: {{act.formated_start_time}}</span>
+                    <span v-if="!act.edit" class="badge badge-light">Start time: {{act.formated_start_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -162,10 +347,7 @@
                     </div>
                   </div>
                   <div>
-                    <span
-                      v-if="!act.edit"
-                      class="badge badge-light"
-                    >End time: {{act.formated_end_time}}</span>
+                    <span v-if="!act.edit" class="badge badge-light">End time: {{act.formated_end_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -196,44 +378,28 @@
                           todayHighlight: 1,
                           startView: 2,
                           forceParse: 0,
-                          showMeridian: 1
+                          showMeridian: 1,
                         });
                       </script>
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.reward_provider.id == data.user.id">
+                <div class="row" v-if="act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
-                      tabindex="0"
+                      href="#"
                       class="badge badge-info"
                       @click="change_act_state(index)"
                       v-if="act.state == 'AVAILABLE'"
-                      style="cursor: pointer"
                     >Available</a>
-                    <a
-                    tabindex="0"
+                    <span
                       @click="change_act_state(index)"
                       v-if="act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
                       style="cursor: pointer"
-                    >Not Available</a>
-                    <!-- <span v-if="act.enabled" class="badge badge-info">Enabled</span> -->
-                    <a
-                    tabindex="0"
-                      class="badge badge-info"
-                      @click="change_act_state_by_manager(index)"
-                      v-if="act.enabled"
-                      style="cursor: pointer"
-                    >Enabled</a>
-                    <!-- <span v-if="!act.enabled" class="badge badge-info">Disabled</span> -->
-                    <a
-                    tabindex="0"
-                      class="badge badge-info"
-                      @click="change_act_state_by_manager(index)"
-                      v-if="!act.enabled"
-                      style="cursor: pointer"
-                    >Disabled</a>
+                    >Not Available</span>
+                    <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
+                    <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">
@@ -262,41 +428,25 @@
                 </div>
                 <ul class="blog_list">
                   <li>
-                    <span
-                      title="Rewards points needed to get this reward"
-                      class="fa fa-credit-card"
-                      aria-hidden="true"
-                    ></span>
-                    <span v-if="!act.edit">{{act.value}}</span>
+                    <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
+                    <span v-if="!act.edit">{{act.reward_points}}</span>
                     <input
                       :id="'act_reward_points' + index"
                       v-if="act.edit"
                       type="number"
                       style="width: 40px"
-                      :value="act.value"
-                    >
-                    <i>|</i>
-                  </li>
-                  <li>
-                    <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
-                    <span v-if="!act.edit">{{act.amount}}</span>
-                    <input
-                      :id="'act_amount' + index"
-                      v-if="act.edit"
-                      type="number"
-                      style="width: 40px"
-                      :value="act.amount"
+                      :value="act.reward_points"
                     >
                     <i>|</i>
                   </li>
                   <li>
                     <span title="Popularity" class="fa fa-angle-double-down" aria-hidden="true"></span>
-                    {{act.total_number_of_users_who_clicked_on_this_reward}}
+                    {{act.total_number_of_clicks}}
                     <i>|</i>
                   </li>
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
-                    {{act.total_number_of_users_who_got_this_reward}}
+                    {{act.total_number_of_completions}}
                     <!-- <i>|</i> -->
                   </li>
                   <!-- <li>
@@ -345,11 +495,12 @@
                 <strong>{{status_state}}:</strong>
                 {{status_message}}
               </div>
-              <!-- <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">Add Reward</option>
+              <select @change="upload_type_changed" class="form-control" v-model="upload_type">
+                <option value="act">Add Act</option>
+                <option value="event">Add Event</option>
               </select>
-              <br>-->
-              <h4>Add Reward</h4>
+              <br>
+              <!-- <h4>Add Act</h4> -->
               <form @submit.prevent="addAct">
                 <input
                   class="form-control"
@@ -426,17 +577,9 @@
                   class="form-control"
                   type="number"
                   name="reward_points"
-                  placeholder="Value"
+                  placeholder="Reward points"
                   required
-                  v-model="add_act.value"
-                >
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  placeholder="Amount"
-                  required
-                  v-model="add_act.amount"
+                  v-model="add_act.reward_points"
                 >
                 <!-- <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" id="file" type="file" name="file">-->
@@ -553,9 +696,93 @@
         </div>
       </div>
     </section>
+            <!--inner block end here-->
+            <!--copy rights start here-->
+            <div class="copyrights">
+                <p>© 2016 Shoppy. All Rights Reserved | Design by <a href="http://w3layouts.com/" target="_blank">W3layouts</a>
+                </p>
+            </div>
+            <!--COPY rights end here-->
+        </div>
+    </div>
+    <!--slider menu-->
+    <div class="sidebar-menu">
+        <div class="logo"> <a href="#" class="sidebar-icon"> <span class="fa fa-bars"></span> </a> <a href="#"> <span
+                    id="logo"></span>
+                <!--<img id="logo" src="" alt="Logo"/>-->
+            </a> </div>
+        <div class="menu">
+            <ul id="menu">
+                <li id="menu-home"><a href="index.html"><i class="fa fa-tachometer"></i><span>Dashboard</span></a></li>
+                <li><a href="#"><i class="fa fa-cogs"></i><span>Components</span><span class="fa fa-angle-right" style="float: right"></span></a>
+                    <ul>
+                        <li><a href="grids.html">Grids</a></li>
+                        <li><a href="portlet.html">Portlets</a></li>
+                    </ul>
+                </li>
+                <li id="menu-comunicacao"><a href="#"><i class="fa fa-book nav_icon"></i><span>Element</span><span
+                            class="fa fa-angle-right" style="float: right"></span></a>
+                    <ul id="menu-comunicacao-sub">
+                        <li id="menu-mensagens" style="width: 120px"><a href="buttons.html">Buttons</a>
+                        </li>
+                        <li id="menu-arquivos"><a href="typography.html">Typography</a></li>
+                        <li id="menu-arquivos"><a href="icons.html">Icons</a></li>
+                    </ul>
+                </li>
+                <li><a href="maps.html"><i class="fa fa-map-marker"></i><span>Maps</span></a></li>
+                <li id="menu-academico"><a href="#"><i class="fa fa-file-text"></i><span>Pages</span><span class="fa fa-angle-right"
+                            style="float: right"></span></a>
+                    <ul id="menu-academico-sub">
+                        <li id="menu-academico-boletim"><a href="login.html">Login</a></li>
+                        <li id="menu-academico-avaliacoes"><a href="signup.html">Sign Up</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="charts.html"><i class="fa fa-bar-chart"></i><span>Charts</span></a></li>
+                <li><a href="#"><i class="fa fa-envelope"></i><span>Mailbox</span><span class="fa fa-angle-right" style="float: right"></span></a>
+                    <ul id="menu-academico-sub">
+                        <li id="menu-academico-avaliacoes"><a href="inbox.html">Inbox</a></li>
+                        <li id="menu-academico-boletim"><a href="inbox-details.html">Compose email</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="fa fa-cog"></i><span>System</span><span class="fa fa-angle-right" style="float: right"></span></a>
+                    <ul id="menu-academico-sub">
+                        <li id="menu-academico-avaliacoes"><a href="404.html">404</a></li>
+                        <li id="menu-academico-boletim"><a href="blank.html">Blank</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="fa fa-shopping-cart"></i><span>E-Commerce</span><span class="fa fa-angle-right"
+                            style="float: right"></span></a>
+                    <ul id="menu-academico-sub">
+                        <li id="menu-academico-avaliacoes"><a href="product.html">Product</a></li>
+                        <li id="menu-academico-boletim"><a href="price.html">Price</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="clearfix"> </div>
+</div>
+<!--slide bar menu end here-->
+<script>
+    var toggle = true;
+
+    $(".sidebar-icon").click(function () {
+        if (toggle) {
+            $(".page-container").addClass("sidebar-collapsed").removeClass("sidebar-collapsed-back");
+            $("#menu span").css({ "position": "absolute" });
+        }
+        else {
+            $(".page-container").removeClass("sidebar-collapsed").addClass("sidebar-collapsed-back");
+            setTimeout(function () {
+                $("#menu span").css({ "position": "relative" });
+            }, 400);
+        }
+        toggle = !toggle;
+    });
+</script>
   </div>
 </template>
-
 <script>
 import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
@@ -567,6 +794,7 @@ let iziToast;
 let vue_context;
 
 export default {
+    layout: "admin",
   components: {
     MyBanner,
     MyHeader
@@ -589,31 +817,6 @@ export default {
   },
   async mounted() {
     iziToast = require("iziToast");
-    $(document).ready(function() {
-      $('[data-toggle="popover"]').popover();
-    });
-
-    $(document).on("click", ".view_popover", function(event) {
-      event.preventDefault();
-      
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      var target = $(event.target);
-      // const index = target[0].id;
-      const id = target[0].name;
-      vue_context.viewReward(id);
-    });
-    $(document).on("click", ".more_details_popover", function(event) {
-      event.preventDefault();
-      
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      var target = $(event.target);
-      // const index = target[0].id;
-      const id = target[0].name;
-      vue_context.rewardDetails(id);
-    });
-    
 
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
@@ -647,7 +850,7 @@ export default {
     // console.log(context)
     await axios
       .get(
-        `/api/rewards?type=${context.query.type}&sort=${
+        `/api/acts?type=${context.query.type}&sort=${
           context.query.sort
         }&order=${context.query.order}&search=${context.query.search}&page=${
           context.query.page
@@ -665,28 +868,27 @@ export default {
         // });
         // console.log(res);
         data = res.data;
-        // console.log(data)
         //Loop through data and format date
-        // data.acts.forEach(element => {
-        //   if (element.__t == "Event") {
-        //     element.formated_start_time = moment(element.start_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-        //     element.formated_end_time = moment(element.end_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
+        data.acts.forEach(element => {
+          if (element.__t == "Event") {
+            element.formated_start_time = moment(element.start_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
+            element.formated_end_time = moment(element.end_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
 
-        //     element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-        //     element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-        //   }
-        // });
+            element.start_time = element.start_time.substring(0, element.start_time.length - 8);
+            element.end_time = element.end_time.substring(0, element.end_time.length - 8);
+          }
+        });
       })
       .catch(function(err) {
         // console.log(context.app.$cookies.getAll());
         // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
+        if (err.response.status == 400) {
+          context.redirect("/logout");
+        }
         // console.log(err.response.status);
         // vue_context.$nuxt.$loading.finish();
         // if (err.response) vue_context.error = err.response.data.message;
@@ -715,7 +917,7 @@ export default {
   },
   data() {
     return {
-      title: "Rewards",
+      title: "Acts",
       error: "",
       status_message: "",
       status_state: "",
@@ -725,7 +927,7 @@ export default {
       password: "",
       image: null,
       logged_in: true,
-      page: "rewards",
+      page: "acts",
       // roles: this.data.roles,
       deleted_acts: {},
       upload_type: "act",
@@ -749,7 +951,7 @@ export default {
     const refresh_token = this.$cookies.get("refresh_token");
     await axios
       .get(
-        `/api/rewards?type=${to.query.type}&sort=${to.query.sort}&order=${
+        `/api/acts?type=${to.query.type}&sort=${to.query.sort}&order=${
           to.query.order
         }&search=${to.query.search}&page=${to.query.page}`,
         {
@@ -780,7 +982,7 @@ export default {
       // window.scrollTo(0, top);
 
       this.$router.push(
-        `/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
+        `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
         }&search=${vue_context.query.search}&page=${index}
         `
@@ -802,27 +1004,19 @@ export default {
       // var element = this.$refs["acts_come_here"];
 
       // scrollToElement(element);
-      this.$router.push(`/rewards?type=${this.query.type}`);
+      this.$router.push(`/acts?type=${this.query.type}`);
     },
     type_changed() {
       // console.log(this.query.type);
-      this.$router.push(`/rewards?type=${this.query.type}`);
+      this.$router.push(`/acts?type=${this.query.type}`);
     },
     upload_type_changed() {
       // console.log(this.upload_type);
-    },
-    viewReward(id){
-      // alert(id);
-      this.$router.push(`rewards/${id}`)
     },
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
       else this.$set(this.data.acts[index], "edit", false);
-    },
-    rewardDetails(id){
-      // alert(id);
-      this.$router.push(`rewards/${id}/details`)
     },
     delete_act(index) {
       if (!this.data.acts[index].delete)
@@ -841,7 +1035,7 @@ export default {
       //Make request to delete act
 
       await axios
-        .put(`/api/rewards/${vue_context.deleted_acts[index]._id}/delete`, {
+        .put(`/api/acts/${vue_context.deleted_acts[index]._id}/delete`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -862,7 +1056,7 @@ export default {
           //Tell the user that the act could not be deleted
           iziToast.error({
             title: "Error",
-            message: "Sorry, the reward could not be deleted",
+            message: "Sorry, the act could not be deleted",
             position: "topRight"
           });
         });
@@ -878,15 +1072,15 @@ export default {
       });
       //Get new state
       let new_state;
-      if (this.data.acts[index].previous_data.state == 'AVAILABLE')
-        new_state = 'NOT_AVAILABLE';
-      else new_state = 'AVAILABLE';
+      if (this.data.acts[index].previous_data.state == "AVAILABLE")
+        new_state = "NOT_AVAILABLE";
+      else new_state = "AVAILABLE";
       //Change state of act
       this.$set(this.data.acts[index], "state", new_state);
       //Make request to change state of act
 
       await axios
-        .put(`/api/rewards/${vue_context.data.acts[index]._id}/user_state`, {
+        .put(`/api/acts/${vue_context.data.acts[index]._id}/state`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -901,46 +1095,7 @@ export default {
           //Tell the user that the act could not be altered
           iziToast.error({
             title: "Error",
-            message: "Sorry, the reward state could not be altered",
-            position: "topRight"
-          });
-        });
-    },
-    async change_act_state_by_manager(index)
-    {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Store previous state of act
-      this.$set(this.data.acts[index], "previous_data", {
-        enabled: this.data.acts[index].enabled
-      });
-      //Get new state
-      let new_state;
-      if (this.data.acts[index].previous_data.enabled == true)
-        new_state = false;
-      else new_state = true;
-      //Change state of act
-      this.$set(this.data.acts[index], "enabled", new_state);
-      //Make request to change state of act
-
-      await axios
-        .put(`/api/rewards/${vue_context.data.acts[index]._id}/state`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, revert state of act
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "enabled",
-            vue_context.data.acts[index].previous_data.enabled
-          );
-          //Tell the user that the act could not be altered
-          iziToast.error({
-            title: "Error",
-            message: "Sorry, the reward state could not be altered",
+            message: "Sorry, the act state could not be altered",
             position: "topRight"
           });
         });
@@ -967,37 +1122,28 @@ export default {
       const name = document.getElementById("act_name" + index).value;
       const description = document.getElementById("act_description" + index)
         .value;
-      const value = document.getElementById("act_reward_points" + index).value;
-      const amount = document.getElementById("act_amount" + index).value;
-      const enabled_state = this.data.acts[index].enabled;
+      const reward_points = document.getElementById("act_reward_points" + index)
+        .value;
+      const enabled_state = this.data.acts[index].enabled.state;
       //If this is an event, get new start and end time too
-      // let start_time, end_time;
+      let start_time, end_time;
 
-      // if (this.data.acts[index].__t == "Event") {
-      //   start_time = document.getElementById("act_start_time" + index).value;
-      //   end_time = document.getElementById("act_end_time" + index).value;
-      // }
+      if (this.data.acts[index].__t == "Event") {
+        start_time = document.getElementById("act_start_time" + index).value;
+        end_time = document.getElementById("act_end_time" + index).value;
+      }
       //Save previous name, description and reward points and enabled_state
       this.$set(this.data.acts[index], "previous_data", {
         name: this.data.acts[index].name,
         description: this.data.acts[index].description,
-        value: this.data.acts[index].value,
-        amount: this.data.acts[index].amount,
+        reward_points: this.data.acts[index].reward_points,
         enabled: enabled_state
       });
       //If this is an event, save previous start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(
-      //     this.data.acts[index].previous_data,
-      //     "start_time",
-      //     this.data.acts[index].formated_start_time
-      //   );
-      //   this.$set(
-      //     this.data.acts[index].previous_data,
-      //     "end_time",
-      //     this.data.acts[index].formated_end_time
-      //   );
-      // }
+      if (this.data.acts[index].__t == "Event"){
+        this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time);
+        this.$set(this.data.acts[index].previous_data, "end_time", this.data.acts[index].formated_end_time);
+      }
       // if (this.data.acts[index].__t == "Event") {
       //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
       //     start_time: this.data.acts[index].formated_start_time,
@@ -1007,26 +1153,19 @@ export default {
       //Update to new name, desription and reward points
       this.$set(this.data.acts[index], "name", name);
       this.$set(this.data.acts[index], "description", description);
-      this.$set(this.data.acts[index], "value", value);
-      this.$set(this.data.acts[index], "amount", amount);
-      // this.$set(this.data.acts[index], "value", value);
+      this.$set(this.data.acts[index], "reward_points", reward_points);
       //If this is an event
       //Update to new start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(
-      //     this.data.acts[index],
-      //     "formated_start_time",
-      //     moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      //   this.$set(
-      //     this.data.acts[index],
-      //     "formated_end_time",
-      //     moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      // }
+      if (this.data.acts[index].__t == "Event") {
+        this.$set(this.data.acts[index], "formated_start_time", moment(start_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            ));
+        this.$set(this.data.acts[index], "formated_end_time", moment(end_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            ));
+      }
       //Remember to disable the act
-      // this.$set(this.data.acts[index].enabled, "state", false);
-      this.data.acts[index].enabled = false;
+      this.$set(this.data.acts[index].enabled, "state", false);
       //Remove input fields
       this.edit_act(index);
       //Edit this act
@@ -1034,17 +1173,16 @@ export default {
 
       params.append("name", name);
       params.append("description", description);
-      params.append("value", value);
-      params.append("amount", amount);
+      params.append("reward_points", reward_points);
 
       //If this is an event, edit its start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   params.append("start_time", start_time);
-      //   params.append("end_time", end_time);
-      // }
+      if (this.data.acts[index].__t == "Event") {
+        params.append("start_time", start_time);
+        params.append("end_time", end_time);
+      }
 
       await axios
-        .put(`/api/rewards/${vue_context.data.acts[index]._id}`, params, {
+        .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -1063,13 +1201,8 @@ export default {
           );
           vue_context.$set(
             vue_context.data.acts[index],
-            "value",
-            vue_context.data.acts[index].previous_data.value
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "amount",
-            vue_context.data.acts[index].previous_data.amount
+            "reward_points",
+            vue_context.data.acts[index].previous_data.reward_points
           );
 
           //Revert to previous state
@@ -1080,26 +1213,25 @@ export default {
           );
 
           //If this is an event, revert to old start and end times
-          // if (vue_context.data.acts[index].__t == "Event") {
-          //   vue_context.$set(
-          //     vue_context.data.acts[index],
-          //     "formated_start_time",
-          //     vue_context.data.acts[index].previous_data.start_time
-          //   );
-          //   vue_context.$set(
-          //     vue_context.data.acts[index],
-          //     "formated_end_time",
-          //     vue_context.data.acts[index].previous_data.end_time
-          //   );
-          // }
+          if (vue_context.data.acts[index].__t == "Event") {
+            vue_context.$set(
+              vue_context.data.acts[index],
+              "formated_start_time",
+              vue_context.data.acts[index].previous_data.start_time
+            );
+            vue_context.$set(
+              vue_context.data.acts[index],
+              "formated_end_time",
+              vue_context.data.acts[index].previous_data.end_time
+            );
+          }
 
           //Tell the user that the act could not be edited
-          // let type_of_act = "act";
-          // if (vue_context.data.acts[index].__t == "Event")
-          //   type_of_act = "event";
+          let type_of_act = "act";
+          if (vue_context.data.acts[index].__t == "Event") type_of_act = "event";
           iziToast.error({
             title: "Error",
-            message: `Sorry, the reward could not be edited`,
+            message: `Sorry, the ${type_of_act} could not be edited`,
             position: "topRight"
           });
         });
@@ -1113,22 +1245,21 @@ export default {
 
       params.append("name", this.add_act.name);
       params.append("description", this.add_act.description);
-      params.append("value", this.add_act.value);
-      params.append("amount", this.add_act.amount);
-      // if (this.upload_type == "event") {
-      //   params.append(
-      //     "start_time",
-      //     // new Date(document.getElementById("start_time").value + 'Z')
-      //     new Date(document.getElementById("start_time").value)
-      //   );
-      //   params.append(
-      //     "end_time",
-      //     // new Date(document.getElementById("end_time").value + 'Z')
-      //     new Date(document.getElementById("end_time").value)
-      //   );
-      // }
+      params.append("reward_points", this.add_act.reward_points);
+      if (this.upload_type == "event") {
+        params.append(
+          "start_time",
+          // new Date(document.getElementById("start_time").value + 'Z')
+          new Date(document.getElementById("start_time").value)
+        );
+        params.append(
+          "end_time",
+          // new Date(document.getElementById("end_time").value + 'Z')
+          new Date(document.getElementById("end_time").value)
+        );
+      }
       await axios
-        .post(`/api/rewards`, params, {
+        .post(`/api/acts/${vue_context.upload_type}`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -1140,11 +1271,9 @@ export default {
           vue_context.status_message = res.data.message;
           vue_context.add_act.name = "";
           vue_context.add_act.description = "";
-          vue_context.add_act.value = "";
-          vue_context.add_act.amount = "";
-          // document.getElementById("end_time").value = "";
-          // document.getElementById("start_time").value = "";
-          // vue_context.add_act.reward_points = 0;
+          document.getElementById("end_time").value = "";
+          document.getElementById("start_time").value = "";
+          vue_context.add_act.reward_points = 0;
         })
         .catch(function(err) {
           vue_context.status_state = "Error";
@@ -1189,7 +1318,7 @@ export default {
       // vue_context.$nuxt.$loading.finish();
 
       this.$router.push(
-        `/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
+        `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
         }&search=${vue_context.query.search}
         `
@@ -1251,17 +1380,3 @@ export default {
   // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

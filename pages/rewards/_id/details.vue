@@ -398,6 +398,38 @@ export default {
         this.$set(this.data.acts[index], "delete", true);
       else this.$set(this.data.acts[index], "delete", false);
     },
+    async confirmCollection(index){
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      //Save row
+      this.deleted_acts[index] = this.data.data[0].users[index];
+      //Remove from screen
+      this.data.data[0].users.splice(index, 1);
+      //Send request to confirm collection
+      await axios
+        .put(`/api/rewards/${vue_context.$route.params.id}/user/${vue_context.deleted_acts[index].id}/collected`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error
+      //Place on screen
+          vue_context.data.data[0].users.splice(
+            index,
+            0,
+            vue_context.deleted_acts[index]
+          );
+          //Display error
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the request could not be sent",
+            position: "topRight"
+          });
+        });
+      
+      
+    },
     async confirm_delete_act(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
