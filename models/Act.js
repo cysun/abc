@@ -79,6 +79,13 @@ let actSchema = new mongoose.Schema({
             sparse: true
         },
     },
+    tags: [{
+        name: {
+            type: String,
+            lowercase: true,
+            trim: true
+        }
+    }],
     users_who_clicked_on_this_act: [{
         id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -326,6 +333,11 @@ actSchema.index(
 
 actSchema.index(
     { _id: 1, 'rejected_users.id': 1 },
+    { unique: true }
+)
+
+actSchema.index(
+    { _id: 1, 'tags.name': 1 },
     { unique: true }
 )
 

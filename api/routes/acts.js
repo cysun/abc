@@ -2,6 +2,7 @@ const { Router } = require('express')
 const User = require('../../models/User');
 const globals = require('../../globals');
 const Act = require('../../models/Act');
+const Tag = require('../../models/Tag');
 const Event_Act = require('../../models/Event');
 var createError = require('http-errors');
 const multer = require('multer');
@@ -903,6 +904,37 @@ router.post('/:type', async function (req, res, next) {
       act.end_time = req.body.end_time;
     }
 
+    //Check if there is a tag
+    //If there is,
+    if (req.body.tags) {
+      //Split into array by space delimiter
+      const tags = req.body.tags.split(" ");
+      const act_tags = [];
+      //Check if each tag exists
+      const promises = [];
+      const inner_promises = [];
+      tags.forEach(element => {
+        promises.push(Tag.findOne(
+          { name: element }, function (err, res) {
+            //If not exists,
+            if (!res) {
+              //Create tag
+              const tag = new Tag({
+                name: element
+              })
+              inner_promises.push(tag.save());
+            }
+          }
+        ));
+        //Create array of tags
+        act_tags.push({ name: element });
+      });
+      await Promise.all(promises);
+      await Promise.all(inner_promises);
+      //Attach tags to this act
+      act.tags = act_tags;
+    }
+
     await act.save();
     // user = user.toObject();
     // delete user.password;
@@ -962,9 +994,45 @@ router.put('/:id', async function (req, res, next) {
       act.start_time = start_time;
       act.end_time = end_time
     }
-    await act.save();
 
-    res.json({ message: "Success" });
+    //Check if there is a tag
+    //If there is,
+    if (req.body.tags) {
+      //Split into array by space delimiter
+      const tags = req.body.tags.split(" ");
+      const act_tags = [];
+      //Check if each tag exists
+      const promises = [];
+      const inner_promises = [];
+      tags.forEach(element => {
+        promises.push(Tag.findOne(
+          { name: element }, function (err, res) {
+            //If not exists,
+            if (!res) {
+              //Create tag
+              const tag = new Tag({
+                name: element
+              })
+              inner_promises.push(tag.save());
+            }
+          }
+        ));
+        //Create array of tags
+        act_tags.push({ name: element });
+        act.tags.push({name: element});
+      });
+      await Promise.all(promises);
+      await Promise.all(inner_promises);
+      //Attach tags to this act
+      // await Act.findByIdAndUpdate(
+      //   req.params.id,
+      //   { $push: { tags: {$each: act_tags} } }
+      // )
+    }
+
+    await act.save();
+    res.json(act);
+    // res.json(await Act.findById(req.params.id));
   } catch (err) {
     next(createError(400, err.message))
   }
@@ -1071,6 +1139,65 @@ router.delete('/proof/:new_name', async function (req, res, next) {
 
     await Promise.all(promises);
     //Return success
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+
+})
+
+//Delete act tag
+router.delete('/:act_id/tag/:tag_id', async function (req, res, next) {
+  // const new_name = atob(req.params.new_name);
+  try {
+    //Delete the tag from this act where _id is given
+    await Act.findByIdAndUpdate(req.params.act_id,
+      { $pull: { tags: { _id: req.params.tag_id } } }
+    )
+    // //Only admins and the person who uploaded the proof can delete it
+    // const user = await User.findOne(
+    //   { "acts.proof_of_completion.new_name": new_name },
+    // )
+    // if (!req.user)
+    //   throw new Error("You do not have authorization");
+    // if (!req.roles.administrator && user._id != req.user.id)
+    //   throw new Error("You do not have authorization");
+
+    // // await User.findOneAndUpdate(
+    // //   { "acts.proof_of_completion.new_name": new_name },
+    // //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
+    // // )
+    // // res.json({message: "Success"});
+
+    // const promises = [];
+    // //Delete the proof from the act object
+    // //Remove from users who have completed this act
+    // //Remove from users under review and rejected users
+    // const promised_delete_proof_from_act = Act.findOneAndUpdate(
+    //   { "users_who_completed_this_act.proof_of_completion.new_name": new_name },
+    //   {
+    //     $pull: {
+    //       "users_who_completed_this_act.$.proof_of_completion": { new_name: new_name },
+    //       "rejected_users.$.proof_of_completion": { new_name: new_name },
+    //       "users_under_review.$.proof_of_completion": { new_name: new_name }
+    //     }
+    //   }
+    // )
+    // //Delete the proof from the user object
+    // const promised_delete_proof_from_user = User.findOneAndUpdate(
+    //   { "acts.proof_of_completion.new_name": new_name },
+    //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
+    // )
+    // //Delete the proof file
+    // const previous_image = process.env.act_picture_folder + new_name.replace(process.env.website + process.env.display_act_picture_folder, '');
+    // const promised_delete_file = fs_delete_file(previous_image);
+
+    // promises.push(promised_delete_proof_from_act);
+    // promises.push(promised_delete_proof_from_user);
+    // promises.push(promised_delete_file);
+
+    // await Promise.all(promises);
+    // //Return success
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message))

@@ -10,9 +10,9 @@
           <div class="progress" style="float: right; width: 50%">
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
           </div>
-        </div> -->
+        </div>-->
         <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
-        <div style='clear: both'></div>
+        <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
           <div class="form-group" style="margin-right: 10px">
@@ -115,7 +115,10 @@
                 ></textarea>
                 <div v-if="act.__t == 'Event'">
                   <div>
-                    <span v-if="!act.edit" class="badge badge-light">Start time: {{act.formated_start_time}}</span>
+                    <span
+                      v-if="!act.edit"
+                      class="badge badge-light"
+                    >Start time: {{act.formated_start_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -141,7 +144,10 @@
                     </div>
                   </div>
                   <div>
-                    <span v-if="!act.edit" class="badge badge-light">End time: {{act.formated_end_time}}</span>
+                    <span
+                      v-if="!act.edit"
+                      class="badge badge-light"
+                    >End time: {{act.formated_end_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -172,7 +178,7 @@
                           todayHighlight: 1,
                           startView: 2,
                           forceParse: 0,
-                          showMeridian: 1,
+                          showMeridian: 1
                         });
                       </script>
                     </div>
@@ -250,7 +256,30 @@
                     </a>
                   </li>-->
                 </ul>
+                <div v-if="!act.edit">
+                  <span
+                    v-for="tag in act.tags"
+                    style="margin-right: 5px"
+                    class="badge badge-secondary"
+                  >{{tag.name}}</span>
+                </div>
+                <div class="form-inline" v-if="act.edit">
+                  <a
+                    v-for="(tag, tag_index) in act.tags"
+                    tabindex="0"
+                    style="margin-right: 5px; cursor: pointer"
+                    class="badge badge-secondary"
+                    @click="deleteTag(tag_index, index)"
+                  >{{tag.name}}</a>
+                  <input
+                    type="text"
+                    v-model="act.add_tags"
+                    class="form-control"
+                    placeholder="Tags (Seperate tags by space)"
+                  >
+                </div>
               </div>
+
               <div class="clearfix"></div>
             </article>
             <br>
@@ -321,6 +350,7 @@
                     <input
                       size="16"
                       placeholder="Start time"
+                      readonly
                       type="text"
                       class="form-control"
                       value
@@ -342,6 +372,7 @@
                     <input
                       size="16"
                       id="end_time"
+                      readonly
                       placeholder="End time"
                       type="text"
                       class="form-control"
@@ -374,6 +405,13 @@
                   placeholder="Reward points"
                   required
                   v-model="add_act.reward_points"
+                >
+                <input
+                  class="form-control"
+                  type="text"
+                  name="tags"
+                  placeholder="Tags (Seperate tags with a space)"
+                  v-model="add_act.tags"
                 >
                 <!-- <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" id="file" type="file" name="file">-->
@@ -587,8 +625,14 @@ export default {
               "MMMM Do YYYY, h:mm:ss a"
             );
 
-            element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-            element.end_time = element.end_time.substring(0, element.end_time.length - 8);
+            element.start_time = element.start_time.substring(
+              0,
+              element.start_time.length - 8
+            );
+            element.end_time = element.end_time.substring(
+              0,
+              element.end_time.length - 8
+            );
           }
         });
       })
@@ -637,6 +681,7 @@ export default {
       image: null,
       logged_in: true,
       page: "acts",
+      saved_tags: [],
       // roles: this.data.roles,
       deleted_acts: {},
       upload_type: "act",
@@ -731,6 +776,42 @@ export default {
       if (!this.data.acts[index].delete)
         this.$set(this.data.acts[index], "delete", true);
       else this.$set(this.data.acts[index], "delete", false);
+    },
+    async deleteTag(tag_index, act_index) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Save tag
+      this.saved_tags[act_index] = {
+        tag_index: this.data.acts[act_index].tags[tag_index]
+      };
+      const tag_id = this.data.acts[act_index].tags[tag_index]._id;
+      //remove tag from screen
+      this.data.acts[act_index].tags.splice(tag_index, 1);
+      //Make request to delete tag
+      await axios
+        .delete(
+          `/api/acts/${vue_context.data.acts[act_index]._id}/tag/${tag_id}`,
+          {
+            headers: {
+              Cookie: `token=${token}; refresh_token=${refresh_token};`
+            }
+          }
+        )
+        .catch(function(err) {
+          //If error, place tag back
+          vue_context.data.acts[act_index].tags.splice(
+            tag_index,
+            0,
+            vue_context.saved_tags[act_index].tag_index
+          );
+          //Show error
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the tag could not be deleted",
+            position: "topRight"
+          });
+        });
     },
     async confirm_delete_act(index) {
       const token = this.$cookies.get("token");
@@ -849,9 +930,17 @@ export default {
         enabled: enabled_state
       });
       //If this is an event, save previous start and end times
-      if (this.data.acts[index].__t == "Event"){
-        this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time);
-        this.$set(this.data.acts[index].previous_data, "end_time", this.data.acts[index].formated_end_time);
+      if (this.data.acts[index].__t == "Event") {
+        this.$set(
+          this.data.acts[index].previous_data,
+          "start_time",
+          this.data.acts[index].formated_start_time
+        );
+        this.$set(
+          this.data.acts[index].previous_data,
+          "end_time",
+          this.data.acts[index].formated_end_time
+        );
       }
       // if (this.data.acts[index].__t == "Event") {
       //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
@@ -866,12 +955,16 @@ export default {
       //If this is an event
       //Update to new start and end times
       if (this.data.acts[index].__t == "Event") {
-        this.$set(this.data.acts[index], "formated_start_time", moment(start_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            ));
-        this.$set(this.data.acts[index], "formated_end_time", moment(end_time).format(
-              "MMMM Do YYYY, h:mm:ss a"
-            ));
+        this.$set(
+          this.data.acts[index],
+          "formated_start_time",
+          moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
+        );
+        this.$set(
+          this.data.acts[index],
+          "formated_end_time",
+          moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
+        );
       }
       //Remember to disable the act
       this.$set(this.data.acts[index].enabled, "state", false);
@@ -883,6 +976,7 @@ export default {
       params.append("name", name);
       params.append("description", description);
       params.append("reward_points", reward_points);
+      params.append("tags", this.data.acts[index].add_tags);
 
       //If this is an event, edit its start and end times
       if (this.data.acts[index].__t == "Event") {
@@ -895,6 +989,11 @@ export default {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
+        })
+        .then(function(res) {
+          vue_context.data.acts[index].add_tags = "";
+          //Replace this act tags
+          vue_context.data.acts[index].tags = res.data.tags;
         })
         .catch(function(err) {
           //If error, revert to old name and description
@@ -937,7 +1036,8 @@ export default {
 
           //Tell the user that the act could not be edited
           let type_of_act = "act";
-          if (vue_context.data.acts[index].__t == "Event") type_of_act = "event";
+          if (vue_context.data.acts[index].__t == "Event")
+            type_of_act = "event";
           iziToast.error({
             title: "Error",
             message: `Sorry, the ${type_of_act} could not be edited`,
@@ -955,7 +1055,19 @@ export default {
       params.append("name", this.add_act.name);
       params.append("description", this.add_act.description);
       params.append("reward_points", this.add_act.reward_points);
+      if (this.add_act.tags) params.append("tags", this.add_act.tags);
       if (this.upload_type == "event") {
+
+        if (!document.getElementById("start_time").value || !document.getElementById("end_time").value)
+        {
+          iziToast.error({
+            title: "Error",
+            message: "Start time and end time must be inputted",
+            position: "topRight"
+          });  
+          return;
+        }
+
         params.append(
           "start_time",
           // new Date(document.getElementById("start_time").value + 'Z')
@@ -976,26 +1088,26 @@ export default {
         .then(function(res) {
           // vue_context.data = res.data;
           // console.log(res);
-          vue_context.status_state = "Success";
-          vue_context.status_message = res.data.message;
+         iziToast.success({
+            title: "Success",
+            message: res.data.message,
+            position: "topRight"
+          });
           vue_context.add_act.name = "";
           vue_context.add_act.description = "";
+          vue_context.add_act.reward_points = 0;
+          vue_context.add_act.tags = "";
+
           document.getElementById("end_time").value = "";
           document.getElementById("start_time").value = "";
-          vue_context.add_act.reward_points = 0;
         })
         .catch(function(err) {
-          vue_context.status_state = "Error";
-          vue_context.status_message = err.response.data.message;
-
-          // if (err.response.status == 400) {
-          //   vue_context.$router.redirect("/logout");
-          // }
-          // console.log(err.response.data.message);
-        });
-      //If error, display error
-      //If success, display success message with hint of manager's final say
-      //Then clear the form
+          iziToast.error({
+            title: "Error",
+            message: err.response.data.message,
+            position: "topRight"
+          });         
+        });      
     },
     async search() {
       // this.$nuxt.$loading.start();
