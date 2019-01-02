@@ -265,11 +265,6 @@
                         </a>
                       </li>
                       <li>
-                        <nuxt-link to="/acts">
-                          <i class="fa fa-user"></i> Home
-                        </nuxt-link>
-                      </li>
-                      <li>
                         <a href="#">
                           <i class="fa fa-sign-out"></i> Logout
                         </a>
@@ -300,202 +295,121 @@
           <!-- /script-for sticky-nav -->
           <!--inner block start here-->
           <div class="inner-block">
-            <!--market updates updates-->
-            <div class="market-updates">
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-1">
-                  <div class="col-md-8 market-update-left">
-                    <h3>83</h3>
-                    <h4>Registered User</h4>
-                    <p>Other hand, we denounce</p>
-                  </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-file-text-o"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
+            <div class="login-main">
+              <div class="login-head">
+                <h1>Edit user</h1>
               </div>
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-2">
-                  <div class="col-md-8 market-update-left">
-                    <h3>135</h3>
-                    <h4>Daily Visitors</h4>
-                    <p>Other hand, we denounce</p>
-                  </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-eye"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-              </div>
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-3">
-                  <div class="col-md-8 market-update-left">
-                    <h3>23</h3>
-                    <h4>New Messages</h4>
-                    <p>Other hand, we denounce</p>
-                  </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-envelope-o"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <!--market updates end here-->
-            <!--mainpage chit-chating-->
-            <div class="chit-chat-layer1">
-              <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent registrations</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>First name</th>
-                          <th>Last name</th>
-                          <th>Verified</th>
-                          <th>Registration time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(user, index) in data.users">
-                          <td>{{index + 1}}</td>
-                          <td>{{user.first_name}}</td>
-                          <td>{{user.last_name}}</td>
-                          <td>
-                            <span class="label label-danger">{{user.enabled}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{user.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/user/' + user._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent acts</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Poster's First name</th>
-                          <th>Poster's Last name</th>
-                          <th>Verified</th>
-                          <th>Creation time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(act, index) in data.acts">
-                          <td>{{index + 1}}</td>
-                          <td>{{act.act_provider.first_name}}</td>
-                          <td>{{act.act_provider.last_name}}</td>
-                          <td>
-                            <span class="label label-danger">{{act.enabled.state}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/edit/act/' + act._id">
-                              <button class="btn btn-primary">Edit</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <div class="col-md-6 chit-chat-layer1-left">
-              <div class="work-progres">
-                <div class="chit-chat-heading">Recent Rewards</div>
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Poster's First name</th>
-                        <th>Poster's Last name</th>
-                        <th>Verified</th>
-                        <th>Creation time</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(reward, index) in data.rewards">
-                        <td>{{index + 1}}</td>
-                        <td>{{reward.reward_provider.first_name}}</td>
-                        <td>{{reward.reward_provider.last_name}}</td>
-                        <td>
-                          <span class="label label-danger">{{reward.enabled}}</span>
-                        </td>
-                        <td>
-                          <span class="badge badge-info">{{reward.creation_date}}</span>
-                        </td>
-                        <td>
-                          <nuxt-link :to="'/admin/edit/reward/' + reward._id">
-                            <button class="btn btn-primary">Edit</button>
-                          </nuxt-link>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!--climate start here-->
-            <div class="climate">
-              <div class="col-md-4 climate-grids">
-                <div class="climate-grid3">
-                  <div class="popular-brand">
-                    <div class="col-md-6 popular-bran-left">
-                      <h3>Popular</h3>
-                      <h4>Brand of this month</h4>
-                      <p>Duis aute irure in reprehenderit.</p>
-                    </div>
-                    <div class="col-md-6 popular-bran-right">
-                      <h3>Polo</h3>
+              <div class="login-block">
+                <form @submit.prevent="editUser">
+                  <input type="hidden" name="id" value="this_user._id">
+                  <label for="first_name">First name</label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    id="first_name"
+                    placeholder="First name"
+                    v-model="data.user.first_name"
+                  >
+                  <label for="last_name">Last name</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    id="last_name"
+                    placeholder="Last name"
+                    v-model="data.user.last_name"
+                  >
+                  <label for="email">Email</label>
+                  <input
+                    type="text"
+                    name="email"
+                    placeholder="Email"
+                    id="email"
+                    disabled
+                    :value="data.user.email"
+                  >
+                  <h3>Roles</h3>
+                  <div class="forgot-top-grids">
+                    <div class="forgot-grid">
+                      <ul>
+                        <li>
+                          <input
+                            type="checkbox"
+                            id="act_poster"
+                            value="Act Poster"
+                            v-model="data.roles.act_poster"
+                            name="roles"
+                          >
+                          <label for="act_poster">
+                            <span></span>Act poster
+                          </label>
+                        </li>
+                        <li>
+                          <input
+                            type="checkbox"
+                            id="reward_provider"
+                            value="Reward Provider"
+                            v-model="data.roles.reward_provider"
+                            name="roles"
+                          >
+                          <label for="reward_provider">
+                            <span></span>Reward provider
+                          </label>
+                        </li>
+                        <li>
+                          <input
+                            type="checkbox"
+                            id="manager"
+                            value="Manager"
+                            v-model="data.roles.manager"
+                            name="roles"
+                          >
+                          <label for="manager">
+                            <span></span>Manager
+                          </label>
+                        </li>
+                        <li>
+                          <input
+                            type="checkbox"
+                            id="admin"
+                            v-model="data.roles.administrator"
+                            value="Administrator"
+                            name="roles"
+                          >
+                          <label for="admin">
+                            <span></span>Admin
+                          </label>
+                        </li>
+                        <li>
+                          <input
+                            type="checkbox"
+                            id="enabled"
+                            v-model="data.user.enabled"
+                            value="true"
+                            name="enabled"
+                          >
+                          <label for="enabled">
+                            <span></span>Enabled
+                          </label>
+                        </li>
+                      </ul>
                     </div>
                     <div class="clearfix"></div>
                   </div>
-                  <div class="popular-follow">
-                    <div class="col-md-6 popular-follo-left">
-                      <p>Lorem ipsum dolor sit amet, adipiscing elit.</p>
-                    </div>
-                    <div class="col-md-6 popular-follo-right">
-                      <h4>Follower</h4>
-                      <h5>2892</h5>
-                    </div>
-                    <div class="clearfix"></div>
-                  </div>
-                </div>
+                  <input type="submit" name="edit" value="Edit">
+                </form>
+                <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
-              <div class="clearfix"></div>
             </div>
-            <!--climate end here-->
           </div>
           <!--inner block end here-->
           <!--copy rights start here-->
           <div class="copyrights">
-            <p>© 2016 Shoppy. All Rights Reserved | Design by
-              <a href="http://w3layouts.com/" target="_blank">W3layouts</a>
+            <p>
+              © 2016 Shoppy. All Rights Reserved | Design by
+              <a
+                href="http://w3layouts.com/"
+                target="_blank"
+              >W3layouts</a>
             </p>
           </div>
           <!--COPY rights end here-->
@@ -656,25 +570,82 @@
 </template>
 <script>
 import axios from "~/plugins/axios";
+let vue_context, iziToast;
 
 export default {
   layout: "admin",
+  created: function() {
+    vue_context = this;
+  },
+  async mounted() {
+    iziToast = require("iziToast");
+  },
+  methods: {
+    async editUser() {
+      //Format data
+    //   const params = new URLSearchParams();
+
+      const roles = [];
+      if (this.data.roles.act_poster) roles.push({ name: "Act Poster" });
+      if (this.data.roles.reward_provider)
+        roles.push({ name: "Reward Provider" });
+      if (this.data.roles.manager) roles.push({ name: "Manager" });
+      if (this.data.roles.administrator) roles.push({ name: "Administrator" });
+
+        const json = {
+            first_name: this.data.user.first_name,
+            last_name: this.data.user.last_name,
+            enabled: this.data.user.enabled,
+            roles: roles
+        }
+
+    //   params.append("first_name", this.data.user.first_name);
+    //   params.append("last_name", this.data.user.last_name);
+    //   params.append("enabled", this.data.user.enabled);
+    //   params.append("roles", roles);
+
+      //Send request to edit user
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      await axios
+        .put(`/api/users/${vue_context.$route.params.id}`, json, {
+          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+        })
+        .then(function(res) {
+          //If success, display success message
+          iziToast.success({
+            title: "Success",
+            message: "User has been edited successfully",
+            position: "topRight"
+          });
+        })
+        .catch(function(err) {
+          //If error, display error
+          iziToast.error({
+            title: "Error",
+            message: "The request could not be granted",
+            position: "topRight"
+          });
+        });
+    }
+  },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
-    if (!context.query.sort) context.query.sort = "";
-    if (!context.query.search) context.query.search = "";
-    if (!context.query.order) context.query.order = "";
-    if (!context.query.page) context.query.page = 1;
-    if (!context.query.type) context.query.type = "AVAILABLE";
+    // if (!context.query.sort) context.query.sort = "";
+    // if (!context.query.search) context.query.search = "";
+    // if (!context.query.order) context.query.order = "";
+    // if (!context.query.page) context.query.page = 1;
+    // if (!context.query.type) context.query.type = "AVAILABLE";
 
     // console.log(context.app.$cookies.getAll());
     // console.log(context.req.headers.cookie);
     let data;
     // console.log(context)
     await axios
-      .get(`/api/admin`, {
+      .get(`/api/users/${context.params.id}/edit`, {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {

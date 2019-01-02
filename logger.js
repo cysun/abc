@@ -16,7 +16,7 @@ const logFormat = winston.format.printf(info => {
 
 let transports = [
   new winston.transports.File({
-    filename: `${logDir}/scicafe.log`,
+    filename: `${logDir}/ABC.log`,
     format: logFormat,
     handleExceptions: true,
     maxsize: 2 ** 20 * 10,
@@ -43,7 +43,7 @@ const requestLogFormat = winston.format.printf(info => {
 const requestLogger = winston.createLogger({
   transports: [
     new winston.transports.File({
-      filename: `${logDir}/scicafe-requests.log`,
+      filename: `${logDir}/ABC-requests.log`,
       format: requestLogFormat,
       maxsize: 2 ** 20 * 10,
       maxFiles: 10

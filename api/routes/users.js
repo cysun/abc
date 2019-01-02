@@ -116,4 +116,60 @@ router.post('/register', upload.single('file'), async function (req, res, next) 
   }
 })
 
+//Edit user
+router.get('/:id/edit', async function (req, res, next) {
+  try {
+    // let users = await User.findById(req.params.id);
+    // users.forEach(element => {
+    //     element.creation_date = element.creation_date.toLocaleDateString("en-US", options);
+    // });
+    const user = await User.findById(req.params.id);
+    const roles = {};
+    if (user) {
+      //Check roles
+      if (user.roles.length > 0) {
+        user.roles.forEach(element => {
+          //Attach roles in array into distinct properties
+          switch (element.name) {
+            case "Act Poster":
+              roles.act_poster = true;
+              break;
+            case "Reward Provider":
+              roles.reward_provider = true;
+              break;
+            case "Manager":
+              roles.manager = true;
+              break;
+            case "Administrator":
+              roles.reward_provider = true;
+              roles.administrator = true;
+              roles.act_poster = true;
+              roles.manager = true;
+              break;
+          }
+        });
+      }
+    }
+    res.json({ user, roles })
+    // res.render('admin_edit', { layout: 'admin_layout', roles: roles, title: "Admin dashboard", user: req.user, error: req.query.error, this_user: user });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+});
+
+//Edit user
+router.put('/:id', async function (req, res, next) {
+  try {
+    const user = await User.findById(req.params.id);
+    user.first_name = req.body.first_name;
+    user.last_name = req.body.last_name;
+    user.roles = req.body.roles;
+    user.enabled = req.body.enabled;
+    await user.save();
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
+});
+
 module.exports = router

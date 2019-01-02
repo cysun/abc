@@ -88,6 +88,10 @@ describe('ABC', () => {
     let second_user_id;
     let profile_picture;
     let user_jwt;
+    let act_poster = {};
+    let reward_poster = {};
+    let manager = {};
+    let admin = {};
     let user_refresh_token;
 
     beforeAll(async (done) => {
@@ -96,8 +100,52 @@ describe('ABC', () => {
             useNewUrlParser: true
         });
 
+        //Create users with privileges
+        const registration_form = {
+            email: "act_poster@email.com",
+            first_name: "first_name",
+            last_name: "last_name",
+            password: "password1!Q"
+        }
+        const options = {
+            method: "POST",
+            url: `${homepage}${registration_end_point}`,
+            formData: registration_form,
+            json: true
+        }
+
+        const promised_act_poster = request_promise(options)
+            .then(function (res) {
+                act_poster.id = res._id;
+            })
+
+        registration_form.email = "reward_poster@email.com";
+        options.formData = registration_form;
+        const promised_reward_poster = request_promise(options)
+            .then(function (res) {
+                reward_poster.id = res._id;
+            })
+
+        registration_form.email = "manager@email.com";
+        options.formData = registration_form;
+        const promised_manager = request_promise(options)
+            .then(function (res) {
+                manager.id = res._id;
+            })
+
+        const promised_admin = User.findOne({ email: "admin@email.com" });
+
+        const promises = [promised_act_poster, promised_reward_poster, promised_manager, promised_admin];
+        await Promise.all(promises)
+            .then(function (values) {
+                admin = values[3];
+            })
+
+        //Give them privileges
+        
         done();
     });
+
     it('(Failure) Registration with incomplete details', async () => {
         const promises = [];
         //Register with incomplete fields
@@ -356,11 +404,41 @@ describe('ABC', () => {
             })
     });
 
+    //Non act poster cannot create act
+    //Non act poster cannot create event
+    //Fail if incomplete values are used to create act by act poster
+    //Fail if incomplete values are used to create act by admin
+    //Fail if incomplete values are used to create event by act poster
+    //Fail if incomplete values are used to create event by admin
+    //Fail if end time of event is before start time
+    //Succeed if act poster posts act
+    //Succeed if act poster posts event
+    //Succeed if admin posts act
+    //Succeed if admin posts event
+
+    // it('(Failure) Non act poster cannot create act', async () => {
+    //     const promises = [];
+    //     //Login with incomplete fields
+    //     const login_array = [
+    //         ["email", "email@email.com"],
+    //         ["password", "password1!Q"]
+    //     ];
+
+    //     //Try to login with one empty field
+    //     promises.push(sendIncompleteValuesToEndPointWithForm('incomplete', 'POST', login_array, '/api/users/login', 400));
+    //     promises.push(sendIncompleteValuesToEndPointWithForm('empty', 'POST', login_array, '/api/users/login', 400));
+
+    //     await Promise.all(promises);
+    // });
+
     afterAll(async () => {
         //Delete users
         const promises = [];
         promises.push(User.findByIdAndDelete(first_user_id));
         promises.push(User.findByIdAndDelete(second_user_id));
+        promises.push(User.findByIdAndDelete(act_poster.id));
+        promises.push(User.findByIdAndDelete(reward_poster.id));
+        promises.push(User.findByIdAndDelete(manager.id));
 
         //Delete profile picture
         const image = process.env.profile_picture_folder + profile_picture.replace(process.env.website + process.env.display_picture_folder, '');

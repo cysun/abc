@@ -4,10 +4,6 @@
     <my-banner :title="title"/>
     <section class="contact py-5">
       <div class="container">
-        <div v-if="error" class="alert alert-danger">
-          <strong>Error:</strong>
-          {{error}}
-        </div>
         <div class="row contact_full w3-agile-grid">
           <div class="col-md-12 contact-us w3-agile-grid">
             <div class="row">
@@ -77,18 +73,8 @@
 import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
-// import base64Img from 'base64-img';
-function getCookie(cookiename, cookies) {
-  // Get name followed by anything except a semicolon
-  var cookiestring = RegExp("" + cookiename + "[^;]+").exec(cookies);
-  // Return everything after the equal sign, or an empty string if the cookie name not found
-  return decodeURIComponent(
-    !!cookiestring ? cookiestring.toString().replace(/^[^=]+./, "") : ""
-  );
-}
 
-let vue_context;
-
+let vue_context, iziToast;
 export default {
   components: {
     MyBanner,
@@ -98,30 +84,9 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
+    iziToast = require("iziToast");
   },
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    //If user is logged in, redirect to main page
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
     if (context.app.$cookies.get("token")) {
       context.redirect("/");
     }
@@ -129,7 +94,6 @@ export default {
   data() {
     return {
       title: "Sign up",
-      error: "",
       first_name: "",
       last_name: "",
       email: "",
@@ -147,22 +111,13 @@ export default {
       //Check if there an empty input field
       //If so, display error
       if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
+      iziToast.error({
+            title: "Error",
+            message: "All fields must be present",
+            position: "topRight"
+          });
       else {
         //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -184,32 +139,17 @@ export default {
           })
           .catch(function(err) {
             vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
+            if (err.response) 
+            {
+              iziToast.error({
+            title: "Error",
+            message: err.response.data.message,
+            position: "topRight"
           });
-
-        //Else
+          }
+          });
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

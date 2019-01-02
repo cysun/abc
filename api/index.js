@@ -14,6 +14,8 @@ const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+const logger = require('../logger').winston;
+const requestLogger = require('../logger').morgan;
 
 async function getUserFromJWT(req, res, next) {
   const verifyOptions = Object.assign({}, secret.signOptions);
@@ -93,10 +95,12 @@ const rewardsRouter = require('./routes/rewards')
 const adminRouter = require('./routes/admin')
 
 mongoose.connection.on('connected', () =>
-  console.log(`Mongoose connected to ${process.env.DBURL}`)
+logger.info(`Mongoose connected to ${process.env.DBURL}`)
+  // console.log(`Mongoose connected to ${process.env.DBURL}`)
 );
 mongoose.connection.on('disconnected', () =>
-  console.log('Mongoose disconnected.')
+  // console.log('Mongoose disconnected.')
+  logger.info('Mongoose disconnected')
 );
 mongoose.connect(process.env.DBURL, {
   useCreateIndex: true,
@@ -104,6 +108,7 @@ mongoose.connect(process.env.DBURL, {
 });
 
 // Import API Routes
+app.use(requestLogger);
 app.use(getUserFromJWT);
 app.use(getRoles);
 app.use('/', baseRouter);
@@ -132,6 +137,11 @@ app.use(function (err, req, res, next) {
     // req.flash('body', req.body);
     // res.redirect(url.parse(req.headers.referer).pathname + '?error=' + err.message);
   }
+
+  if (req.user) {
+    logger.error(`Exception caused by ${req.user.id}`);
+  }
+  logger.error(err);
 });
 
 async function shutdown(signal, callback) {
