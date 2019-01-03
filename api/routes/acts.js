@@ -733,8 +733,6 @@ router.get('/', async function (req, res, next) {
       state: true
     };
 
-
-
     let page = parseInt(sanitize(req.query.page));
     let act_type = sanitize(req.query.act_type);
     let sort = sanitize(req.query.sort);
@@ -765,11 +763,8 @@ router.get('/', async function (req, res, next) {
     if (!type || globals.user_act_types.indexOf(type) === -1)
       type = "AVAILABLE";
 
-
-
     //Deleted acts should not show up
     search['deleted'] = false;
-
 
     if (type == "AVAILABLE") {
       //Only return acts this user has not completed

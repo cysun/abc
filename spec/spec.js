@@ -1625,11 +1625,11 @@ describe('ABC', () => {
 
         //Enable one of the other acts that were created
         await Act.findOneAndUpdate(
-            { 
+            {
                 name: "Some test name specifically for jasmine",
                 'enabled.state': false,
                 deleted: false
-             },
+            },
             { 'enabled.state': true }
         )
         //This new available act should not show up in completed acts
@@ -1640,10 +1640,58 @@ describe('ABC', () => {
     });
 
     //Search for My Acts
-    //Said act should not be deleted
-    //Said act could be:
-    //Disabled
-    //Unavailable
+    it('Certain acts should not show up in My Acts', async () => {
+        const promises = [];
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=MY_ACTS`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=MY_ACTS`,
+            json: true,
+            jar: j
+        }
+
+        let act_count = 0;
+        await request_promise(options)
+            .then(function (res) {
+                act_count = res.act_count;
+                expect(res.act_count).toBeGreaterThan(0);
+            })
+
+
+        //Disable an act
+        //Make an act unavailable
+        await Act.findOneAndUpdate(
+            { name: "Some test name specifically for jasmine" },
+            {
+                disabled: true,
+                'enabled.state': false
+            }
+        )
+        //Act count should remain the same
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.act_count).toBe(act_count);
+            })
+
+        //Delete an act
+        await Act.updateMany(
+            {
+                name: "Some test name specifically for jasmine",
+                deleted: false
+            },
+            { deleted: true }
+        )
+
+        //Act count should be 0
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.act_count).toBe(0);
+            })
+    });
 
     afterAll(async () => {
         const promises = [];
