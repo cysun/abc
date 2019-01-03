@@ -91,7 +91,7 @@ router.post('/register', upload.single('file'), async function (req, res, next) 
   try {
     //If the user is already logged in, give error
     if (req.user)
-      throw new Error("You must not be logged in to access this endpoint");
+      throw new Error("You must be logged out to access this endpoint");
     if (req.file)
       req.body.profile_picture = './tmp/' + req.file.filename
     let user = await User.initialize(req.body);

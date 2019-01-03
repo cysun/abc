@@ -26,6 +26,10 @@ var upload = multer({
 
 const router = Router()
 
+function onlyUnique(value, index, self) { 
+  return self.indexOf(value) === index;
+}
+
 function uploadMultipleFiles(re, original_name, file_name, req) {
   let unique_name, ext;
   return Act.getUniqueProofImageName()
@@ -899,6 +903,13 @@ router.post('/:type', async function (req, res, next) {
 
     // //Handling events
     else if (req.params.type == 'event') {
+
+      if (!req.body.start_time || !req.body.end_time)
+        throw new Error("Incomplete request");
+
+      if (req.body.end_time < req.body.start_time)
+        throw new Error("Start time must be before end time");
+
       act = await Event_Act.initialize(req.body);
       act.start_time = req.body.start_time;
       act.end_time = req.body.end_time;
@@ -908,29 +919,18 @@ router.post('/:type', async function (req, res, next) {
     //If there is,
     if (req.body.tags) {
       //Split into array by space delimiter
-      const tags = req.body.tags.split(" ");
+      let tags = req.body.tags.split(" ");
+      tags = tags.filter( onlyUnique );
       const act_tags = [];
       //Check if each tag exists
       const promises = [];
-      const inner_promises = [];
       tags.forEach(element => {
-        promises.push(Tag.findOne(
-          { name: element }, function (err, res) {
-            //If not exists,
-            if (!res) {
-              //Create tag
-              const tag = new Tag({
-                name: element
-              })
-              inner_promises.push(tag.save());
-            }
-          }
-        ));
+        element = element.toLowerCase();
+        promises.push(Tag.create({ name: element }, function (err, res) {}))
         //Create array of tags
         act_tags.push({ name: element });
       });
       await Promise.all(promises);
-      await Promise.all(inner_promises);
       //Attach tags to this act
       act.tags = act_tags;
     }
@@ -1019,7 +1019,7 @@ router.put('/:id', async function (req, res, next) {
         ));
         //Create array of tags
         act_tags.push({ name: element });
-        act.tags.push({name: element});
+        act.tags.push({ name: element });
       });
       await Promise.all(promises);
       await Promise.all(inner_promises);
