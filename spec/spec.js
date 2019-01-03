@@ -152,6 +152,7 @@ describe('ABC', () => {
     let uploaded_proof;
     let uploaded_proof1;
     let uploaded_proof2;
+    let uploaded_proof3;
 
     beforeAll(async (done) => {
         mongoose.connect(process.env.DBURL, {
@@ -1363,15 +1364,141 @@ describe('ABC', () => {
                 expect(res.count).toBe(0);
             })
     });
-    
+
     //Search for rejected act
-    //Said act should be available
-    //Said act should not be:
-    //Disabled
-    //Deleted
-    //Unavailable
-    //Under review
-    //Completed
+    it('Certain acts should not show up in Rejected acts', async () => {
+        const promises = [];
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        //The last test rejected an act
+        //Rejected acts should return something
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Rejected acts are also available acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        let act;
+        await request_promise(options)
+            .then(function (res) {
+                act = res.acts[0];
+                expect(res.count).toBeGreaterThan(0);
+            })        
+
+        //Make act unavailable
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                state: "NOT_AVAILABLE"
+            },
+            { new: true }
+        );
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`);
+
+        options.url = `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        //Unavailable acts should not show up
+        //Completed acts should not show up (The last test created a completed act)
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Make this act disabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        );
+        //Disabled acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Delete act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': true,
+                deleted: true
+            },
+            { new: true }
+        );
+        //Deleted acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Undelete the act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false
+            },
+            { new: true }
+        );
+
+        //Upload a proof to this act thereby making it under review
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/complete`);
+
+        options.method = "POST";
+        options.url = `${homepage}/api/acts/${act._id}/complete`;
+        options.jar = j;
+        const file_to_upload_form = {
+            files: [fs.createReadStream(secret.invalid_image)]
+        }
+        options.formData = file_to_upload_form;
+
+        await request_promise(options)
+            .then(function (res) {
+                uploaded_proof3 = res[0].new_name;
+            })
+
+        //Acts under review should not be displayed
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=REJECTED&search=Some test name specifically for jasmine`;
+        options.jar = j;
+        delete options.formData;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+    });
+
+
     //Search for completed act
     //Said act should not be:
     //Available
@@ -1413,5 +1540,7 @@ describe('ABC', () => {
         fs.unlinkSync(proof1);
         const proof2 = process.env.act_picture_folder + uploaded_proof2.replace(process.env.website + process.env.display_act_picture_folder, '');
         fs.unlinkSync(proof2);
+        const proof3 = process.env.act_picture_folder + uploaded_proof3.replace(process.env.website + process.env.display_act_picture_folder, '');
+        fs.unlinkSync(proof3);
     });
 });
