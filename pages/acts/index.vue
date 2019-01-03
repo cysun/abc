@@ -473,57 +473,18 @@
                 ></div>
               </div>
             </div>-->
-            <div class="single-gd tech-btm">
-              <h4>Top stories of the week</h4>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a1.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
+            <!-- <div class="single-gd tech-btm">
+              <h4>Top acts of the month</h4>
+              <div
+                class="blog-grids alert alert-light"
+                style="white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;"
+              >
+                <nuxt-link to="/">Title</nuxt-link>
+                <p>Pellentesque dui, non felis. Maecenas male</p>
               </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a2.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a3.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-            </div>
-            <div class="single-gd">
-              <h4>Recent Post</h4>
-              <img src="images/a1.jpg" class="img-fluid" alt>
-              <p>
-                Lorem Ipsum convallis diam sapien consequat magna vulputate ornare malesuada. id dignissim velit id felis ac
-                cursus eros.
-                Cras a elit.
-              </p>
-            </div>
+            </div> -->
           </aside>
         </div>
       </div>
@@ -1057,14 +1018,15 @@ export default {
       params.append("reward_points", this.add_act.reward_points);
       if (this.add_act.tags) params.append("tags", this.add_act.tags);
       if (this.upload_type == "event") {
-
-        if (!document.getElementById("start_time").value || !document.getElementById("end_time").value)
-        {
+        if (
+          !document.getElementById("start_time").value ||
+          !document.getElementById("end_time").value
+        ) {
           iziToast.error({
             title: "Error",
             message: "Start time and end time must be inputted",
             position: "topRight"
-          });  
+          });
           return;
         }
 
@@ -1088,7 +1050,7 @@ export default {
         .then(function(res) {
           // vue_context.data = res.data;
           // console.log(res);
-         iziToast.success({
+          iziToast.success({
             title: "Success",
             message: res.data.message,
             position: "topRight"
@@ -1106,8 +1068,8 @@ export default {
             title: "Error",
             message: err.response.data.message,
             position: "topRight"
-          });         
-        });      
+          });
+        });
     },
     async search() {
       // this.$nuxt.$loading.start();

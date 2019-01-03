@@ -255,8 +255,9 @@ describe('ABC', () => {
         done();
     });
 
-    beforeEach(function () {
+    beforeEach(function (done) {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+        done();
     });
 
     it('(Failure) Registration with incomplete details', async () => {
@@ -1099,8 +1100,11 @@ describe('ABC', () => {
         options.method = "GET";
         options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
         options.jar = j;
+        //After completing an act
+        //My reward points should increase by the act's value
         await request_promise(options)
             .then(function (res) {
+                expect(res.reward_points.points).toBe(act.reward_points)
                 expect(res.count).toBe(0);
             })
 
@@ -1692,6 +1696,8 @@ describe('ABC', () => {
                 expect(res.act_count).toBe(0);
             })
     });
+
+
 
     afterAll(async () => {
         const promises = [];
