@@ -151,6 +151,7 @@ describe('ABC', () => {
     let user;
     let uploaded_proof;
     let uploaded_proof1;
+    let uploaded_proof2;
 
     beforeAll(async (done) => {
         mongoose.connect(process.env.DBURL, {
@@ -158,7 +159,7 @@ describe('ABC', () => {
             useNewUrlParser: true
         });
 
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+        // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
         //Create users with privileges
         const registration_form = {
@@ -251,6 +252,10 @@ describe('ABC', () => {
         admin.jwt = createJWT(admin);
 
         done();
+    });
+
+    beforeEach(function () {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
     });
 
     it('(Failure) Registration with incomplete details', async () => {
@@ -1209,14 +1214,156 @@ describe('ABC', () => {
             })
     });
 
+
     //Search for act that's under review
-    //Said act should not be:
-    //Available
-    //Unavailable
-    //Deleted
-    //Disabled
-    //Rejected
-    //Completed
+    it('Certain acts should not show up in under review acts', async () => {
+        const promises = [];
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        //The last act made an act Completed
+        //Available acts should not show up (The last test made an act available and enabled)
+        //Also, if user has no acts under review, return nothing
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Get rejected act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        let act;
+        await request_promise(options)
+            .then(function (res) {
+                act = res.acts[0];
+            })
+
+        //Upload a proof to this act thereby making it under review
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/complete`);
+
+        options.method = "POST";
+        options.url = `${homepage}/api/acts/${act._id}/complete`;
+        options.jar = j;
+        const file_to_upload_form = {
+            files: [fs.createReadStream(secret.invalid_image)]
+        }
+        options.formData = file_to_upload_form;
+
+        await request_promise(options)
+            .then(function (res) {
+                uploaded_proof2 = res[0].new_name;
+            })
+
+        //Acts under review should be displayed
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`;
+        options.jar = j;
+        delete options.formData;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Make act unavailable
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                state: "NOT_AVAILABLE"
+            },
+            { new: true }
+        );
+
+        //Unavailable acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Make this act disabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        );
+        //Disabled acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Delete act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': true,
+                deleted: true
+            },
+            { new: true }
+        );
+        //Deleted acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Undelete the act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false
+            },
+            { new: true }
+        );
+
+        //Reject the act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`);
+
+        options.method = "PUT";
+        options.url = `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`;
+        options.jar = j;
+        await request_promise(options)
+
+        //Rejected acts should not show up
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+    });
+    
     //Search for rejected act
     //Said act should be available
     //Said act should not be:
@@ -1264,6 +1411,7 @@ describe('ABC', () => {
         fs.unlinkSync(proof);
         const proof1 = process.env.act_picture_folder + uploaded_proof1.replace(process.env.website + process.env.display_act_picture_folder, '');
         fs.unlinkSync(proof1);
-
+        const proof2 = process.env.act_picture_folder + uploaded_proof2.replace(process.env.website + process.env.display_act_picture_folder, '');
+        fs.unlinkSync(proof2);
     });
 });
