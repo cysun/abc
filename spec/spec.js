@@ -148,6 +148,9 @@ describe('ABC', () => {
     let manager = {};
     let admin = {};
     let user_refresh_token;
+    let user;
+    let uploaded_proof;
+    let uploaded_proof1;
 
     beforeAll(async (done) => {
         mongoose.connect(process.env.DBURL, {
@@ -379,7 +382,7 @@ describe('ABC', () => {
     });
 
     it('(Success) Verify user', async () => {
-        const user = await User.findById(first_user_id);
+        user = await User.findById(first_user_id);
         const options = {
             method: "PUT",
             url: `${homepage}${verification_end_point}${user.email_verification_token}`,
@@ -965,14 +968,287 @@ describe('ABC', () => {
         expect(tag).toBeTruthy
     });
 
-    afterAll(async () => {
-        //Delete users
+    /******************************Read acts******************************/
+    //Non logged in user can't see acts 
+    it('(Failure) Only logged in users can see acts', async () => {
         const promises = [];
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/acts`,
+            json: true
+        }
+
+        //(Empty token)
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //(Invalid token)
+        const j = request_promise.jar();
+        const cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, `${homepage}/acts`);
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        await Promise.all(promises);
+    });
+
+    //Search for specific available act
+    it('(Failure) Certain acts should not show up in available acts', async () => {
+        const promises = [];
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        //Disabled acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Enable an act
+        //Make act unavailable
+        let act = await Act.findOneAndUpdate(
+            { name: "Some test name specifically for jasmine" },
+            {
+                'enabled.state': true,
+                state: "NOT_AVAILABLE"
+            },
+            { new: true }
+        );
+        //Unavailable acts should not show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Make this act available
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { state: "AVAILABLE" },
+            { new: true }
+        )
+        //Upload a proof to this act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/complete`);
+
+        options.method = "POST";
+        options.url = `${homepage}/api/acts/${act._id}/complete`;
+        options.jar = j;
+        const file_to_upload_form = {
+            files: [fs.createReadStream(secret.invalid_image)]
+        }
+        options.formData = file_to_upload_form;
+
+        await request_promise(options)
+            .then(function (res) {
+                uploaded_proof = res[0].new_name;
+            })
+
+        //Acts Under review should not be displayed
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
+        options.jar = j;
+        delete options.formData;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Have the manager approve the proof
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/user/${user._id}/approve`);
+
+        options.method = "PUT";
+        options.url = `${homepage}/api/acts/${act._id}/user/${user._id}/approve`;
+        options.jar = j;
+        await request_promise(options)
+
+        //Completed acts should not show up
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
+        options.jar = j;
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Deleted acts should not show up
+        const new_act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'enabled.state': false
+            },
+            {
+                'enabled.state': true,
+                deleted: true
+            },
+            { new: true }
+        )
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+    });
+
+    //Available, enabled, non deleted acts should show up
+    it('(Success) Available, enabled, non deleted acts should show up in available acts', async () => {
+        const act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'enabled.state': true,
+                deleted: true
+            },
+            { deleted: false },
+            { new: true }
+        )
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+    });
+
+    //Rejected acts should show up in available acts
+    it('(Success) Rejected acts should show up in the available acts section', async () => {
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        let act;
+        await request_promise(options)
+            .then(function (res) {
+                act = res.acts[0];
+            })
+
+        //Send proof to this act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/complete`);
+
+        options.method = "POST";
+        options.url = `${homepage}/api/acts/${act._id}/complete`;
+        options.jar = j;
+        const file_to_upload_form = {
+            files: [fs.createReadStream(secret.invalid_image)]
+        }
+        options.formData = file_to_upload_form;
+
+        await request_promise(options)
+            .then(function (res) {
+                uploaded_proof1 = res[0].new_name;
+            })
+
+        //Use manager to disprove proof
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`);
+
+        options.method = "PUT";
+        options.url = `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`;
+        options.jar = j;
+        delete options.formData;
+        await request_promise(options)
+
+        //Act should show up in available acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=AVAILABLE&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+    });
+
+    //Search for act that's under review
+    //Said act should not be:
+    //Available
+    //Unavailable
+    //Deleted
+    //Disabled
+    //Rejected
+    //Completed
+    //Search for rejected act
+    //Said act should be available
+    //Said act should not be:
+    //Disabled
+    //Deleted
+    //Unavailable
+    //Under review
+    //Completed
+    //Search for completed act
+    //Said act should not be:
+    //Available
+    //Under review
+    //Rejected
+    //Said act could be:
+    //Disabled
+    //Unavailable
+    //Deleted
+    //Search for My Acts
+    //Said act should not be deleted
+    //Said act could be:
+    //Disabled
+    //Unavailable
+
+    afterAll(async () => {
+        const promises = [];
+        //Delete users
         promises.push(User.findByIdAndDelete(first_user_id));
         promises.push(User.findByIdAndDelete(second_user_id));
         promises.push(User.findByIdAndDelete(act_poster._id));
         promises.push(User.findByIdAndDelete(reward_poster._id));
         promises.push(User.findByIdAndDelete(manager._id));
+        //Delete data
         promises.push(Act.deleteMany({ name: "Some test name specifically for jasmine" }));
         promises.push(Tag.deleteOne({ name: "should_not_exist_tag" }));
 
@@ -983,5 +1259,11 @@ describe('ABC', () => {
         //Delete profile picture
         const image = process.env.profile_picture_folder + profile_picture.replace(process.env.website + process.env.display_picture_folder, '');
         fs.unlinkSync(image);
+        //Delete uploaded proof
+        const proof = process.env.act_picture_folder + uploaded_proof.replace(process.env.website + process.env.display_act_picture_folder, '');
+        fs.unlinkSync(proof);
+        const proof1 = process.env.act_picture_folder + uploaded_proof1.replace(process.env.website + process.env.display_act_picture_folder, '');
+        fs.unlinkSync(proof1);
+
     });
 });
