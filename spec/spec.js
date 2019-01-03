@@ -1400,7 +1400,7 @@ describe('ABC', () => {
             .then(function (res) {
                 act = res.acts[0];
                 expect(res.count).toBeGreaterThan(0);
-            })        
+            })
 
         //Make act unavailable
         act = await Act.findByIdAndUpdate(
@@ -1498,16 +1498,147 @@ describe('ABC', () => {
             })
     });
 
-
     //Search for completed act
-    //Said act should not be:
-    //Available
-    //Under review
-    //Rejected
-    //Said act could be:
-    //Disabled
-    //Unavailable
-    //Deleted
+    it('Certain acts should not show up in Completed acts', async () => {
+        const promises = [];
+
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=COMPLETED&search=Some test name specifically for jasmine`);
+
+        const options = {
+            method: "GET",
+            url: `${homepage}/api/acts?type=COMPLETED&search=Some test name specifically for jasmine`,
+            json: true,
+            jar: j
+        }
+
+        //The last test completed an act
+        //Completed acts should return something
+        let act;
+        await request_promise(options)
+            .then(function (res) {
+                act = res.acts[0];
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Make act unavailable
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                state: "NOT_AVAILABLE"
+            },
+            { new: true }
+        );
+
+        //Unavailable completed acts should show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+
+        //Make this act disabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        );
+        //Disabled completed acts should show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Delete act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': true,
+                deleted: true
+            },
+            { new: true }
+        );
+        //Deleted completed acts should show up
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Undelete the act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false
+            },
+            { new: true }
+        );
+
+        //Delete this act
+        await (Act.deleteOne({ _id: act._id }));
+        //The act that's under review should not display
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Get the act that's under review
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`);
+
+        options.url = `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        await request_promise(options)
+            .then(function (res) {
+                act = res.acts[0];
+                expect(res.count).toBeGreaterThan(0);
+            })
+
+        //Reject it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`);
+
+        options.method = "PUT";
+        options.url = `${homepage}/api/acts/${act._id}/user/${user._id}/disapprove`;
+        options.jar = j;
+        await request_promise(options)
+
+        //It (Rejected act) should not show up in completed acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, `${homepage}/api/acts?type=COMPLETED&search=Some test name specifically for jasmine`);
+
+        options.method = "GET";
+        options.url = `${homepage}/api/acts?type=COMPLETED&search=Some test name specifically for jasmine`;
+        options.jar = j;
+
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+
+        //Enable one of the other acts that were created
+        await Act.findOneAndUpdate(
+            { 
+                name: "Some test name specifically for jasmine",
+                'enabled.state': false,
+                deleted: false
+             },
+            { 'enabled.state': true }
+        )
+        //This new available act should not show up in completed acts
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.count).toBe(0);
+            })
+    });
+
     //Search for My Acts
     //Said act should not be deleted
     //Said act could be:

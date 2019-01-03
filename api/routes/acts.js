@@ -26,7 +26,7 @@ var upload = multer({
 
 const router = Router()
 
-function onlyUnique(value, index, self) { 
+function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
 
@@ -820,6 +820,13 @@ router.get('/', async function (req, res, next) {
     // return result;
 
 
+    //If user requests completed acts
+    //Disregard deleted, enabled and available states
+    if (type == "COMPLETED") {
+      delete search.deleted;
+      delete search.enabled;
+      delete search.state;
+    }
 
     //For some unknown reason, the below command gives this error: Projection cannot have a mix of inclusion and exclusion.
     // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
@@ -920,13 +927,13 @@ router.post('/:type', async function (req, res, next) {
     if (req.body.tags) {
       //Split into array by space delimiter
       let tags = req.body.tags.split(" ");
-      tags = tags.filter( onlyUnique );
+      tags = tags.filter(onlyUnique);
       const act_tags = [];
       //Check if each tag exists
       const promises = [];
       tags.forEach(element => {
         element = element.toLowerCase();
-        promises.push(Tag.create({ name: element }, function (err, res) {}))
+        promises.push(Tag.create({ name: element }, function (err, res) { }))
         //Create array of tags
         act_tags.push({ name: element });
       });
