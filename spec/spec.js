@@ -2380,6 +2380,119 @@ describe('ABC', () => {
             });
     });
 
+    it('Enable acts', async () => {
+        //Get some act
+        //Make sure it's disabled, available and not deleted
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id
+            },
+            {
+                'enabled.state': false,
+                deleted: false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        )
+
+        let promises = [];
+
+        //Non logged in user cannot enable acts (No token)
+        const options = {
+            method: "PUT",
+            url: `${homepage}/api/acts/${act._id}/enable/true`,
+            json: true
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Non logged in user cannot enable acts (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Users cannot enable acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Act posters cannot enable acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        await Promise.all(promises);
+
+        //Deleted acts can't be enable
+        //Mark the act as deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+
+        //Mark the act as not deleted
+        // Make sure it's disabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                'enabled.state': false
+            },
+            { new: true }
+        )
+
+        //Only a manager or admin can enable acts
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.message).toBe("Success")
+            });
+
+            //If invalid state is sent
+            options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
+            //Return error
+            await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+    });
+
     afterAll(async () => {
         const promises = [];
         //Delete users
