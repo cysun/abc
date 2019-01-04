@@ -1173,56 +1173,29 @@ router.delete('/proof/:new_name', async function (req, res, next) {
 
 //Delete act tag
 router.delete('/:act_id/tag/:tag_id', async function (req, res, next) {
-  // const new_name = atob(req.params.new_name);
   try {
+    if (!req.roles || !req.roles.act_poster)
+      throw new Error("You do not have authorization");
+
+    //If this isn't the admin
+    if (!req.roles.administrator) {
+      //And it's a different act provider than the one who created the act
+      //Give error
+      const this_act = await Act.findOne({
+        _id: req.params.act_id,
+        'act_provider.id': req.user.id
+      })
+      if (!this_act)
+        throw new Error("You do not have authorization");
+
+      if (this_act.deleted)
+        throw new Error("Act does not exist");
+    }
+
     //Delete the tag from this act where _id is given
     await Act.findByIdAndUpdate(req.params.act_id,
       { $pull: { tags: { _id: req.params.tag_id } } }
     )
-    // //Only admins and the person who uploaded the proof can delete it
-    // const user = await User.findOne(
-    //   { "acts.proof_of_completion.new_name": new_name },
-    // )
-    // if (!req.user)
-    //   throw new Error("You do not have authorization");
-    // if (!req.roles.administrator && user._id != req.user.id)
-    //   throw new Error("You do not have authorization");
-
-    // // await User.findOneAndUpdate(
-    // //   { "acts.proof_of_completion.new_name": new_name },
-    // //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
-    // // )
-    // // res.json({message: "Success"});
-
-    // const promises = [];
-    // //Delete the proof from the act object
-    // //Remove from users who have completed this act
-    // //Remove from users under review and rejected users
-    // const promised_delete_proof_from_act = Act.findOneAndUpdate(
-    //   { "users_who_completed_this_act.proof_of_completion.new_name": new_name },
-    //   {
-    //     $pull: {
-    //       "users_who_completed_this_act.$.proof_of_completion": { new_name: new_name },
-    //       "rejected_users.$.proof_of_completion": { new_name: new_name },
-    //       "users_under_review.$.proof_of_completion": { new_name: new_name }
-    //     }
-    //   }
-    // )
-    // //Delete the proof from the user object
-    // const promised_delete_proof_from_user = User.findOneAndUpdate(
-    //   { "acts.proof_of_completion.new_name": new_name },
-    //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
-    // )
-    // //Delete the proof file
-    // const previous_image = process.env.act_picture_folder + new_name.replace(process.env.website + process.env.display_act_picture_folder, '');
-    // const promised_delete_file = fs_delete_file(previous_image);
-
-    // promises.push(promised_delete_proof_from_act);
-    // promises.push(promised_delete_proof_from_user);
-    // promises.push(promised_delete_file);
-
-    // await Promise.all(promises);
-    // //Return success
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message))
