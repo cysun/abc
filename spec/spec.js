@@ -1864,7 +1864,162 @@ describe('ABC', () => {
             });
     });
 
+    //Edit event
+    it('Certain conditions should not allow editing of an event', async () => {
 
+        //Get some event
+        //Make sure it's enabled, available and not deleted
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id,
+                __t: { $exists: true }
+            },
+            {
+                'enabled.state': true,
+                deleted: false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        )
+
+        let promises = [];
+        const valid_edit_act_form = {
+            name: "Some test name specifically for jasmine",
+            description: "Some new description",
+            reward_points: 100,
+            start_time: new Date('2019-01-02T00:00'),
+            end_time: new Date('2019-01-18T10:55')
+        }
+
+        //Non logged in users cannot edit acts (No token)
+        const options = {
+            method: "PUT",
+            url: `${homepage}/api/acts/${act._id}`,
+            form: valid_edit_act_form,
+            json: true
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Non logged in users cannot edit acts (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Only the act poster for this specific act or admin can edit an act
+        //A different act poster trying to edit this act should fail
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster1.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Users cannot edit act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Managers cannot edit act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Missing fields should fail (Empty)
+        //Missing fields should fail (Non existent)
+        const edit_act_array = [
+            ["name", "Some test name specifically for jasmine"],
+            ["description", "Some new description"],
+            ["reward_points", 100],
+            ["start_time", new Date('2019-01-02T00:00')],
+            ["end_time", new Date('2019-01-18T10:55')]
+        ];
+
+        promises.push(sendIncompleteValuesToEndPointWithFormAndAuthorization('incomplete', 'PUT', edit_act_array, `/api/acts/${act._id}`, 400, act_poster.jwt));
+        promises.push(sendIncompleteValuesToEndPointWithFormAndAuthorization('empty', 'PUT', edit_act_array, `/api/acts/${act._id}`, 400, act_poster.jwt));
+
+        await Promise.all(promises);
+
+        //Deleted acts can't be edited
+        //Mark the act as deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        // promises = [];
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+
+        //Mark the act as not deleted
+        // Make sure it's enabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                'enabled.state': true
+            },
+            { new: true }
+        )
+
+        //Only the right act poster or admins can edit acts
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.description).toBe("Some new description");
+                expect(res.reward_points).toBe(100);
+                //After editing an act, it should become disabled
+                expect(res.enabled.state).toBe(false)
+            });
+
+        //Make the act enabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { 'enabled.state': true },
+            { new: true }
+        )
+
+        //Edit event should fail if start time is after end time
+        valid_edit_act_form.start_time = new Date('2019-01-18T10:55');
+        valid_edit_act_form.end_time = new Date('2019-01-02T00:00');
+        options.form = valid_edit_act_form;
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+    });
 
 
 

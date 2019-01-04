@@ -1012,6 +1012,8 @@ router.put('/:id', async function (req, res, next) {
         throw new Error("Incomplete request");
 
       //Make sure start time is before end time
+      if (moment(req.body.end_time).isBefore(req.body.start_time))
+        throw new Error("Start time must be before end time");
 
       //Attach new values to it
       act.start_time = start_time;
