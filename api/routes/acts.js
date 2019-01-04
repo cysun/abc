@@ -696,6 +696,17 @@ router.put('/:id/enable/:state', async function (req, res, next) {
   //Only managers and admins can get here
   //Change the state of the act accordingly
   try {
+    if (!req.roles || !req.roles.manager)
+      throw new Error("You do not have authorization");
+
+    const act = await Act.findById(req.params.id);
+    if (act.deleted)
+      throw new Error("Act does not exist");
+
+      if (req.params.state !== "true" && req.params.state !== "false")
+      throw new Error("Invalid state");
+
+
     await Act.findByIdAndUpdate(
       req.params.id,
       { 'enabled.state': req.params.state }

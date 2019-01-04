@@ -2137,11 +2137,6 @@ describe('ABC', () => {
     });
 
     it('Delete acts', async () => {
-        //Non logged in users cannot delete acts (No token and invalid token)
-        //Only the act provider and the admin can delete acts
-        //A deleted act cannot be deleted
-
-
         //Get some act
         //Make sure it's enabled, available and not deleted
         let act = await Act.findOneAndUpdate(
@@ -2259,6 +2254,129 @@ describe('ABC', () => {
         await request_promise(options)
             .then(function (res) {
                 expect(res.message).toBe("Success")
+            });
+
+        //Undelete the act
+        await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                'enabled.state': true
+            },
+            { new: true }
+        )
+    });
+
+    it('Disable acts', async () => {
+        //Get some act
+        //Make sure it's enabled, available and not deleted
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id
+            },
+            {
+                'enabled.state': true,
+                deleted: false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        )
+
+        let promises = [];
+
+        //Non logged in user cannot disable acts (No token)
+        const options = {
+            method: "PUT",
+            url: `${homepage}/api/acts/${act._id}/enable/false`,
+            json: true
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Non logged in user cannot disable acts (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Users cannot disable acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Act posters cannot disable acts
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        await Promise.all(promises);
+
+        //Deleted acts can't be disabled
+        //Mark the act as deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+
+        //Mark the act as not deleted
+        // Make sure it's enabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                'enabled.state': true
+            },
+            { new: true }
+        )
+
+        //Only a manager or admin can disable acts
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.message).toBe("Success")
+            });
+
+            //If invalid state is sent
+            options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
+            //Return error
+            await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
             });
     });
 
