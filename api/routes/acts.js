@@ -923,13 +923,15 @@ router.post('/:type', async function (req, res, next) {
     //If there is,
     if (req.body.tags) {
       //Split into array by space delimiter
+      req.body.tags = req.body.tags.toLowerCase();
       let tags = req.body.tags.split(" ");
       tags = tags.filter(onlyUnique);
       const act_tags = [];
       //Check if each tag exists
       const promises = [];
       tags.forEach(element => {
-        element = element.toLowerCase();
+        if (!element)
+          return;
         promises.push(Tag.create({ name: element }, function (err, res) { }))
         //Create array of tags
         act_tags.push({ name: element });
@@ -989,7 +991,7 @@ router.put('/:id', async function (req, res, next) {
     if (!name || !description || !reward_points)
       throw new Error("Incomplete request");
 
-    const act = await Act.findById(req.params.id);
+    let act = await Act.findById(req.params.id);
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
       throw new Error("You do not have authorization");
@@ -1020,42 +1022,36 @@ router.put('/:id', async function (req, res, next) {
       act.end_time = end_time
     }
 
+    await act.save();
+
     //Check if there is a tag
     //If there is,
     if (req.body.tags) {
+      req.body.tags = req.body.tags.toLowerCase();
       //Split into array by space delimiter
-      const tags = req.body.tags.split(" ");
+      let tags = req.body.tags.split(" ");
+      tags = tags.filter(onlyUnique);
       const act_tags = [];
       //Check if each tag exists
       const promises = [];
-      const inner_promises = [];
       tags.forEach(element => {
-        promises.push(Tag.findOne(
-          { name: element }, function (err, res) {
-            //If not exists,
-            if (!res) {
-              //Create tag
-              const tag = new Tag({
-                name: element
-              })
-              inner_promises.push(tag.save());
-            }
-          }
-        ));
-        //Create array of tags
-        act_tags.push({ name: element });
-        act.tags.push({ name: element });
+        if (!element)
+          return;
+        promises.push(Tag.create({ name: element }, function (err, res) { }))
+        promises.push(
+          Act.findOneAndUpdate(
+            {
+              _id: act._id,
+              'tags.name': { $ne: element }
+            },
+            { $addToSet: { tags: { name: element } } },
+            function (err, res) { }))
       });
       await Promise.all(promises);
-      await Promise.all(inner_promises);
-      //Attach tags to this act
-      // await Act.findByIdAndUpdate(
-      //   req.params.id,
-      //   { $push: { tags: {$each: act_tags} } }
-      // )
     }
 
-    await act.save();
+    act = await Act.findById(act._id);
+
     res.json(act);
     // res.json(await Act.findById(req.params.id));
   } catch (err) {
@@ -1105,6 +1101,10 @@ router.put('/:id/delete', async function (req, res, next) {
     //Only the admin or act poster who uploaded this act can delete it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
       throw new Error("You do not have authorization");
+
+    //Deleted acts can't be deleted again
+    if (act.deleted)
+      throw new Error("Non existent act");
 
     act.deleted = true;
     await act.save();

@@ -958,7 +958,8 @@ export default {
       params.append("name", name);
       params.append("description", description);
       params.append("reward_points", reward_points);
-      params.append("tags", this.data.acts[index].add_tags);
+      if (this.data.acts[index].add_tags)
+        params.append("tags", this.data.acts[index].add_tags);
 
       //If this is an event, edit its start and end times
       if (this.data.acts[index].__t == "Event") {
