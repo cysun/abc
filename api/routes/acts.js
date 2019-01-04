@@ -703,7 +703,7 @@ router.put('/:id/enable/:state', async function (req, res, next) {
     if (act.deleted)
       throw new Error("Act does not exist");
 
-      if (req.params.state !== "true" && req.params.state !== "false")
+    if (req.params.state !== "true" && req.params.state !== "false")
       throw new Error("Invalid state");
 
 
@@ -1079,6 +1079,19 @@ router.put('/:id/state', async function (req, res, next) {
     }
 
     const act = await Act.findById(req.params.id);
+
+    //Only an admin or the act poster who uploaded this act can change its state
+    if (!req.roles.administrator) {
+      if (act.act_provider.id != req.user.id)
+        throw new Error("You do not have authorization");
+    }
+
+
+    //If act does not exist, error
+    //If act is deleted, give error
+    if (!act || act.deleted)
+      throw new Error("Act does not exist");
+
     let new_state;
 
     if (act.state == "AVAILABLE")

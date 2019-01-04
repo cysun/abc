@@ -2371,10 +2371,10 @@ describe('ABC', () => {
                 expect(res.message).toBe("Success")
             });
 
-            //If invalid state is sent
-            options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
-            //Return error
-            await request_promise(options)
+        //If invalid state is sent
+        options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
+        //Return error
+        await request_promise(options)
             .catch(function (err) {
                 expect(err.statusCode).toBe(400);
             });
@@ -2484,12 +2484,130 @@ describe('ABC', () => {
                 expect(res.message).toBe("Success")
             });
 
-            //If invalid state is sent
-            options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
-            //Return error
-            await request_promise(options)
+        //If invalid state is sent
+        options.url = `${homepage}/api/acts/${act._id}/enable/invalid_state`;
+        //Return error
+        await request_promise(options)
             .catch(function (err) {
                 expect(err.statusCode).toBe(400);
+            });
+    });
+
+    it('Change act state', async () => {
+        //Get some act
+        //Make sure it's enabled and not deleted
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id
+            },
+            {
+                'enabled.state': true,
+                deleted: false,
+            },
+            { new: true }
+        )
+
+        let promises = [];
+
+        //Non logged in user cannot change act state (No token)
+        const options = {
+            method: "PUT",
+            url: `${homepage}/api/acts/${act._id}/state`,
+            json: true
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Non logged in user cannot change act state (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Users cannot change act state
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+
+
+        //Managers cannot change act state
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //An act poster who did not upload this act cannot change its state
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster1.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        await Promise.all(promises);
+
+        //Deleted acts can't change act state
+        //Mark the act as deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+
+        //Mark the act as not deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: false },
+            { new: true }
+        )
+
+        //Only the act poster who posted the act or an admin can change an act's state
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.message).toBe("Success")
+            });
+
+        //If act does not exist, error
+        options.url = `${homepage}/api/acts/111/state`
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400)
             });
     });
 
