@@ -473,18 +473,21 @@
                 ></div>
               </div>
             </div>-->
-            <!-- <div class="single-gd tech-btm">
+            <div class="single-gd tech-btm">
               <h4>Top acts of the month</h4>
-              <div
-                class="blog-grids alert alert-light"
-                style="white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;"
-              >
-                <nuxt-link to="/">Title</nuxt-link>
-                <p>Pellentesque dui, non felis. Maecenas male</p>
+              <div v-for="(top_act, index) in data.best_acts" class="blog-grids card card-body" style="margin-bottom: 10px">
+                <nuxt-link :to="'acts/' + top_act._id">{{top_act.act[0].name}}</nuxt-link>
+                <p
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                >{{top_act.act[0].description}}</p>
+                <ul class="blog_list">
+                  <li>
+                    <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
+                    {{top_act.count}}
+                  </li>
+                </ul>
               </div>
-            </div>-->
+            </div>
           </aside>
         </div>
       </div>

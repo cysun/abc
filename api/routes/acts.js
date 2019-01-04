@@ -842,11 +842,72 @@ router.get('/', async function (req, res, next) {
     const promised_user_reward_points = User.findById(req.user.id, { points: true, _id: false });
 
 
+    //Get the 3 highest completed acts this month
+    //Get current month and year
+    const date = new Date();
+    const this_month = date.getMonth();
+    const this_year = date.getFullYear();
+    let next_year = this_year;
+    //Get next month (If 12, make it 0)
+    let next_month = this_month + 1;
+    if (next_month > 11) {
+      next_month = 0;
+      next_year += 1;
+    }
+    //Get first days in both months
+    // const lower_date = `${this_year}-${this_month}-1`;
+    // const upper_date = `${next_year}-${next_month}-1`;
 
-    let promises = [promised_acts, promised_count, promised_user_reward_points];
+    lower_date = new Date(this_year, this_month, 1);
+    upper_date = new Date(next_year, next_month, 1);
+
+    //Get the count of completed users in between this period per act
+    const promised_best_acts_for_this_month = Act.aggregate([
+      {
+        //Get acts that have been completed this month
+        $match: {
+          completed_users: { $exists: true, $ne: [] },
+          'completed_users.time': { $gte: lower_date },
+          'completed_users.time': { $lt: upper_date }
+        }
+      },
+      //Split based on the users who completed the acts
+      { $unwind: "$completed_users" },
+      //Get only the users who completed each act in the specified period
+      {
+        $match: {
+          'completed_users.time': { $gte: lower_date },
+          'completed_users.time': { $lt: upper_date }
+        }
+      },
+      //Count the users per act and get each act's details
+      {
+        $group: {
+          _id: "$_id",
+          act: {
+            $addToSet: {
+              name: "$name",
+              description: "$description"
+            }
+          },
+          count: {
+            $sum: 1
+          }
+        }
+      },
+      //Sort by count in decreasing order
+      { $sort: { count: -1 } },
+      //Get only 3 acts
+      { $limit: 3 }
+    ])
+
+
+
+    let promises = [promised_acts, promised_count, promised_user_reward_points, promised_best_acts_for_this_month];
     let acts;
     let count;
     let reward_points;
+    let best_acts;
     let result = {};
     let counter;
     await Promise.all(promises)
@@ -856,6 +917,7 @@ router.get('/', async function (req, res, next) {
         acts = values[0];
         count = values[1];
         reward_points = values[2];
+        best_acts = values[3];
       })
     const act_count = count;
     count = Math.ceil(count / 10);
@@ -886,6 +948,7 @@ router.get('/', async function (req, res, next) {
     res.json({
       reward_points,
       acts,
+      best_acts,
       type,
       current_page,
       act_count,
