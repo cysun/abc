@@ -484,7 +484,7 @@
                 <nuxt-link to="/">Title</nuxt-link>
                 <p>Pellentesque dui, non felis. Maecenas male</p>
               </div>
-            </div> -->
+            </div>-->
           </aside>
         </div>
       </div>
@@ -676,7 +676,28 @@ export default {
         }
       )
       .then(function(res) {
-        vue_context.data = res.data;
+        const data = res.data;
+        //Loop through data and format date
+        data.acts.forEach(element => {
+          if (element.__t == "Event") {
+            element.formated_start_time = moment(element.start_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
+            element.formated_end_time = moment(element.end_time).format(
+              "MMMM Do YYYY, h:mm:ss a"
+            );
+
+            element.start_time = element.start_time.substring(
+              0,
+              element.start_time.length - 8
+            );
+            element.end_time = element.end_time.substring(
+              0,
+              element.end_time.length - 8
+            );
+          }
+        });
+        vue_context.data = data;
       })
       .catch(function(err) {
         if (err.response.status == 400) {

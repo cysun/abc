@@ -136,6 +136,8 @@ async function sendIncompleteValuesToEndPointWithFormAndAuthorization(type_of_in
     await Promise.all(promises);
 }
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+
 describe('ABC', () => {
 
     let first_user_id;
@@ -144,6 +146,7 @@ describe('ABC', () => {
     let profile_picture;
     let user_jwt;
     let act_poster = {};
+    let act_poster1 = {};
     let reward_poster = {};
     let manager = {};
     let admin = {};
@@ -160,7 +163,14 @@ describe('ABC', () => {
             useNewUrlParser: true
         });
 
-        // jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+        const my_promises = [];
+        //Delete users
+        my_promises.push(User.deleteMany({ first_name: "first_name" }));
+        //Delete data
+        my_promises.push(Act.deleteMany({ name: "Some test name specifically for jasmine" }));
+        my_promises.push(Tag.deleteOne({ name: "should_not_exist_tag" }));
+
+        await Promise.all(my_promises);
 
         //Create users with privileges
         const registration_form = {
@@ -181,6 +191,13 @@ describe('ABC', () => {
                 act_poster.id = res._id;
             })
 
+        registration_form.email = "act_poster1@email.com";
+        options.formData = registration_form;
+        const promised_act_poster1 = request_promise(options)
+            .then(function (res) {
+                act_poster1.id = res._id;
+            })
+
         registration_form.email = "reward_poster@email.com";
         options.formData = registration_form;
         const promised_reward_poster = request_promise(options)
@@ -197,7 +214,7 @@ describe('ABC', () => {
 
         const promised_admin = User.findOne({ email: "admin@email.com" }).lean();
 
-        let promises = [promised_act_poster, promised_reward_poster, promised_manager, promised_admin];
+        let promises = [promised_act_poster, promised_reward_poster, promised_manager, promised_admin, promised_act_poster1];
         await Promise.all(promises)
             .then(function (values) {
                 admin = values[3];
@@ -212,6 +229,17 @@ describe('ABC', () => {
                 $push: { roles: { name: "Act Poster" } },
                 enabled: true,
                 email: "act_poster@email.com"
+            },
+            { new: true }
+        ).lean();
+
+        //Other act poser
+        const promised_act_poster1_change = User.findByIdAndUpdate(
+            act_poster1.id,
+            {
+                $push: { roles: { name: "Act Poster" } },
+                enabled: true,
+                email: "act_poster1@email.com"
             },
             { new: true }
         ).lean();
@@ -235,12 +263,13 @@ describe('ABC', () => {
             },
             { new: true }
         ).lean();
-        promises = [promised_act_poster_change, promised_reward_provider_change, promised_manager_change];
+        promises = [promised_act_poster_change, promised_reward_provider_change, promised_manager_change, promised_act_poster1_change];
         await Promise.all(promises)
             .then(function (values) {
                 act_poster = values[0];
                 reward_poster = values[1];
                 manager = values[2];
+                act_poster1 = values[3];
             })
 
         // console.info(act_poster);
@@ -248,6 +277,7 @@ describe('ABC', () => {
         // console.info(manager);
 
         act_poster.jwt = createJWT(act_poster);
+        act_poster1.jwt = createJWT(act_poster1);
         reward_poster.jwt = createJWT(reward_poster);
         manager.jwt = createJWT(manager);
         admin.jwt = createJWT(admin);
@@ -255,10 +285,10 @@ describe('ABC', () => {
         done();
     });
 
-    beforeEach(function (done) {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
-        done();
-    });
+    // beforeEach(function (done) {
+    //     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+    //     done();
+    // });
 
     it('(Failure) Registration with incomplete details', async () => {
         const promises = [];
@@ -1592,7 +1622,7 @@ describe('ABC', () => {
         //Get the act that's under review
         j = request_promise.jar();
         cookie = request_promise.cookie('token=' + user_jwt);
-        j.setCookie(cookie, `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`);
+        j.setCookie(cookie, homepage);
 
         options.url = `${homepage}/api/acts?type=UNDER_REVIEW&search=Some test name specifically for jasmine`;
         options.jar = j;
@@ -1697,6 +1727,145 @@ describe('ABC', () => {
             })
     });
 
+    //Edit act
+    it('Certain conditions should not allow editing of an act', async () => {
+
+        //Get some act
+        //Make sure it's enabled, available and not deleted
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id,
+                __t: { $exists: false }
+            },
+            {
+                'enabled.state': true,
+                deleted: false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        )
+
+        let promises = [];
+        const valid_edit_act_form = {
+            name: "Some test name specifically for jasmine",
+            description: "Some new description",
+            reward_points: 100
+        }
+
+        //Non logged in users cannot edit acts (No token)
+        const options = {
+            method: "PUT",
+            url: `${homepage}/api/acts/${act._id}`,
+            form: valid_edit_act_form,
+            json: true
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Non logged in users cannot edit acts (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Only the act poster for this specific act or admin can edit an act
+        //A different act poster trying to edit this act should fail
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster1.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Users cannot edit act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Managers cannot edit act
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        //Missing fields should fail (Empty)
+        //Missing fields should fail (Non existent)
+        const edit_act_array = [
+            ["name", "Some test name specifically for jasmine"],
+            ["description", "Some new description"],
+            ["reward_points", 100]
+        ];
+
+        promises.push(sendIncompleteValuesToEndPointWithFormAndAuthorization('incomplete', 'PUT', edit_act_array, `/api/acts/${act._id}`, 400, act_poster.jwt));
+        promises.push(sendIncompleteValuesToEndPointWithFormAndAuthorization('empty', 'PUT', edit_act_array, `/api/acts/${act._id}`, 400, act_poster.jwt));
+
+        await Promise.all(promises);
+
+        //Deleted acts can't be edited
+        //Mark the act as deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        // promises = [];
+        await request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            });
+
+        //Mark the act as not deleted
+        // Make sure it's enabled
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                'enabled.state': true
+            },
+            { new: true }
+        )
+
+        //Only the right act poster or admins can edit acts
+        await request_promise(options)
+            .then(function (res) {
+                expect(res.description).toBe("Some new description");
+                expect(res.reward_points).toBe(100);
+                //After editing an act, it should become disabled
+                expect(res.enabled.state).toBe(false)
+            });
+    });
+
+
+
 
 
     afterAll(async () => {
@@ -1705,6 +1874,7 @@ describe('ABC', () => {
         promises.push(User.findByIdAndDelete(first_user_id));
         promises.push(User.findByIdAndDelete(second_user_id));
         promises.push(User.findByIdAndDelete(act_poster._id));
+        promises.push(User.findByIdAndDelete(act_poster1._id));
         promises.push(User.findByIdAndDelete(reward_poster._id));
         promises.push(User.findByIdAndDelete(manager._id));
         //Delete data

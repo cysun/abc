@@ -18,6 +18,7 @@ const atob = require('atob');
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require('../../send_mail');
 const mailTest = require('../../mail_test');
+const moment = require('moment');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -903,13 +904,14 @@ router.post('/:type', async function (req, res, next) {
     if (req.params.type == 'act')
       act = await Act.initialize(req.body);
 
-    // //Handling events
+    //Handling events
     else if (req.params.type == 'event') {
 
       if (!req.body.start_time || !req.body.end_time)
         throw new Error("Incomplete request");
 
-      if (req.body.end_time < req.body.start_time)
+      // console.log(req.body);
+      if (moment(req.body.end_time).isBefore(req.body.start_time))
         throw new Error("Start time must be before end time");
 
       act = await Event_Act.initialize(req.body);
@@ -955,8 +957,25 @@ router.post('/:type', async function (req, res, next) {
 //Edit act
 router.put('/:id', async function (req, res, next) {
   try {
+    // console.log(req.body);
     if (!req.roles || !req.roles.act_poster) {
       throw new Error("You do not have authorization");
+    }
+
+    //If this is not the admin
+    if (!req.roles.administrator) {
+      //Check if this act poster uploaded this act
+      const this_act = await Act.findOne({
+        _id: req.params.id,
+        'act_provider.id': req.user.id
+      })
+      //If not, return error
+      if (!this_act)
+        throw new Error("You do not have authorization");
+
+      //If the act is deleted, return error
+      if (this_act.deleted)
+        throw new Error("Act does not exist");
     }
 
     //Make sure all details were sent
@@ -991,6 +1010,8 @@ router.put('/:id', async function (req, res, next) {
 
       if (!start_time || !end_time)
         throw new Error("Incomplete request");
+
+      //Make sure start time is before end time
 
       //Attach new values to it
       act.start_time = start_time;
