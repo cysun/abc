@@ -17,7 +17,7 @@
               <div class="blog_info">
                 <h5>
                   <div class="row">
-                    <a class="col-md-9" href="#" v-if="!data.edit">{{data.act.name}}</a>
+                    <a class="col-md-9" tabindex="-1" v-if="!data.edit">{{data.act.name}}</a>
                     <h6>
                       <span class="badge badge-secondary">{{data.proofs.acts[0].state}}</span>
                     </h6>
@@ -48,7 +48,10 @@
                 ></textarea>
                 <div v-if="data.act.__t == 'Event'">
                   <div>
-                    <span v-if="!data.edit" class="badge badge-light">Start time: {{data.act.formated_start_time}}</span>
+                    <span
+                      v-if="!data.edit"
+                      class="badge badge-light"
+                    >Start time: {{data.act.formated_start_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -59,6 +62,7 @@
                           size="16"
                           placeholder="Start time"
                           type="text"
+                          readonly
                           class="form-control"
                           :value="data.act.start_time"
                           id="act_start_time"
@@ -74,7 +78,10 @@
                     </div>
                   </div>
                   <div>
-                    <span v-if="!data.edit" class="badge badge-light">End time: {{data.act.formated_end_time}}</span>
+                    <span
+                      v-if="!data.edit"
+                      class="badge badge-light"
+                    >End time: {{data.act.formated_end_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -85,124 +92,10 @@
                           size="16"
                           placeholder="End time"
                           type="text"
+                          readonly
                           class="form-control"
                           :value="data.act.end_time"
                           id="act_end_time"
-                        >
-                        <span class="add-on">
-                          <i class="icon-remove"></i>
-                        </span>
-                        <span class="add-on">
-                          <i class="icon-th"></i>
-                        </span>
-                      </div>
-                      <input type="hidden" id="dtp_input1" value>
-                      <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1,
-                        });
-                      </script>
-                    </div>
-                  </div>
-                </div>
-                <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
-                  <span class="badge badge-warning">Reason for rejection: {{data.proofs.acts[0].comments}}</span>
-                </div>
-                <div
-                  style="margin-bottom: 5px"
-                  v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
-                  class="justify-content-center"
-                >
-                  <a
-                  tabindex="0"
-                    v-if="data.proofs.acts[0].state !== 'COMPLETED'"
-                    data-toggle="popover"
-                    :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
-                    :data-content="'<a id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
-                    data-trigger="focus"
-                    data-html="true"
-                  >{{proof.original_name}}</a>
-                  <a v-if="data.proofs.acts[0].state == 'COMPLETED'" :href="proof.new_name">{{proof.original_name}}</a>
-                </div>
-                <script>
-                  //function deleteProof(index) {
-                    //alert(index);
-                    //console.log(this.__NUXT__.data[0].data)
-                    //console.log(this.__NUXT__.data[0].data.act.name);
-                    //console.log(this);
-                  //}
-                </script>
-                <br>
-                <div v-if="data.act.enabled.state && data.proofs.acts[0].state !== 'COMPLETED'" class="form-inline justify-content-center">
-                  <input
-                    @change="fileChanged"
-                    type="file"
-                    multiple
-                    class="form-control"
-                    name="file"
-                    id="file_input"
-                  >
-                  <input
-                    @click="uploadProof"
-                    type="button"
-                    value="Upload proof of completion"
-                    class="btn btn-primary"
-                  >
-                </div>
-                <!-- <div v-if="data.__t == 'Event'">
-                  <div>
-                    <span
-                      v-if="!data.edit"
-                      class="badge badge-light"
-                    >Start time: {{data.formated_start_time}}</span>
-                    <div v-if="data.edit">
-                      <div
-                        class="controls input-append date form_datetime"
-                        data-date-format="yyyy-mm-ddThh:ii"
-                        data-link-field="dtp_input1"
-                      >
-                        <input
-                          size="16"
-                          placeholder="Start time"
-                          type="text"
-                          class="form-control"
-                          :value="data.start_time"
-                          id="act_start_time"
-                        >
-                        <span class="add-on">
-                          <i class="icon-remove"></i>
-                        </span>
-                        <span class="add-on">
-                          <i class="icon-th"></i>
-                        </span>
-                      </div>
-                      <input type="hidden" id="dtp_input1" value>
-                    </div>
-                  </div>
-                  <div>
-                    <span
-                      v-if="!data.edit"
-                      class="badge badge-light"
-                    >End time: {{data.formated_end_time}}</span>
-                    <div v-if="data.edit">
-                      <div
-                        class="controls input-append date form_datetime"
-                        data-date-format="yyyy-mm-ddThh:ii"
-                        data-link-field="dtp_input1"
-                      >
-                        <input
-                          size="16"
-                          placeholder="End time"
-                          type="text"
-                          class="form-control"
-                          :value="data.end_time"
-                          :id="'act_end_time' + index"
                         >
                         <span class="add-on">
                           <i class="icon-remove"></i>
@@ -225,17 +118,62 @@
                       </script>
                     </div>
                   </div>
-                </div> -->
+                </div>
+                <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
+                  <span
+                    class="badge badge-warning"
+                  >Reason for rejection: {{data.proofs.acts[0].comments}}</span>
+                </div>
+                <div
+                  style="margin-bottom: 5px"
+                  v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
+                  class="justify-content-center"
+                >
+                  <a
+                    tabindex="0"
+                    v-if="data.proofs.acts[0].state !== 'COMPLETED'"
+                    data-toggle="popover"
+                    :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
+                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
+                    data-trigger="focus"
+                    data-html="true"
+                    style="cursor: pointer"
+                  >{{proof.original_name}}</a>
+                  <a
+                    v-if="data.proofs.acts[0].state == 'COMPLETED'"
+                    :href="proof.new_name"
+                  >{{proof.original_name}}</a>
+                </div>
+                <br>
+                <div
+                  v-if="data.act.enabled.state && data.proofs.acts[0].state !== 'COMPLETED'"
+                  class="form-inline justify-content-center"
+                >
+                  <input
+                    @change="fileChanged"
+                    type="file"
+                    multiple
+                    class="form-control"
+                    name="file"
+                    id="file_input"
+                  >
+                  <input
+                    @click="uploadProof"
+                    type="button"
+                    value="Upload proof of completion"
+                    class="btn btn-primary"
+                  >
+                </div>
                 <div class="row" v-if="data.act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
                       href="#"
                       class="badge badge-info"
-                      @click="change_act_state(index)"
+                      @click="change_act_state()"
                       v-if="data.act.state == 'AVAILABLE'"
                     >Available</a>
                     <span
-                      @click="change_act_state(index)"
+                      @click="change_act_state()"
                       v-if="data.act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
                       style="cursor: pointer"
@@ -245,29 +183,13 @@
                   </div>
                   <div class="col-md-5">
                     <span v-if="!data.delete">
-                      <button
-                        v-if="!data.edit"
-                        @click="edit_act"
-                        class="btn btn-primary"
-                      >Edit</button>
+                      <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">Edit</button>
                       <button v-if="data.edit" @click="save_act" class="btn btn-primary">Save</button>
-                      <button
-                        v-if="data.edit"
-                        @click="edit_act"
-                        class="btn btn-danger"
-                      >Cancel</button>
+                      <button v-if="data.edit" @click="edit_act" class="btn btn-danger">Cancel</button>
                     </span>
                     <span v-if="!data.edit">
-                      <button
-                        v-if="!data.delete"
-                        @click="delete_act"
-                        class="btn btn-danger"
-                      >Delete</button>
-                      <button
-                        v-if="data.delete"
-                        @click="delete_act"
-                        class="btn btn-primary"
-                      >Cancel</button>
+                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">Delete</button>
+                      <button v-if="data.delete" @click="delete_act" class="btn btn-primary">Cancel</button>
                       <button
                         v-if="data.delete"
                         @click="confirm_delete_act"
@@ -297,81 +219,33 @@
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
                     {{data.act.total_number_of_completions}}
-                    <!-- <i>|</i> -->
                   </li>
-                  <!-- <li>
-                    <a href="#">
-                      <span class="fa fa-tag" aria-hidden="true"></span>
-                      13
-                    </a>
-                  </li>-->
                 </ul>
+                <div v-if="!data.edit">
+                  <span
+                    v-for="tag in data.act.tags"
+                    style="margin-right: 5px"
+                    class="badge badge-secondary"
+                  >{{tag.name}}</span>
+                </div>
+                <div class="form-inline" v-if="data.edit">
+                  <a
+                    v-for="(tag, tag_index) in data.act.tags"
+                    tabindex="0"
+                    style="margin-right: 5px; cursor: pointer"
+                    class="badge badge-secondary"
+                    @click="deleteTag(tag_index)"
+                  >{{tag.name}}</a>
+                  <input
+                    type="text"
+                    id="add_tag"
+                    class="form-control"
+                    placeholder="Tags (Seperate tags by space)"
+                  >
+                </div>
               </div>
               <div class="clearfix"></div>
             </article>
-            <!-- <article class="blog-x row"> -->
-            <!-- <div class="blog-img w3-agile-grid">
-						<img src="act.image" alt="" class="img-fluid" />
-            </div>-->
-            <!-- <div class="blog_info">
-						<p>By
-							<a href="#" class="user-blog">act.act_provider.first_name act.act_provider.last_name</a>
-						</p>
-
-						<p>act.description</p>
-						#if act.users_who_completed_this_act
-						<div class='justify-content-center'>
-							!-- <h4>Proof of completion</h4>
-							<img height='50%' width='50%' src='act.users_who_completed_this_act.proof_of_completion'> --
-							<a href='act.users_who_completed_this_act.proof_of_completion'>View proof of completion</a>
-						</div>
-						/if
-						<br>
-						#if_eq act.users_who_completed_this_act.state 'COMPLETED'
-						else
-						<form class='form-inline justify-content-center' method='POST' action='/acts/act._id/complete' enctype="multipart/form-data">
-							<input type='file' class='form-control' name='file'>
-							<input type='submit' value='upload_text' class='btn btn-primary'>
-						</form>
-						/if_eq
-						<br>
-						<ul class="blog_list">
-							<li>
-								<span title='Rewards points' class="fa fa-credit-card" aria-hidden="true"></span>
-								act.reward_points
-								<i>|</i>
-							</li>
-							<li>
-								<span title='Popularity' class="fa fa-angle-double-down" aria-hidden="true"></span>
-								act.total_number_of_clicks
-								<i>|</i>
-							</li>
-							<li>
-								<span title='Favorites' class="fa fa-heart" aria-hidden="true"></span>
-								act.total_number_of_completions
-								!-- <i>|</i> --
-							</li>
-							!-- <li>
-								<a href="#">
-									<span class="fa fa-tag" aria-hidden="true"></span>
-									13</a>
-							</li> --
-						</ul>
-						!-- <ul class="blog_list">
-							<li>
-								<span class="fa fa-angle-double-down" aria-hidden="true"></span>
-								act.users_who_clicked_on_this_act.length
-								<i>|</i>
-							</li>
-							<li>
-								<span class="fa fa-heart" aria-hidden="true"></span>
-								act.users_who_completed_this_act.length
-								<i>|</i>
-							</li>
-						</ul> --
-					</div>
-					<div class="clearfix"></div>
-            </article>-->
           </div>
         </div>
       </div>
@@ -393,27 +267,6 @@ export default {
     MyBanner,
     MyHeader
   },
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' },
-  //     ]
-  //   }
-  // },
-
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
-  //       // { src: 'js/collapse.js' },
-  //       // { src: 'js/transition.js' },
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js' }
-  //     ],
-  //     link: [
-  //       {href:"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css", rel:"stylesheet"}
-  //     ]
-  //   }
-  // },
   created: function() {
     vue_context = this;
   },
@@ -421,13 +274,6 @@ export default {
     iziToast = require("iziToast");
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
-
-      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
-      //   console.log(event);
-      // });
-      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
-      //   console.log(event);
-      // });
     });
 
     $(document).on("click", ".delete_name", function(event) {
@@ -436,41 +282,10 @@ export default {
       var target = $(event.target);
       const index = target[0].id;
       const id = target[0].name;
-      // console.log(target);
-      // return;
-
       vue_context.deleteProof(index, id);
-
-      //Save the current state of the proof
-      //Remove the proof from the screen
-      //Send request to remove the proof from the database
-      //If something goes wrong, put the proof back
-      //and give an error message
-      // console.log(index, id);
     });
-
-    //     $('.delete_name').click(function(event) {
-    //     var text = $(event.target).text();
-    //     var target = $(event.target);
-    //     console.log(target)
-    // });
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
-  async fetch(context) {},
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -480,16 +295,7 @@ export default {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
-        // data.user = res.data.user;
-        // console.log(res.data)
         //Loop through data and format date
         if (data.act.__t == "Event") {
           data.act.formated_start_time = moment(data.act.start_time).format(
@@ -503,7 +309,10 @@ export default {
             0,
             data.act.start_time.length - 8
           );
-          data.act.end_time = data.act.end_time.substring(0, data.act.end_time.length - 8);
+          data.act.end_time = data.act.end_time.substring(
+            0,
+            data.act.end_time.length - 8
+          );
         }
       })
       .catch(function(err) {
@@ -511,27 +320,6 @@ export default {
           context.redirect("/logout");
         }
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
-    // console.log(data);
     if (!data.proofs) {
       const acts = {
         acts: [{ state: "" }]
@@ -540,7 +328,6 @@ export default {
     } else if (data.proofs.acts[0].state) {
       data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
     }
-    // console.log(data);
     return { data };
   },
   data() {
@@ -565,50 +352,16 @@ export default {
         start_time: "",
         end_time: ""
       }
-      // query: this.$route.query
     };
-  },
-  async beforeRouteUpdate(to, from, next) {
-    // console.log(to);
-    if (!to.query.sort) to.query.sort = "";
-    if (!to.query.search) to.query.search = "";
-    if (!to.query.order) to.query.order = "";
-    if (!to.query.page) to.query.page = 1;
-    const token = this.$cookies.get("token");
-    const refresh_token = this.$cookies.get("refresh_token");
-    await axios
-      .get(
-        `/api/acts?type=${to.query.type}&sort=${to.query.sort}&order=${
-          to.query.order
-        }&search=${to.query.search}&page=${to.query.page}`,
-        {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        }
-      )
-      .then(function(res) {
-        vue_context.data = res.data;
-      })
-      .catch(function(err) {
-        if (err.response.status == 400) {
-          vue_context.$router.redirect("/logout");
-        }
-      });
-    next();
   },
   methods: {
     fileChanged(event) {
       this.files = event.target.files;
-      // console.log(this.files);
     },
     async uploadProof() {
       if (!this.files || this.files.length == 0) return;
-      // console.log(this.files.length);
-      // console.log("Hello World");
-
       //Save current state
-      this.data.current_state = this.data.proofs.acts[0].state
+      this.data.current_state = this.data.proofs.acts[0].state;
       //Change state to under review
       this.data.proofs.acts[0].state = "UNDER REVIEW";
 
@@ -620,10 +373,6 @@ export default {
         .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
         .then(function(res) {
           //Redirect to verification page
-          // vue_context.$nuxt.$loading.finish();
-          // vue_context.$router.push({
-          //   path: "/verify_account"
-          // });
           if (vue_context.data.proofs.acts[0].proof_of_completion)
             vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
               res.data
@@ -634,24 +383,23 @@ export default {
               "proof_of_completion",
               res.data
             );
-            document.getElementById('file_input').value = null;
+          document.getElementById("file_input").value = null;
         })
         .catch(function(err) {
           //If error
           //Return state to original value
-          vue_context.data.proofs.acts[0].state = vue_context.data.current_state;
-
+          vue_context.data.proofs.acts[0].state =
+            vue_context.data.current_state;
           // vue_context.$nuxt.$loading.finish();
           // if (err.response) vue_context.error = err.response.data.message;
         });
+      $('[data-toggle="popover"]').popover();
     },
     navigateTo(index) {
       var element = this.$refs["acts_come_here"];
       var top = element.offsetTop;
 
       scrollToElement(element);
-      // window.scrollTo(0, top);
-
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
@@ -660,11 +408,9 @@ export default {
       );
     },
     previous() {
-      // console.log(this.data.query.page - 1)
       this.navigateTo(this.data.query.page - 1);
     },
     next() {
-      // console.log(parseInt(this.data.query.page) + 1)
       this.navigateTo(parseInt(this.data.query.page) + 1);
     },
     reset() {
@@ -678,20 +424,16 @@ export default {
       this.$router.push(`/acts?type=${this.query.type}`);
     },
     type_changed() {
-      // console.log(this.query.type);
       this.$router.push(`/acts?type=${this.query.type}`);
     },
     upload_type_changed() {
-      // console.log(this.upload_type);
     },
     edit_act() {
-      if (!this.data.edit)
-        this.$set(this.data, "edit", true);
+      if (!this.data.edit) this.$set(this.data, "edit", true);
       else this.$set(this.data, "edit", false);
     },
     delete_act() {
-      if (!this.data.delete)
-        this.$set(this.data, "delete", true);
+      if (!this.data.delete) this.$set(this.data, "delete", true);
       else this.$set(this.data, "delete", false);
     },
     async confirm_delete_act() {
@@ -705,7 +447,7 @@ export default {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
         })
-        .then(function(res){
+        .then(function(res) {
           //If successful
           //Show success message
           iziToast.success({
@@ -726,21 +468,52 @@ export default {
           });
         });
     },
-    async deleteProof(index, id) {
-
+    async deleteTag(tag_index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
+      //Save tag
+      const saved_tag = this.data.act.tags[tag_index];
+      //remove tag from screen
+      this.data.act.tags.splice(tag_index, 1);
+      //Make request to delete tag
+      await axios
+        .delete(`/api/acts/${vue_context.data.act._id}/tag/${saved_tag._id}`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, place tag back
+          vue_context.data.act.tags.splice(tag_index, 0, saved_tag);
+          //Show error
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the tag could not be deleted",
+            position: "topRight"
+          });
+        });
+    },
+    async deleteProof(index, id) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
 
       //Save the current state of the proof
       if (!this.data.proofs.acts[0].previous_proof)
-      this.$set(this.data.proofs.acts[0], 'previous_proof', {[index]: this.data.proofs.acts[0].proof_of_completion[index]});
-      else this.$set(this.data.proofs.acts[0].previous_proof, index, this.data.proofs.acts[0].proof_of_completion[index]);
-      
+        this.$set(this.data.proofs.acts[0], "previous_proof", {
+          [index]: this.data.proofs.acts[0].proof_of_completion[index]
+        });
+      else
+        this.$set(
+          this.data.proofs.acts[0].previous_proof,
+          index,
+          this.data.proofs.acts[0].proof_of_completion[index]
+        );
+
       //Remove the proof from the screen
       this.data.proofs.acts[0].proof_of_completion.splice(index, 1);
       const encoded_id = btoa(id);
-      
+
       //Send request to remove the proof from the database
       await axios
         .delete(`/api/acts/proof/${encoded_id}`, {
@@ -755,12 +528,6 @@ export default {
             0,
             vue_context.data.proofs.acts[0].previous_proof[index]
           );
-          // delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
           //Tell the user that the act could not be deleted
           iziToast.error({
             title: "Error",
@@ -768,39 +535,25 @@ export default {
             position: "topRight"
           });
         });
-      
-      // return;
-
-
-      // //Store act and it's current index
-      // this.$set(this.deleted_acts, index, this.data.acts[index]);
-      // // this.deleted_acts.push({act: this.data.acts[index], index: index});
-      // //Remove act from array
-      // this.data.acts.splice(index, 1);
-      // //Make request to delete act
-
-      
-      // delete this.deleted_acts[index];
     },
-    async change_act_state(index) {
+    async change_act_state() {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
       //Store previous state of act
-      this.$set(this.data.acts[index], "previous_data", {
-        state: this.data.acts[index].state
-      });
+      this.data.act.previous_state = this.data.act.state;
+
       //Get new state
       let new_state;
-      if (this.data.acts[index].previous_data.state == "AVAILABLE")
+      if (this.data.act.previous_state == "AVAILABLE")
         new_state = "NOT_AVAILABLE";
       else new_state = "AVAILABLE";
       //Change state of act
-      this.$set(this.data.acts[index], "state", new_state);
+      this.$set(this.data.act, "state", new_state);
       //Make request to change state of act
 
       await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}/state`, {
+        .put(`/api/acts/${vue_context.data.act._id}/state`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -808,9 +561,9 @@ export default {
         .catch(function(err) {
           //If error, revert state of act
           vue_context.$set(
-            vue_context.data.acts[index],
+            vue_context.data.act,
             "state",
-            vue_context.data.acts[index].previous_data.state
+            vue_context.data.act.previous_state
           );
           //Tell the user that the act could not be altered
           iziToast.error({
@@ -821,29 +574,13 @@ export default {
         });
     },
     async save_act() {
-      // iziToast.show({
-      //   title: "Hey",
-      //   color: 'red',
-      //   message: "What would you like to add?",
-      //   position: 'topRight',
-      //   icon: 'fa fa-heart'
-      // });
-
-      // iziToast.error({
-      //   title: "Error",
-      //   message: "Illegal operation",
-      //   position: 'topRight'
-      // });
-
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
       //Get new name, description and reward points
       const name = document.getElementById("act_name").value;
-      const description = document.getElementById("act_description")
-        .value;
-      const reward_points = document.getElementById("act_reward_points")
-        .value;
+      const description = document.getElementById("act_description").value;
+      const reward_points = document.getElementById("act_reward_points").value;
       const enabled_state = this.data.act.enabled.state;
       //If this is an event, get new start and end time too
       let start_time, end_time;
@@ -872,12 +609,6 @@ export default {
           this.data.act.formated_end_time
         );
       }
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
-      //     start_time: this.data.acts[index].formated_start_time,
-      //     end_time: this.data.acts[index].formated_end_time
-      //   });
-      // }
       //Update to new name, desription and reward points
       this.$set(this.data.act, "name", name);
       this.$set(this.data.act, "description", description);
@@ -903,9 +634,13 @@ export default {
       //Edit this act
       const params = new URLSearchParams();
 
+      const new_tag = document.getElementById("add_tag").value;
+      document.getElementById("add_tag").value = "";
+
       params.append("name", name);
       params.append("description", description);
       params.append("reward_points", reward_points);
+      if (new_tag) params.append("tags", new_tag);
 
       //If this is an event, edit its start and end times
       if (this.data.act.__t == "Event") {
@@ -919,54 +654,61 @@ export default {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
         })
+        .then(function(res) {
+          // vue_context.data.act.add_tags = "";
+          //Replace this act tags
+          vue_context.$set(vue_context.data.act, "tags", res.data.tags);
+        })
         .catch(function(err) {
-          //If error, revert to old name and description
-          vue_context.$set(
-            vue_context.data.act,
-            "name",
-            vue_context.data.act.previous_data.name
-          );
-          vue_context.$set(
-            vue_context.data.act,
-            "description",
-            vue_context.data.act.previous_data.description
-          );
-          vue_context.$set(
-            vue_context.data.act,
-            "reward_points",
-            vue_context.data.act.previous_data.reward_points
-          );
-
-          //Revert to previous state
-          vue_context.$set(
-            vue_context.data.act.enabled,
-            "state",
-            vue_context.data.act.previous_data.enabled
-          );
-
-          //If this is an event, revert to old start and end times
-          if (vue_context.data.act.__t == "Event") {
+          if (err) {
+            console.log("Error:", err);
+            //If error, revert to old name and description
             vue_context.$set(
               vue_context.data.act,
-              "formated_start_time",
-              vue_context.data.act.previous_data.start_time
+              "name",
+              vue_context.data.act.previous_data.name
             );
             vue_context.$set(
               vue_context.data.act,
-              "formated_end_time",
-              vue_context.data.act.previous_data.end_time
+              "description",
+              vue_context.data.act.previous_data.description
             );
+            vue_context.$set(
+              vue_context.data.act,
+              "reward_points",
+              vue_context.data.act.previous_data.reward_points
+            );
+
+            //Revert to previous state
+            vue_context.$set(
+              vue_context.data.act.enabled,
+              "state",
+              vue_context.data.act.previous_data.enabled
+            );
+
+            //If this is an event, revert to old start and end times
+            if (vue_context.data.act.__t == "Event") {
+              vue_context.$set(
+                vue_context.data.act,
+                "formated_start_time",
+                vue_context.data.act.previous_data.start_time
+              );
+              vue_context.$set(
+                vue_context.data.act,
+                "formated_end_time",
+                vue_context.data.act.previous_data.end_time
+              );
+            }
+
+            //Tell the user that the act could not be edited
+            let type_of_act = "act";
+            if (vue_context.data.act.__t == "Event") type_of_act = "event";
+            iziToast.error({
+              title: "Error",
+              message: err.response.data.message,
+              position: "topRight"
+            });
           }
-
-          //Tell the user that the act could not be edited
-          let type_of_act = "act";
-          if (vue_context.data.act.__t == "Event")
-            type_of_act = "event";
-          iziToast.error({
-            title: "Error",
-            message: `Sorry, the ${type_of_act} could not be edited`,
-            position: "topRight"
-          });
         });
     },
     async addAct() {
@@ -1011,45 +753,9 @@ export default {
         .catch(function(err) {
           vue_context.status_state = "Error";
           vue_context.status_message = err.response.data.message;
-
-          // if (err.response.status == 400) {
-          //   vue_context.$router.redirect("/logout");
-          // }
-          // console.log(err.response.data.message);
         });
-      //If error, display error
-      //If success, display success message with hint of manager's final say
-      //Then clear the form
     },
     async search() {
-      // this.$nuxt.$loading.start();
-
-      // const token = this.$cookies.get("token");
-      // const refresh_token = this.$cookies.get("refresh_token");
-      // await axios
-      //   .get(
-      //     `/api/acts?type=${vue_context.query.type}&sort=${
-      //       vue_context.query.sort
-      //     }&order=${vue_context.query.order}&search=${
-      //       vue_context.query.search
-      //     }`,
-      //     {
-      //       headers: {
-      //         Cookie: `token=${token}; refresh_token=${refresh_token};`
-      //       }
-      //     }
-      //   )
-      //   .then(function(res) {
-      //     vue_context.data = res.data;
-      //   })
-      //   .catch(function(err) {
-      //     if (err.response.status == 400) {
-      //       vue_context.$router.redirect("/logout");
-      //     }
-      //   });
-
-      // vue_context.$nuxt.$loading.finish();
-
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
@@ -1063,20 +769,6 @@ export default {
       if (!this.first_name || !this.last_name || !this.email || !this.password)
         this.error = "All fields must be present";
       else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -1100,37 +792,8 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) vue_context.error = err.response.data.message;
           });
-
-        //Else
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
-
-<style scoped>
-[data-style="mypops"] + .popover {
-  background: #4194ca;
-}
-[data-style="mypops"] + .popover.bottom .arrow:after {
-  border-bottom-color: #4194ca;
-}
-[data-style="mypops"] + .popover-content {
-}
-.popovermenu {
-  list-style: none;
-  padding: 0px;
-  margin: 0px;
-}
-.popovermenu li {
-}
-.popovermenu li a {
-  color: #fff;
-}
-</style>

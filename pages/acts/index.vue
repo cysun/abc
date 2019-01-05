@@ -5,12 +5,6 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
-        <!-- <div>
-          <div style="float: left; width: 50%"></div>
-          <div class="progress" style="float: right; width: 50%">
-            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
-          </div>
-        </div>-->
         <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
         <div style="clear: both"></div>
         <br>
@@ -129,6 +123,7 @@
                           size="16"
                           placeholder="Start time"
                           type="text"
+                          readonly
                           class="form-control"
                           :value="act.start_time"
                           :id="'act_start_time' + index"
@@ -158,6 +153,7 @@
                           size="16"
                           placeholder="End time"
                           type="text"
+                          readonly
                           class="form-control"
                           :value="act.end_time"
                           :id="'act_end_time' + index"
@@ -247,14 +243,7 @@
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
                     {{act.total_number_of_completions}}
-                    <!-- <i>|</i> -->
                   </li>
-                  <!-- <li>
-                    <a href="#">
-                      <span class="fa fa-tag" aria-hidden="true"></span>
-                      13
-                    </a>
-                  </li>-->
                 </ul>
                 <div v-if="!act.edit">
                   <span
@@ -273,7 +262,7 @@
                   >{{tag.name}}</a>
                   <input
                     type="text"
-                    v-model="act.add_tags"
+                    id="add_tag"
                     class="form-control"
                     placeholder="Tags (Seperate tags by space)"
                   >
@@ -420,59 +409,6 @@
                 </div>
               </form>
             </div>
-            <!-- <div class="single-gd">
-              <h4>Our Progress</h4>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped"
-                  role="progressbar"
-                  style="width: 10%"
-                  aria-valuenow="10"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-success"
-                  role="progressbar"
-                  style="width: 25%"
-                  aria-valuenow="25"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-info"
-                  role="progressbar"
-                  style="width: 50%"
-                  aria-valuenow="50"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-warning"
-                  role="progressbar"
-                  style="width: 75%"
-                  aria-valuenow="75"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-danger"
-                  role="progressbar"
-                  style="width: 100%"
-                  aria-valuenow="100"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-            </div>-->
             <div class="single-gd tech-btm">
               <h4>Top acts of the month</h4>
               <div v-for="(top_act, index) in data.best_acts" class="blog-grids card card-body" style="margin-bottom: 10px">
@@ -510,42 +446,13 @@ export default {
     MyBanner,
     MyHeader
   },
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
-  //       // { src: 'js/collapse.js' },
-  //       // { src: 'js/transition.js' },
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js' }
-  //     ],
-  //     link: [
-  //       {href:"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css", rel:"stylesheet"}
-  //     ]
-  //   }
-  // },
   created: function() {
     vue_context = this;
   },
   async mounted() {
     iziToast = require("iziToast");
-
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
-  async fetch(context) {},
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -555,10 +462,7 @@ export default {
     if (!context.query.page) context.query.page = 1;
     if (!context.query.type) context.query.type = "AVAILABLE";
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
       .get(
         `/api/acts?type=${context.query.type}&sort=${
@@ -571,13 +475,6 @@ export default {
         }
       )
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
         //Loop through data and format date
         data.acts.forEach(element => {
@@ -601,35 +498,10 @@ export default {
         });
       })
       .catch(function(err) {
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
         if (err.response.status == 400) {
           context.redirect("/logout");
         }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
     return { query: context.query, data };
   },
   data() {
@@ -646,7 +518,6 @@ export default {
       logged_in: true,
       page: "acts",
       saved_tags: [],
-      // roles: this.data.roles,
       deleted_acts: {},
       upload_type: "act",
       add_act: {
@@ -656,11 +527,9 @@ export default {
         start_time: "",
         end_time: ""
       }
-      // query: this.$route.query
     };
   },
   async beforeRouteUpdate(to, from, next) {
-    // console.log(to);
     if (!to.query.sort) to.query.sort = "";
     if (!to.query.search) to.query.search = "";
     if (!to.query.order) to.query.order = "";
@@ -718,7 +587,6 @@ export default {
       var top = element.offsetTop;
 
       scrollToElement(element);
-      // window.scrollTo(0, top);
 
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
@@ -728,11 +596,9 @@ export default {
       );
     },
     previous() {
-      // console.log(this.data.query.page - 1)
       this.navigateTo(this.data.query.page - 1);
     },
     next() {
-      // console.log(parseInt(this.data.query.page) + 1)
       this.navigateTo(parseInt(this.data.query.page) + 1);
     },
     reset() {
@@ -740,17 +606,12 @@ export default {
       this.query.page = 1;
       this.query.search = "";
       this.query.sort = "";
-      // var element = this.$refs["acts_come_here"];
-
-      // scrollToElement(element);
       this.$router.push(`/acts?type=${this.query.type}`);
     },
     type_changed() {
-      // console.log(this.query.type);
       this.$router.push(`/acts?type=${this.query.type}`);
     },
     upload_type_changed() {
-      // console.log(this.upload_type);
     },
     edit_act(index) {
       if (!this.data.acts[index].edit)
@@ -804,7 +665,6 @@ export default {
 
       //Store act and it's current index
       this.$set(this.deleted_acts, index, this.data.acts[index]);
-      // this.deleted_acts.push({act: this.data.acts[index], index: index});
       //Remove act from array
       this.data.acts.splice(index, 1);
       //Make request to delete act
@@ -823,11 +683,6 @@ export default {
             vue_context.deleted_acts[index]
           );
           delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
           //Tell the user that the act could not be deleted
           iziToast.error({
             title: "Error",
@@ -876,23 +731,8 @@ export default {
         });
     },
     async save_act(index) {
-      // iziToast.show({
-      //   title: "Hey",
-      //   color: 'red',
-      //   message: "What would you like to add?",
-      //   position: 'topRight',
-      //   icon: 'fa fa-heart'
-      // });
-
-      // iziToast.error({
-      //   title: "Error",
-      //   message: "Illegal operation",
-      //   position: 'topRight'
-      // });
-
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
-
       //Get new name, description and reward points
       const name = document.getElementById("act_name" + index).value;
       const description = document.getElementById("act_description" + index)
@@ -927,12 +767,6 @@ export default {
           this.data.acts[index].formated_end_time
         );
       }
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
-      //     start_time: this.data.acts[index].formated_start_time,
-      //     end_time: this.data.acts[index].formated_end_time
-      //   });
-      // }
       //Update to new name, desription and reward points
       this.$set(this.data.acts[index], "name", name);
       this.$set(this.data.acts[index], "description", description);
@@ -958,11 +792,13 @@ export default {
       //Edit this act
       const params = new URLSearchParams();
 
+      const new_tag = document.getElementById("add_tag").value;
+      document.getElementById("add_tag").value = "";
+
       params.append("name", name);
       params.append("description", description);
       params.append("reward_points", reward_points);
-      if (this.data.acts[index].add_tags)
-        params.append("tags", this.data.acts[index].add_tags);
+      if (new_tag) params.append("tags", new_tag);
 
       //If this is an event, edit its start and end times
       if (this.data.acts[index].__t == "Event") {
@@ -977,7 +813,7 @@ export default {
           }
         })
         .then(function(res) {
-          vue_context.data.acts[index].add_tags = "";
+          // vue_context.data.acts[index].add_tags = "";
           //Replace this act tags
           vue_context.data.acts[index].tags = res.data.tags;
         })
@@ -1073,8 +909,6 @@ export default {
           }
         })
         .then(function(res) {
-          // vue_context.data = res.data;
-          // console.log(res);
           iziToast.success({
             title: "Success",
             message: res.data.message,
@@ -1097,34 +931,6 @@ export default {
         });
     },
     async search() {
-      // this.$nuxt.$loading.start();
-
-      // const token = this.$cookies.get("token");
-      // const refresh_token = this.$cookies.get("refresh_token");
-      // await axios
-      //   .get(
-      //     `/api/acts?type=${vue_context.query.type}&sort=${
-      //       vue_context.query.sort
-      //     }&order=${vue_context.query.order}&search=${
-      //       vue_context.query.search
-      //     }`,
-      //     {
-      //       headers: {
-      //         Cookie: `token=${token}; refresh_token=${refresh_token};`
-      //       }
-      //     }
-      //   )
-      //   .then(function(res) {
-      //     vue_context.data = res.data;
-      //   })
-      //   .catch(function(err) {
-      //     if (err.response.status == 400) {
-      //       vue_context.$router.redirect("/logout");
-      //     }
-      //   });
-
-      // vue_context.$nuxt.$loading.finish();
-
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
@@ -1139,19 +945,6 @@ export default {
         this.error = "All fields must be present";
       else {
         //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -1175,30 +968,8 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) vue_context.error = err.response.data.message;
           });
-
-        //Else
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

@@ -669,27 +669,64 @@ router.get('/:id', async function (req, res, next) {
   //Get user's relationship with act from user table
   //Combine and deliver
 
-  const promised_act = Act.findById(req.params.id, "act_provider start_time end_time description enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
-  const promised_user = User.findOne(
-    { _id: req.user.id, 'acts.id': req.params.id },
-    { 'acts.$': 1 }
-  )
-  //Add this user to the act click counter
-  const promised_click_counter = Act.findByIdAndUpdate(
-    req.params.id,
-    {
-      $push: { 'users_who_clicked_on_this_act': req.user },
-      $inc: { 'total_number_of_clicks': 1 }
+  try {
+    //Only logged in users can view act
+    if (!req.user)
+      throw new Error("You do not have authorization");
+
+    const promised_act = Act.findById(req.params.id, "act_provider start_time end_time description tags enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
+    const promised_user = User.findOne(
+      { _id: req.user.id, 'acts.id': req.params.id },
+      { 'acts.$': 1 }
+    )
+    //Add this user to the act click counter
+    const promised_click_counter = Act.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: { 'users_who_clicked_on_this_act': req.user },
+        $inc: { 'total_number_of_clicks': 1 }
+      }
+    )
+    const promises = [promised_act, promised_user, promised_click_counter];
+    let act, user_act;
+    await Promise.all(promises)
+      .then(function (values) {
+        act = values[0];
+        user_act = values[1];
+      })
+
+    //If this request is coming from the act poster who uploaded it or an admin
+    //Return the act
+    let creator_rights = false;
+    if (req.roles && req.roles.act_poster) {
+      if (req.roles.administrator || act.act_provider.id == req.user.id)
+        creator_rights = true;
     }
-  )
-  const promises = [promised_act, promised_user, promised_click_counter];
-  let act, user_act;
-  await Promise.all(promises)
-    .then(function (values) {
-      act = values[0];
-      user_act = values[1];
-    })
-  res.json({ act, user: req.user, proofs: user_act });
+    if (!creator_rights) {
+      //If this act is unavailable and this user has not completed it and this person doesn't have creator rights (Rightful act poster or admin)
+      if (act.state == "NOT_AVAILABLE" && !user_act)
+        throw new Error("Act is not available");
+      if (user_act)
+        if (act.state == "NOT_AVAILABLE" && user_act.acts[0].state != "COMPLETED")
+          throw new Error("Act is not available");
+      //If act is disabled and available
+      //And this is a manager
+      if (req.roles && req.roles.manager) {
+        //Return the act
+      }
+      else {
+        if (act.enabled.state == false && !user_act)
+          throw new Error("Act is disabled");
+        if (user_act)
+          if (act.enabled.state == false && user_act.acts[0].state != "COMPLETED")
+            throw new Error("Act is disabled");
+      }
+    }
+
+    res.json({ act, user: req.user, proofs: user_act });
+  } catch (err) {
+    next(createError(400, err.message))
+  }
 });
 
 router.put('/:id/enable/:state', async function (req, res, next) {
