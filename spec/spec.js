@@ -2638,9 +2638,9 @@ describe('ABC', () => {
 
 
 
-    //Deleted act cannot be read unless by a user who has completed it or admin
-    //Available and enabled acts can be read by everyone
-    //Non existent act gives error
+
+
+
     it('Read act', async () => {
         //Get some act
         //Make sure it's enabled and not deleted
@@ -2871,87 +2871,167 @@ describe('ABC', () => {
                 expect(res).toBeDefined();
             }));
         //Admins can view it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + admin.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
 
         await Promise.all(promises);
 
 
+        //Deleted act cannot be read unless by a user who has completed it or admin
+        //Delete the act
+        //Enable the act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': true,
+                deleted: true
+            }
+        )
 
+        promises = [];
+        //A user who hasn't completed it should not be able to view it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + other_user.jwt);
+        j.setCookie(cookie, homepage);
 
-        // //Users cannot change act state
-        // j = request_promise.jar();
-        // cookie = request_promise.cookie('token=' + user_jwt);
-        // j.setCookie(cookie, homepage);
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }));
 
-        // options.jar = j;
-        // promises.push(request_promise(options)
-        //     .catch(function (err) {
-        //         expect(err.statusCode).toBe(400);
-        //     }))
+        //A user who has completed it should be able to see it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
 
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
+        //Act poster should not be able to see it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
 
-        // //Managers cannot change act state
-        // j = request_promise.jar();
-        // cookie = request_promise.cookie('token=' + manager.jwt);
-        // j.setCookie(cookie, homepage);
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }));
+        //Managers can't see it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
 
-        // options.jar = j;
-        // promises.push(request_promise(options)
-        //     .catch(function (err) {
-        //         expect(err.statusCode).toBe(400);
-        //     }))
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }));
+        //Admin can see it
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + admin.jwt);
+        j.setCookie(cookie, homepage);
 
-        // //An act poster who did not upload this act cannot change its state
-        // j = request_promise.jar();
-        // cookie = request_promise.cookie('token=' + act_poster1.jwt);
-        // j.setCookie(cookie, homepage);
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
-        // options.jar = j;
-        // promises.push(request_promise(options)
-        //     .catch(function (err) {
-        //         expect(err.statusCode).toBe(400);
-        //     }))
+        await Promise.all(promises);
 
+        //Undelete the act
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                'enabled.state': true,
+                deleted: false,
+                state: "AVAILABLE"
+            }
+        )
 
+        //Available and enabled acts can be read by everyone
+        promises = [];
+        //Admin
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + admin.jwt);
+        j.setCookie(cookie, homepage);
 
-        // //Deleted acts can't change act state
-        // //Mark the act as deleted
-        // act = await Act.findByIdAndUpdate(
-        //     act._id,
-        //     { deleted: true },
-        //     { new: true }
-        // )
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
-        // j = request_promise.jar();
-        // cookie = request_promise.cookie('token=' + act_poster.jwt);
-        // j.setCookie(cookie, homepage);
+        //User (Completed)
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + user_jwt);
+        j.setCookie(cookie, homepage);
 
-        // options.jar = j;
-        // await request_promise(options)
-        //     .catch(function (err) {
-        //         expect(err.statusCode).toBe(400);
-        //     });
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
-        // //Mark the act as not deleted
-        // act = await Act.findByIdAndUpdate(
-        //     act._id,
-        //     { deleted: false },
-        //     { new: true }
-        // )
+        //Other user (Not completed)
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + other_user.jwt);
+        j.setCookie(cookie, homepage);
 
-        // //Only the act poster who posted the act or an admin can change an act's state
-        // await request_promise(options)
-        //     .then(function (res) {
-        //         expect(res.message).toBe("Success")
-        //     });
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
 
-        // //If act does not exist, error
-        // options.url = `${homepage}/api/acts/111/state`
-        // await request_promise(options)
-        //     .catch(function (err) {
-        //         expect(err.statusCode).toBe(400)
-        //     });
+        //Act poster
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + act_poster.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
+
+        //Manager
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + manager.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .then(function (res) {
+                expect(res).toBeDefined();
+            }));
+
+        //Non existent act gives error
+        j = request_promise.jar();
+        cookie = request_promise.cookie('token=' + admin.jwt);
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        options.url = `${homepage}/api/acts/111`;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }));
+
+        await Promise.all(promises);
     });
 
     //Upload proof to act

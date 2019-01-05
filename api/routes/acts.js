@@ -695,6 +695,10 @@ router.get('/:id', async function (req, res, next) {
         user_act = values[1];
       })
 
+    //If act does not exist, error
+    if (!act)
+      throw new Error("Act does not exist");
+
     //If this request is coming from the act poster who uploaded it or an admin
     //Return the act
     let creator_rights = false;
@@ -720,6 +724,22 @@ router.get('/:id', async function (req, res, next) {
         if (user_act)
           if (act.enabled.state == false && user_act.acts[0].state != "COMPLETED")
             throw new Error("Act is disabled");
+      }
+    }
+
+    //If this act has been deleted
+    //Only admins and users who have completed it can view it
+
+    if (act.deleted == true) {
+      let display_act = false;
+      if (req.roles && req.roles.administrator) {
+        display_act = true;
+      }
+      else if (user_act && user_act.acts[0].state == "COMPLETED") {
+        display_act = true;
+      }
+      if (!display_act) {
+        throw new Error("Act has been deleted");
       }
     }
 
