@@ -2,7 +2,7 @@ const accepeted_images = [
     "png", "jpg", "jpeg", "bmp"
 ];
 const user_act_types = [
-    "ALL", "ENABLED", "DISABLED", "AVAILABLE", "UNDER_REVIEW", "COMPLETED", "REJECTED", "MY_ACTS"
+    "ALL", "ENABLED", "DISABLED", "AVAILABLE", "UNDER_REVIEW", "COMPLETED", "REJECTED", "MY_ACTS", "REQUESTED", "COLLECTED", "MY_REWARDS", "OPEN", "CLOSED"
 ];
 
 const act_types = [
@@ -14,7 +14,7 @@ const reward_types = [
 ];
 
 const user_acts_sort_categories = [
-    'name', 'total_number_of_completions', 'total_number_of_clicks', 'creation_date', 'reward_points'
+    'name', 'total_number_of_users_who_clicked_on_this_reward', 'value', 'total_number_of_users_who_got_this_reward', 'total_number_of_completions', 'total_number_of_clicks', 'creation_date', 'reward_points'
 ];
 
 const user_acts_order_categories = [

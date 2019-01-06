@@ -3120,44 +3120,44 @@ describe('ABC', () => {
 
 
 
-        //Remove deleted tag and make it unavailable
-        act = await Act.findByIdAndUpdate(
-            act._id,
-            {
-                deleted: false,
-                state: "NOT_AVAILABLE"
-            },
-            { new: true }
-        )
-        //Test
-        await axios
-            .post(`${homepage}/api/acts/${act._id}/complete`, formData, {
-                headers: { Cookie: `token=${other_user.jwt};` }
-            })
-            .catch(function (error) {
+        // //Remove deleted tag and make it unavailable
+        // act = await Act.findByIdAndUpdate(
+        //     act._id,
+        //     {
+        //         deleted: false,
+        //         state: "NOT_AVAILABLE"
+        //     },
+        //     { new: true }
+        // )
 
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    console.info("Request was made")
-                    console.info(error.response.data);
-                    console.info(error.response.status);
-                    console.info(error.response.headers);
-                  } else if (error.request) {
-                      console.info("No response from the server")
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.info(error.request);
-                  } else {
-                      console.info("Request wasn't made")
-                    // Something happened in setting up the request that triggered an Error
-                    console.info('Error', error.message);
-                  }
-                  console.info(error.config);
+        // //Test
+        // await axios
+        //     .post(`${homepage}/api/acts/${act._id}/complete`, formData, {
+        //         headers: { Cookie: `token=${other_user.jwt};` }
+        //     })
+        //     .catch(function (error) {
+        //         if (error.response) {
+        //             // The request was made and the server responded with a status code
+        //             // that falls out of the range of 2xx
+        //             console.info("Request was made")
+        //             console.info(error.response.data);
+        //             console.info(error.response.status);
+        //             console.info(error.response.headers);
+        //         } else if (error.request) {
+        //             console.info("No response from the server")
+        //             // The request was made but no response was received
+        //             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        //             // http.ClientRequest in node.js
+        //             console.info(error.request);
+        //         } else {
+        //             console.info("Request wasn't made")
+        //             // Something happened in setting up the request that triggered an Error
+        //             console.info('Error', error.message);
+        //         }
+        //         console.info(error.config);
 
-                expect(err.response.status).toBe(400);
-            });
+        //         expect(err.response.status).toBe(400);
+        //     });
 
 
 

@@ -146,7 +146,7 @@
                 </div>
                 <br>
                 <div
-                  v-if="data.act.enabled.state && data.proofs.acts[0].state !== 'COMPLETED'"
+                  v-if="data.act.enabled.state && data.act.state == 'AVAILABLE' && data.proofs.acts[0].state !== 'COMPLETED'"
                   class="form-inline justify-content-center"
                 >
                   <input

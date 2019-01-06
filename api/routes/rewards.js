@@ -821,8 +821,6 @@ router.put('/:reward_id/user/:user_id/collected', async function (req, res, next
       { 'rewards.$.state': "COMPLETED", 'rewards.$.time': Date.now() }
     )
 
-
-
     //Email reward provider and reward collector that the transaction is done.
     // const promised_user_mail = mail.sendMail(user.email, "Reward transaction is completed", `Click <a href='${process.env.website}rewards/${reward._id}'>here</a> to rate the reward`);
     const promised_user_mail = mail.sendRewardTransactionCompleteNotice(user.email, reward._id);
@@ -851,7 +849,7 @@ router.put('/:id/enable/:state', async function (req, res, next) {
   }
 });
 
-//Show acts
+//Show rewards
 router.get('/', async function (req, res, next) {
   try {
     if (!req.user) {
@@ -870,8 +868,11 @@ router.get('/', async function (req, res, next) {
 
     //Get 10 latest available acts WRT user search query
     let search = {};
-    if (req.query.search)
+    let search_text = { "$match": {} };
+    if (req.query.search) {
       search = { '$text': { '$search': sanitize(req.query.search) } };
+      search_text = { "$match": { '$text': { '$search': sanitize(req.query.search) } } };
+    }
     // search = { 'users_under_review.id': { '$not': { $eq: req.user.id } } };
 
     //Act must be enabled
@@ -888,16 +889,16 @@ router.get('/', async function (req, res, next) {
 
     //This ensures that when an act poster tries to get his acts
     //Enabled and disabled acts are returned
-    if (type != "MY_ACTS")
+    if (type != "MY_REWARDS")
       search.enabled = enabled;
 
     // if (type == "undefined")
     //     type = req.cookies.type;
 
     //If this is a manager, the default view should be All acts
-    if (req.roles && req.roles.manager)
-      if (!type || globals.user_act_types.indexOf(type) === -1)
-        type = "ALL";
+    // if (req.roles && req.roles.manager)
+    //   if (!type || globals.user_act_types.indexOf(type) === -1)
+    //     type = "ALL";
 
     if (type == "ALL")
       delete search.enabled;
@@ -919,14 +920,46 @@ router.get('/', async function (req, res, next) {
       //Only return acts this user has not completed
       // search['users_under_review.id'] = { '$not': { $eq: req.user.id } };
       // search['completed_users.id'] = { '$not': { $eq: req.user.id } };
-      search['users_who_claimed_this_reward'] = { '$not': { $elemMatch: { id: req.user.id, state: 'COMPLETED' } } }
+      search['users_who_claimed_this_reward'] = { '$not': { $elemMatch: { id: req.user.id, state: 'COMPLETED', state: "ON_GOING" } } }
     }
-    else if (type == 'UNDER_REVIEW')
-      search['users_under_review.id'] = req.user.id;
-    else if (type == 'COMPLETED')
-      search['completed_users.id'] = req.user.id;
-    else if (type == 'REJECTED')
-      search['rejected_users.id'] = req.user.id;
+    else if (type == 'REQUESTED') {
+      search['users_who_claimed_this_reward'] = {
+        //Get acts where this user is in an on going state
+        "$elemMatch": {
+          id: req.user.id,
+          state: "ON_GOING"
+        },
+        //but this user is not in a completed state as well
+        "$not": {
+          "$elemMatch": {
+            id: req.user.id,
+            state: "COMPLETED"
+          }
+        }
+      }
+      // search['users_who_claimed_this_reward.id'] = req.user.id;
+    }
+    else if (type == 'COLLECTED') {
+      search['users_who_claimed_this_reward'] = {
+        "$elemMatch": {
+          id: req.user.id,
+          state: "COMPLETED"
+        }
+      }
+      // search['users_who_claimed_this_reward.id'] = req.user.id;
+      // search['users_who_claimed_this_reward.state'] = "COMPLETED";
+    }
+    else if (type == 'CLOSED') {
+      //Get rewards that have at least one user who has collected it
+      search['users_who_claimed_this_reward.state'] = "COMPLETED";
+    }
+    else if (type == 'MY_REWARDS') {
+      //Return all my non deleted rewards even if disabled or unavailable
+      delete search.enabled;
+      // delete search.deleted;
+      search['reward_provider.id'] = req.user.id;
+    }
+
     else if (type == 'MY_ACTS')
       search['act_provider.id'] = req.user.id;
 
@@ -940,7 +973,7 @@ router.get('/', async function (req, res, next) {
 
     //This ensures that when an act poster tries to get his acts
     //Available and unavailable acts are returned
-    if (type != "MY_ACTS")
+    if (type != "MY_REWARDS")
       search.state = act_type;
 
     //Handle invalid act sort category
@@ -972,11 +1005,103 @@ router.get('/', async function (req, res, next) {
     const promised_count = Reward.find(search).countDocuments();
     const promised_user_reward_points = User.findById(req.user.id, { points: true, _id: false });
 
+    let promised_open_acts = null;
+    let promised_open_acts_count = null;
+    if (type == "OPEN") {
+      //Get rewards that have a higher count of on going claims than completions
+      promised_open_acts = Reward.aggregate([
+        search_text,
+        {
+          $match: {
+            users_who_claimed_this_reward: { $exists: true, $ne: [] },
+          }
+        },
+        { $unwind: "$users_who_claimed_this_reward" },
+        { $match: { 'users_who_claimed_this_reward.state': "ON_GOING" } },
+        {
+          $group: {
+            _id: "$_id",
+            reward: { $addToSet: "$$ROOT" },
+            number_of_users_who_requested_this_reward: {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          $project: {
+            reward: { $arrayElemAt: ["$reward", 0] },
+            number_of_users_who_requested_this_reward: true
+          }
+        },
+        {
+          $addFields: { total_number_of_users_who_got_this_reward: "$reward.total_number_of_users_who_got_this_reward" }
+        },
+        {
+          $project: {
+            cmp: { $cmp: ["$number_of_users_who_requested_this_reward", "$total_number_of_users_who_got_this_reward"] },
+            reward: true,
+            _id: false
+          }
+        },
+        { $match: { cmp: 1 } },
+        { $sort: { [sort]: order } },
+        { $skip: offset },
+        { $limit: 10 },
+        {
+          $project: {
+            'reward.users_who_clicked_on_this_reward': false,
+            'reward.users_who_claimed_this_reward': false,
+            cmp: false
+          }
+        }
+      ])
+
+      promised_open_acts_count = Reward.aggregate([
+        search_text,
+        {
+          $match: {
+            users_who_claimed_this_reward: { $exists: true, $ne: [] },
+          }
+        },
+        { $unwind: "$users_who_claimed_this_reward" },
+        { $match: { 'users_who_claimed_this_reward.state': "ON_GOING" } },
+        {
+          $group: {
+            _id: "$_id",
+            reward: { $addToSet: "$$ROOT" },
+            number_of_users_who_requested_this_reward: {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          $project: {
+            reward: { $arrayElemAt: ["$reward", 0] },
+            number_of_users_who_requested_this_reward: true
+          }
+        },
+        {
+          $addFields: { total_number_of_users_who_got_this_reward: "$reward.total_number_of_users_who_got_this_reward" }
+        },
+        {
+          $project: {
+            cmp: { $cmp: ["$number_of_users_who_requested_this_reward", "$total_number_of_users_who_got_this_reward"] },
+            reward: true,
+            _id: false
+          }
+        },
+        { $match: { cmp: 1 } },
+        { $count: 'count' }
+      ])
+    }
+
 
 
     let promises = [promised_acts, promised_count, promised_user_reward_points];
+    if (type == "OPEN")
+      promises.push(promised_open_acts, promised_open_acts_count);
     let acts;
-    let count;
+    let count = 0;
     let reward_points;
     let result = {};
     let counter;
@@ -988,6 +1113,20 @@ router.get('/', async function (req, res, next) {
         // console.log(acts)
         count = values[1];
         reward_points = values[2];
+        if (type == "OPEN") {
+          acts = [];
+          values[3].forEach(element => {
+            acts.push(element.reward);
+          });
+          if (values[4] && values[4][0])
+            count = values[4][0].count;
+          // acts = values[3];
+
+          // acts.forEach(element => {
+          //   if ()
+          // });
+          // console.log(acts);
+        }
       })
     const act_count = count;
     count = Math.ceil(count / 10);

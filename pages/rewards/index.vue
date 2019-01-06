@@ -29,18 +29,18 @@
                 <option value disabled :selected="!query.sort">Sort by</option>
                 <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
                 <option
-                  value="total_number_of_completions"
-                  :selected="query.sort == 'total_number_of_completions'"
+                  value="total_number_of_users_who_got_this_reward"
+                  :selected="query.sort == 'total_number_of_users_who_got_this_reward'"
                 >Favorites</option>
                 <option value="name" :selected="query.sort == 'name'">Name</option>
                 <option
-                  value="total_number_of_clicks"
-                  :selected="query.sort == 'total_number_of_clicks'"
+                  value="total_number_of_users_who_clicked_on_this_reward"
+                  :selected="query.sort == 'total_number_of_users_who_clicked_on_this_reward'"
                 >Popularity</option>
                 <option
-                  value="reward_points"
-                  :selected="query.sort == 'reward_points'"
-                >Reward points</option>
+                  value="value"
+                  :selected="query.sort == 'value'"
+                >Value</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">
@@ -711,6 +711,7 @@ export default {
     // context.query.sort = "Hello";
     // console.log(context.query);
     // context.query.sort = "Hello";
+    // console.log(data);
     return { query: context.query, data };
   },
   data() {
@@ -766,6 +767,7 @@ export default {
           vue_context.$router.redirect("/logout");
         }
       });
+      $('[data-toggle="popover"]').popover();
     next();
   },
   methods: {

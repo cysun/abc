@@ -33,8 +33,8 @@ async function getUserFromJWT(req, res, next) {
     //Use refresh token to figure out who this user is
     if (refresh_token) {
       user = await User.findOne({ refresh_token: refresh_token });
-      if (user) {
-        //If user exists
+      if (user && user.enabled) {
+        //If user exists and is enabled
         //Create new JWT and attach it to the cookie
         const payload = {
           id: user._id,
@@ -47,10 +47,12 @@ async function getUserFromJWT(req, res, next) {
         res.cookie('token', user_token, { maxAge: 3600000 })
         user = payload;
       }
+      else
+        user = null
     }
   }
   //Attach this user's details to the req object
-  if (user)
+  if (user && user.id)
     req.user = user;
   next();
 }
@@ -95,7 +97,7 @@ const rewardsRouter = require('./routes/rewards')
 const adminRouter = require('./routes/admin')
 
 mongoose.connection.on('connected', () =>
-logger.info(`Mongoose connected to ${process.env.DBURL}`)
+  logger.info(`Mongoose connected to ${process.env.DBURL}`)
   // console.log(`Mongoose connected to ${process.env.DBURL}`)
 );
 mongoose.connection.on('disconnected', () =>
