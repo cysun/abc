@@ -14,6 +14,8 @@ const User = require('../models/User');
 const Act = require('../models/Act');
 const Tag = require('../models/Tag');
 const jwt = require('jsonwebtoken');
+const axios = require("axios");
+const FormData = require('form-data');
 
 function createJWT(user) {
     const payload = {
@@ -160,6 +162,7 @@ describe('ABC', () => {
     let uploaded_proof2;
     let uploaded_proof3;
     let uploaded_proof4;
+    let uploaded_proof5;
 
     beforeAll(async (done) => {
         mongoose.connect(process.env.DBURL, {
@@ -3035,16 +3038,160 @@ describe('ABC', () => {
     });
 
     //Upload proof to act
-    //Non logged in users cannot upload proof to act
-    //Proofs cannot be uploaded to deleted, unavailable or disabled acts
-    //Proofs cannot be uploaded to compeleted acts
+
+    //Proofs cannot be uploaded to compeleted, enabled, available, non deleted acts
     //Proofs cannot be uploaded to non existent acts
+    //Fail if no file is uploaded
+    //Anyone can upload proofs to acts
+    it('Upload proof to act', async () => {
+        //Get some act
+        //Make sure it's enabled, available and not deleted
+        //Make sure a user has completed it
+        let act = await Act.findOneAndUpdate(
+            {
+                name: "Some test name specifically for jasmine",
+                'act_provider.id': act_poster._id,
+                'completed_users.id': user._id
+            },
+            {
+                'enabled.state': true,
+                deleted: false,
+                state: "AVAILABLE"
+            },
+            { new: true }
+        )
+
+        let promises = [];
+
+        //Non logged in user cannot upload proof to act (No token)
+        const file_to_upload_form = {
+            files: [fs.createReadStream(secret.invalid_image)]
+        }
+
+        const options = {
+            method: "POST",
+            url: `${homepage}/api/acts/${act._id}/complete`,
+            json: true,
+            formData: file_to_upload_form
+        }
+
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+                // uploaded_proof5 = res[0].new_name;
+            }))
+
+        //Non logged in user cannot upload proof to act (Invalid token)
+        let j = request_promise.jar();
+        let cookie = request_promise.cookie('token=invalid_token');
+        j.setCookie(cookie, homepage);
+
+        options.jar = j;
+        promises.push(request_promise(options)
+            .catch(function (err) {
+                expect(err.statusCode).toBe(400);
+            }))
+
+        await Promise.all(promises);
+
+        //Proofs cannot be uploaded to deleted, unavailable or disabled acts
+        //Make proof deleted
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            { deleted: true },
+            { new: true }
+        )
+        //Test
+        const formData = new FormData();
+        formData.append('files', fs.createReadStream(secret.invalid_image));
+
+        await axios
+            .post(`${homepage}/api/acts/${act._id}/complete`, formData, {
+                headers: { Cookie: `token=${other_user.jwt};` }
+            })
+            // .then(function (res) {
+            //     console.info(res.data);
+            // })
+            .catch(function (err) {
+                // console.info(err.response.status)
+                // console.info(err.response.data)
+                expect(err.response.status).toBe(400);
+            });
+
+
+
+        //Remove deleted tag and make it unavailable
+        act = await Act.findByIdAndUpdate(
+            act._id,
+            {
+                deleted: false,
+                state: "NOT_AVAILABLE"
+            },
+            { new: true }
+        )
+        //Test
+        await axios
+            .post(`${homepage}/api/acts/${act._id}/complete`, formData, {
+                headers: { Cookie: `token=${other_user.jwt};` }
+            })
+            .catch(function (error) {
+
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.info("Request was made")
+                    console.info(error.response.data);
+                    console.info(error.response.status);
+                    console.info(error.response.headers);
+                  } else if (error.request) {
+                      console.info("No response from the server")
+                    // The request was made but no response was received
+                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                    // http.ClientRequest in node.js
+                    console.info(error.request);
+                  } else {
+                      console.info("Request wasn't made")
+                    // Something happened in setting up the request that triggered an Error
+                    console.info('Error', error.message);
+                  }
+                  console.info(error.config);
+
+                expect(err.response.status).toBe(400);
+            });
+
+
+
+        // //Remove unavailable tag and make it disabled
+        // act = await Act.findByIdAndUpdate(
+        //     act._id,
+        //     {
+        //         state: "AVAILABLE",
+        //         'enabled.state': false
+        //     },
+        //     { new: true }
+        // )
+        // //Test
+        // await request_promise(options)
+        //     .catch(function (err) {
+        //         expect(err.statusCode).toBe(400);
+        //     })
+    });
+
 
     //Delete proof
     //Non logged in users cannot delete proofs
     //Proofs cannot be deleted from completed acts
     //Proofs can only be deleted by the person who uploaded it
     //Non existent proofs cannot be deleted
+
+    //Reject proof
+    //Non logged in users can't reject proof
+    //Only managers and admins can reject proofs
+    //Comments must be sent for a proof to be rejected
+
+    //Accept proof
+    //Non logged in users can't reject proof
+    //Only managers and admins can reject proofs
 
     afterAll(async () => {
         const promises = [];
@@ -3078,5 +3225,7 @@ describe('ABC', () => {
         fs.unlinkSync(proof3);
         const proof4 = process.env.act_picture_folder + uploaded_proof4.replace(process.env.website + process.env.display_act_picture_folder, '');
         fs.unlinkSync(proof4);
+        // const proof5 = process.env.act_picture_folder + uploaded_proof5.replace(process.env.website + process.env.display_act_picture_folder, '');
+        // fs.unlinkSync(proof5);
     });
 });

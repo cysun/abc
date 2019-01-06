@@ -361,7 +361,7 @@ router.get('/review', async function (req, res, next) {
 
     // res.json({acts, roles: req.roles});
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     next(createError(400, err.message))
   }
 });
@@ -371,11 +371,24 @@ router.get('/review', async function (req, res, next) {
 router.post('/:id/complete', upload.array('files'), async function (req, res, next) {
   // const image = './tmp/' + req.file.filename
   try {
+    //Non logged in users can't access this endpoint
+    if (!req.user)
+      throw new Error("You do not have authorization");
+
+    const this_user = await User.findById(req.user.id);
+    if (this_user.email == "other_user@email.com")
+      console.log("Other user was here");
+
+    //Get the act
+    const this_act = await Act.findById(req.params.id);
+    //If it's non existent, disabled, unavailable or deleted, fail
+    if (!this_act || !this_act.enabled.state || this_act.state == "NOT_AVAILABLE" || this_act.deleted)
+      throw new Error("Invalid Act");
 
     var re = /(?:\.([^.]+))?$/;
 
     //Make sure at least one file was uploaded
-    if (req.files.length == 0)
+    if (!req.files)
       //If not, give error
       throw new Error("No files were uploaded");
 
@@ -559,13 +572,16 @@ router.post('/:id/complete', upload.array('files'), async function (req, res, ne
     //Return only the new uploads
     res.json(req.user.proof_of_completion)
   } catch (err) {
+    //Delete uploaded files
+    const this_promises = [];
+    if (req.files) {
+      for (let i = 0; i < req.files.length; i++) {
+        this_promises.push(fs_delete_file('./tmp/' + req.files[i].filename))
+      }
+      await Promise.all(this_promises);
+    }
     next(createError(400, err.message))
   }
-  // finally {
-  //   //Delete uploaded file
-  //   if (req.file)
-  //     fs.unlinkSync(image);
-  // }
 })
 
 
