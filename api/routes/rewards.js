@@ -1208,7 +1208,7 @@ router.get('/:id/details', async function (req, res, next) {
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
-      sort = "name";
+      sort = "first_name";
 
     //Handle invalid act order category
     if (!order || globals.user_acts_order_categories.indexOf(order) === -1)

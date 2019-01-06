@@ -1,7 +1,7 @@
 <template>
   <div>
     <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
-    <my-banner :title="title"/>
+    <my-banner :title="data.reward.name"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <div class="container py-md-3">
         <span class="badge badge-primary float-right">Accumulated {{data.sum}} points</span>
@@ -27,19 +27,8 @@
               >
                 <option value disabled :selected="!query.sort">Sort by</option>
                 <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
-                <option
-                  value="total_number_of_completions"
-                  :selected="query.sort == 'total_number_of_completions'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
-                <option
-                  value="total_number_of_clicks"
-                  :selected="query.sort == 'total_number_of_clicks'"
-                >Popularity</option>
-                <option
-                  value="reward_points"
-                  :selected="query.sort == 'reward_points'"
-                >Reward points</option>
+                <option value="first_name" :selected="query.sort == 'first_name'">First Name</option>
+                <option value="last_name" :selected="query.sort == 'last_name'">Last Name</option>
               </select>
               
               <select
@@ -286,7 +275,6 @@ export default {
       )
       .then(function(res) {
         data = res.data;
-        console.log(data);
         //Loop through data and format date
         data.data.forEach(element => {
           element.rewards[0].time = moment(element.rewards[0].time).format(
@@ -408,7 +396,7 @@ export default {
       // var element = this.$refs["acts_come_here"];
 
       // scrollToElement(element);
-      this.$router.push(`/manage/acts?type=${this.query.type}`);
+      this.$router.push(`/rewards/${this.$route.params.id}/details?type=${this.query.type}`);
     },
     type_changed() {
       // console.log(this.query.type);
