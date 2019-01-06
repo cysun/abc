@@ -667,7 +667,10 @@ router.get('/:id', async function (req, res, next) {
   )
   //Get this user's rating for this reward and reward provider
   const promised_rating = Reward.findOne(
-    { 'reviews.id': req.user.id },
+    {
+      _id: req.params.id,
+      'reviews.id': req.user.id
+    },
     { 'reviews.$': true, _id: false }
   )
   const promises = [promised_act, promised_user, promised_click_counter, promised_rating];
@@ -923,6 +926,8 @@ router.get('/', async function (req, res, next) {
       search['users_who_claimed_this_reward'] = { '$not': { $elemMatch: { id: req.user.id, state: 'COMPLETED', state: "ON_GOING" } } }
     }
     else if (type == 'REQUESTED') {
+      delete search.enabled;
+      delete search.deleted;
       search['users_who_claimed_this_reward'] = {
         //Get acts where this user is in an on going state
         "$elemMatch": {
@@ -940,6 +945,8 @@ router.get('/', async function (req, res, next) {
       // search['users_who_claimed_this_reward.id'] = req.user.id;
     }
     else if (type == 'COLLECTED') {
+      delete search.enabled;
+      delete search.deleted;
       search['users_who_claimed_this_reward'] = {
         "$elemMatch": {
           id: req.user.id,
@@ -975,6 +982,9 @@ router.get('/', async function (req, res, next) {
     //Available and unavailable acts are returned
     if (type != "MY_REWARDS")
       search.state = act_type;
+
+    if (type == "COMPLETED" || type == "REQUESTED")
+      delete search.state;
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
@@ -1172,24 +1182,14 @@ router.get('/', async function (req, res, next) {
   }
 })
 
-//Show acts
+//Show users relationships with rewards
 router.get('/:id/details', async function (req, res, next) {
 
   try {
 
-
-    //Set bit that indicates open transactions
-    //If closed
-    //Get all users who hae collected this reward
-    //Set bit that indicates completed transactions
-    //If reviews
-    //Get all users reviews
-    //Set a bit that indicates that its reviews thats being returned
-
     let search = {};
     if (req.query.search)
       search = { '$text': { '$search': sanitize(req.query.search) } };
-
 
     let page = parseInt(sanitize(req.query.page));
     let act_type = sanitize(req.query.act_type);
@@ -1201,10 +1201,6 @@ router.get('/:id/details', async function (req, res, next) {
     //Make type open transactions
     if (!type || globals.reward_types.indexOf(type) === -1)
       type = "OPEN";
-    if (type == "ALL")
-      type = "OPEN";
-
-
 
     //Handle invalid page
     if (!page || page < 1)
@@ -1221,75 +1217,91 @@ router.get('/:id/details', async function (req, res, next) {
     let offset = (page - 1) * 10;
 
 
-    let path, match, group_by;
-    path = '$users_who_claimed_this_reward';
-    group_by = {
-      _id: null,
-      users: {
-        $push: path
-      }
-    }
+    let condition;
+    //Open
+    if (type == "OPEN")
+      condition = "ON_GOING";
+    //Closed
+    else if (type == "CLOSED")
+      condition = "COMPLETED";
+    //Reviews
 
-    if (type == "OPEN") {
-      //If open transactions
-      //Get all users who have open transactions with this reward
-      match = { 'users_who_claimed_this_reward.state': "ON_GOING" };
-    }
-    else if (type == 'CLOSED') {
-      //Get completed users
-      match = { 'users_who_claimed_this_reward.state': "COMPLETED" };
-    }
-    else if (type == 'REVIEWS') {
-      path = '$reviews';
-      match = {};
-      group_by = {
-        _id: null,
-        users: {
-          $push: path
-        }
-      }
-    }
-    //Deleted rewards should not show up
-
-    let results = Reward.aggregate([
-      //Gets Acts this user has completed
-      {
-        $match: {
+    let results;
+    let count;
+    if (type == "OPEN" || type == "CLOSED") {
+      results = User.find(
+        {
           $and: [
-            { _id: mongoose.Types.ObjectId(req.params.id) },
+            {
+              rewards: {
+                $elemMatch: {
+                  id: req.params.id,
+                  state: condition
+                }
+              }
+            },
             search
           ]
+        },
+        {
+          first_name: true,
+          last_name: true,
+          'rewards.$': true
         }
-      },
-      //Creates an array of many documents with a single (different) act in each one 
-      { $unwind: path },
-      // //Gets the documents with the specified act.name
-      { $match: match },
-      { $group: group_by },
-      { $skip: offset },
-      { $limit: 10 },
-      { $sort: { [sort]: order } },
-      // //Removes the _id
-      { $project: { _id: 0 } }
-    ]);
+      ).sort({ [sort]: order }).skip(offset).limit(10).lean();
 
-    let count = Reward.aggregate([
-      //Gets Acts this user has completed
-      {
-        $match: {
+      count = User.find(
+        {
           $and: [
-            { _id: mongoose.Types.ObjectId(req.params.id) },
+            {
+              rewards: {
+                $elemMatch: {
+                  id: req.params.id,
+                  state: condition
+                }
+              }
+            },
             search
           ]
+        },
+        {
+          first_name: true,
+          last_name: true,
+          'rewards.$': true
         }
-      },
-      //Creates an array of many documents with a single (different) act in each one 
-      { $unwind: path },
-      // //Gets the documents with the specified act.name
-      { $match: match },
-      { $group: { _id: null, count: { $sum: 1 } } },
-      { $project: { _id: 0 } }
-    ]);
+      ).countDocuments();
+    }
+
+    if (type == "REVIEWS") {
+
+      results = Reward.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+        { $unwind: "$reviews" },
+        { $project: { "reviews": true } },
+        { $sort: { 'reviews.time': -1 } },
+        { $skip: offset },
+        { $limit: 10 },
+        {
+          $group: {
+            _id: null,
+            reviews: { $push: "$reviews" }
+            // count: {
+            //   $sum: 1
+            // }
+          }
+        },
+        { $project: { _id: false } }
+      ])
+
+      count = Reward.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+        { $unwind: "$reviews" },
+        { $project: { "reviews": true } },
+        { $sort: { 'reviews.time': -1 } },
+        { $count: 'count' }
+      ])
+    }
+
 
     //Return the amount of points this reward has accumulated
     let points = User.aggregate([
@@ -1314,21 +1326,40 @@ router.get('/:id/details', async function (req, res, next) {
       { $project: { sum: 1, _id: 0 } }
     ]);
 
-    const promises = [results, count, points]
+    let reward = Reward.findById(
+      req.params.id,
+      {
+        users_who_clicked_on_this_reward: false,
+        users_who_claimed_this_reward: false
+      }
+    )
+
+    const promises = [results, count, points, reward]
     // let results, count, points
     let returned_results, pages, sum
     await Promise.all(promises)
       .then(function (values) {
-        returned_results = values[0];
-        pages = Math.ceil(values[1][0].count / 10);
-        sum = 0;
-        if (values[2][0])
-          sum = values[2][0].sum;
-        // console.log("Results ", values[0]);
-        // console.log("Count ", values[1]);
-        // console.log("Points ", values[2]);
+
+        reward = values[3];
+
+        if (type != "REVIEWS") {
+          returned_results = values[0];
+          count = values[1];
+          pages = Math.ceil(count / 10);
+          sum = 0;
+          if (values[2][0])
+            sum = values[2][0].sum;
+        }
+        else {
+          returned_results = values[0][0].reviews;
+          count = values[1][0].count;
+          pages = Math.ceil(count / 10);
+          sum = 0;
+          if (values[2][0])
+            sum = values[2][0].sum;
+        }
       })
-    res.json({ data: returned_results, count: pages, sum })
+    res.json({ data: returned_results, count: pages, sum, reward })
   }
   catch (err) {
     console.log(err)

@@ -13,12 +13,18 @@
               <input
                 type="text"
                 name="search"
+                :disabled="query.type == 'REVIEWS'"
                 v-model="query.search"
                 class="form-control"
                 placeholder="Search"
                 @keyup.enter="search"
               >
-              <select class="form-control" name="sort" v-model="query.sort">
+              <select
+                :disabled="query.type == 'REVIEWS'"
+                class="form-control"
+                name="sort"
+                v-model="query.sort"
+              >
                 <option value disabled :selected="!query.sort">Sort by</option>
                 <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
                 <option
@@ -36,7 +42,12 @@
                 >Reward points</option>
               </select>
               
-              <select class="form-control" name="order" v-model="query.order">
+              <select
+                :disabled="query.type == 'REVIEWS'"
+                class="form-control"
+                name="order"
+                v-model="query.order"
+              >
                 <option value disabled :selected="!query.order">Sort direction</option>
                 <option value="1" :selected="query.order == '1'">Ascending</option>
                 <option value="-1" :selected="query.order == '-1'">Descending</option>
@@ -65,62 +76,67 @@
         </div>
         <br>
         <div ref="acts_come_here">
-          <button class='btn btn-primary' style="margin-bottom: 10px">Reward details</button>
-        <table class="table table-striped table-hover" v-if="query.type != 'REVIEWS'">
-          <thead>
-            <th scope="col" data-type="string">User's name</th>
-            <th scope="col" data-type="number">Date reward was {{data.requested}}</th>
-            <th v-if="data.query.type == 'OPEN'" scope="col" data-role="annotation">Confirm collection</th>
-          </thead>
+          <button
+            class="btn btn-primary"
+            @click="showReward"
+            style="margin-bottom: 10px"
+          >Reward details</button>
+          <table class="table table-striped table-hover" v-if="query.type != 'REVIEWS'">
+            <thead>
+              <th scope="col" data-type="string">User's name</th>
+              <th scope="col" data-type="number">Date reward was {{data.requested}}</th>
+              <th
+                v-if="data.query.type == 'OPEN'"
+                scope="col"
+                data-role="annotation"
+              >Confirm collection</th>
+            </thead>
 
-          <tr v-for="(user, index) in data.data[0].users">
-            <td>{{user.first_name}} {{user.last_name}}</td>
-            <td>{{user.time}}</td>
-            <td v-if="data.query.type == 'OPEN'">
-              <button
-                @click="confirmCollection(index)"
-                class="btn btn-primary"
-              >Confirm collection</button>
-            </td>
-          </tr>
-        </table>
-        <div v-if="data.query.type == 'REVIEWS'" class="comment-top w3-agile-grid">
-					<h4>Reviews</h4>
-					<div class="media mb-3" v-for="(user, index) in data.data[0].users">
-						<div class="media-body">
-							<h5 class="mt-0">{{user.first_name}} {{user.last_name}}</h5>
-              <p>Reward rating: {{user.reward_rating}}</p>
-              <p v-if="user.reward_comments">{{user.reward_comments}}</p>
-							<p>Reward provider rating: {{user.reward_provider_rating}}</p>
-              <p v-if="user.reward_provider_comments">{{user.reward_provider_comments}}</p>
-						</div>
-					</div>
-				</div>
+            <tr v-for="(user, index) in data.data">
+              <td>{{user.first_name}} {{user.last_name}}</td>
+              <td>{{user.rewards[0].time}}</td>
+              <td v-if="data.query.type == 'OPEN'">
+                <button @click="confirmCollection(index)" class="btn btn-primary">Confirm collection</button>
+              </td>
+            </tr>
+          </table>
+          <div v-if="data.query.type == 'REVIEWS'" class="comment-top w3-agile-grid">
+            <h4>Reviews</h4>
+            <div class="media mb-3" v-for="(user, index) in data.data">
+              <div class="media-body">
+                <h5 class="mt-0">{{user.first_name}} {{user.last_name}}</h5>
+                <p>Reward rating: {{user.reward_rating}}</p>
+                <p v-if="user.reward_comments">{{user.reward_comments}}</p>
+                <p>Reward provider rating: {{user.reward_provider_rating}}</p>
+                <p v-if="user.reward_provider_comments">{{user.reward_provider_comments}}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <br>
-            <nav aria-label="Page navigation example" v-if="data.count">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
-                </li>
+        <nav aria-label="Page navigation example" v-if="data.count">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{disabled: data.query.page == '1'}">
+              <a class="page-link" @click="previous">Previous</a>
+            </li>
 
-                <li
-                  v-for="(pages, index) in data.total_acts"
-                  class="page-item"
-                  :class="{active: data.query.page == index + 1}"
-                >
-                  <a
-                    class="page-link"
-                    :class="{disabled: data.query.page == index + 1}"
-                    @click="navigateTo(index + 1)"
-                  >{{index + 1}}</a>
-                </li>
+            <li
+              v-for="(pages, index) in data.total_acts"
+              class="page-item"
+              :class="{active: data.query.page == index + 1}"
+            >
+              <a
+                class="page-link"
+                :class="{disabled: data.query.page == index + 1}"
+                @click="navigateTo(index + 1)"
+              >{{index + 1}}</a>
+            </li>
 
-                <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
-                </li>
-              </ul>
-            </nav>
+            <li class="page-item" :class="{disabled: data.query.page == data.count}">
+              <a class="page-link" @click="next">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </section>
   </div>
@@ -179,11 +195,11 @@ export default {
     // console.log(context)
     await axios
       .get(
-        `/api/rewards/${context.route.params.id}/details?type=${context.query.type}&sort=${
-          context.query.sort
-        }&order=${context.query.order}&search=${context.query.search}&page=${
-          context.query.page
-        }`,
+        `/api/rewards/${context.route.params.id}/details?type=${
+          context.query.type
+        }&sort=${context.query.sort}&order=${context.query.order}&search=${
+          context.query.search
+        }&page=${context.query.page}`,
         {
           headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         }
@@ -198,10 +214,10 @@ export default {
         // console.log(res);
         data = res.data;
         //Loop through data and format date
-        data.data[0].users.forEach(element => {
-            element.time = moment(element.time).format(
-              "MMMM Do YYYY, h:mm a"
-            );
+        data.data.forEach(element => {
+          element.rewards[0].time = moment(element.rewards[0].time).format(
+            "MMMM Do YYYY, h:mm a"
+          );
         });
       })
       .catch(function(err) {
@@ -214,11 +230,10 @@ export default {
         // vue_context.$nuxt.$loading.finish();
         // if (err.response) vue_context.error = err.response.data.message;
       });
-      // console.log(data);
+    // console.log(data);
     data.query = context.query;
-    data.requested = "requested"
-    if (data.query.type == 'CLOSED')
-    data.requested = "collected"
+    data.requested = "requested";
+    if (data.query.type == "CLOSED") data.requested = "collected";
     return { query: context.query, data };
   },
   data() {
@@ -248,32 +263,43 @@ export default {
     };
   },
   async beforeRouteUpdate(to, from, next) {
-    // console.log(to);
+    const token = this.$cookies.get("token");
+    const refresh_token = this.$cookies.get("refresh_token");
+
     if (!to.query.sort) to.query.sort = "";
     if (!to.query.search) to.query.search = "";
     if (!to.query.order) to.query.order = "";
     if (!to.query.page) to.query.page = 1;
-    const token = this.$cookies.get("token");
-    const refresh_token = this.$cookies.get("refresh_token");
+    if (!to.query.type) to.query.type = "OPEN";
+
+    let data;
     await axios
       .get(
-        `/api/acts?type=${to.query.type}&sort=${to.query.sort}&order=${
-          to.query.order
-        }&search=${to.query.search}&page=${to.query.page}`,
+        `/api/rewards/${this.$route.params.id}/details?type=${
+          to.query.type
+        }&sort=${to.query.sort}&order=${to.query.order}&search=${
+          to.query.search
+        }&page=${to.query.page}`,
         {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
+          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         }
       )
       .then(function(res) {
-        vue_context.data = res.data;
+        data = res.data;
+        console.log(data);
+        //Loop through data and format date
+        data.data.forEach(element => {
+          element.rewards[0].time = moment(element.rewards[0].time).format(
+            "MMMM Do YYYY, h:mm a"
+          );
+        });
       })
-      .catch(function(err) {
-        if (err.response.status == 400) {
-          vue_context.$router.redirect("/logout");
-        }
-      });
+      .catch(function(err) {});
+    data.query = this.$route.query;
+    data.requested = "requested";
+    if (data.query.type == "CLOSED") data.requested = "collected";
+    vue_context.query = to.query;
+    vue_context.data = data;
     next();
   },
   methods: {
@@ -288,16 +314,19 @@ export default {
       if (this.data.type == "ALL")
         //Change state
         this.data.acts[index].enabled = !state;
-        // this.$set(this.data.acts[index].enabled, "state", !state);
+      // this.$set(this.data.acts[index].enabled, "state", !state);
 
       //Display error
       //Make request to change state
       axios
-        .put(`/api/rewards/${vue_context.data.acts[index]._id}/enable/${!state}`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
+        .put(
+          `/api/rewards/${vue_context.data.acts[index]._id}/enable/${!state}`,
+          {
+            headers: {
+              Cookie: `token=${token}; refresh_token=${refresh_token};`
+            }
           }
-        })
+        )
         .then(function(res) {
           // //If successful
           // //Show success message
@@ -383,7 +412,9 @@ export default {
     },
     type_changed() {
       // console.log(this.query.type);
-      this.$router.push(`/rewards/${this.$route.params.id}/details?type=${this.query.type}`);
+      this.$router.push(
+        `/rewards/${this.$route.params.id}/details?type=${this.query.type}`
+      );
     },
     upload_type_changed() {
       // console.log(this.upload_type);
@@ -398,24 +429,36 @@ export default {
         this.$set(this.data.acts[index], "delete", true);
       else this.$set(this.data.acts[index], "delete", false);
     },
-    async confirmCollection(index){
+    showReward() {
+      this.$router.push("/rewards/" + this.$route.params.id);
+    },
+    async confirmCollection(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
       //Save row
-      this.deleted_acts[index] = this.data.data[0].users[index];
+      this.deleted_acts[index] = this.data.data[index];
       //Remove from screen
-      this.data.data[0].users.splice(index, 1);
+      this.data.data.splice(index, 1);
       //Send request to confirm collection
+      this.data.sum = this.data.sum + this.data.reward.value;
+      //Add the value of this reward to the accumulated sum
       await axios
-        .put(`/api/rewards/${vue_context.$route.params.id}/user/${vue_context.deleted_acts[index].id}/collected`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
+        .put(
+          `/api/rewards/${vue_context.$route.params.id}/user/${
+            vue_context.deleted_acts[index]._id
+          }/collected`,
+          {
+            headers: {
+              Cookie: `token=${token}; refresh_token=${refresh_token};`
+            }
           }
-        })
+        )
         .catch(function(err) {
           //If error
-      //Place on screen
-          vue_context.data.data[0].users.splice(
+          //Remove the value of this reward from the accumulated sum
+          vue_context.data.sum = vue_context.data.sum - vue_context.data.reward.value;
+          //Place on screen
+          vue_context.data.data.splice(
             index,
             0,
             vue_context.deleted_acts[index]
@@ -427,8 +470,6 @@ export default {
             position: "topRight"
           });
         });
-      
-      
     },
     async confirm_delete_act(index) {
       const token = this.$cookies.get("token");
@@ -738,9 +779,11 @@ export default {
       // vue_context.$nuxt.$loading.finish();
 
       this.$router.push(
-        `/manage/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}
+        `/rewards/${this.$route.params.id}/details?type=${
+          this.query.type
+        }&sort=${this.query.sort}&order=${this.query.order}&search=${
+          vue_context.query.search
+        }
         `
       );
     },

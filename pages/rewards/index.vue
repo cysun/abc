@@ -445,59 +445,7 @@
                 </div>
               </form>
             </div>
-            <!-- <div class="single-gd">
-              <h4>Our Progress</h4>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped"
-                  role="progressbar"
-                  style="width: 10%"
-                  aria-valuenow="10"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-success"
-                  role="progressbar"
-                  style="width: 25%"
-                  aria-valuenow="25"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-info"
-                  role="progressbar"
-                  style="width: 50%"
-                  aria-valuenow="50"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-warning"
-                  role="progressbar"
-                  style="width: 75%"
-                  aria-valuenow="75"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-              <div class="progress">
-                <div
-                  class="progress-bar progress-bar-striped bg-danger"
-                  role="progressbar"
-                  style="width: 100%"
-                  aria-valuenow="100"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
-            </div>-->
+            
             <div class="single-gd tech-btm">
               <h4>Top stories of the week</h4>
               <div class="blog-grids">
@@ -571,19 +519,6 @@ export default {
     MyBanner,
     MyHeader
   },
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
-  //       // { src: 'js/collapse.js' },
-  //       // { src: 'js/transition.js' },
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js' }
-  //     ],
-  //     link: [
-  //       {href:"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css", rel:"stylesheet"}
-  //     ]
-  //   }
-  // },
   created: function() {
     vue_context = this;
   },
@@ -613,25 +548,8 @@ export default {
       const id = target[0].name;
       vue_context.rewardDetails(id);
     });
-    
-
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
-  async fetch(context) {},
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -641,10 +559,7 @@ export default {
     if (!context.query.page) context.query.page = 1;
     if (!context.query.type) context.query.type = "AVAILABLE";
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
       .get(
         `/api/rewards?type=${context.query.type}&sort=${
@@ -657,61 +572,12 @@ export default {
         }
       )
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
-        // console.log(data)
-        //Loop through data and format date
-        // data.acts.forEach(element => {
-        //   if (element.__t == "Event") {
-        //     element.formated_start_time = moment(element.start_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-        //     element.formated_end_time = moment(element.end_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-
-        //     element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-        //     element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-        //   }
-        // });
       })
       .catch(function(err) {
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
+        
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
-    // console.log(data);
+   
     return { query: context.query, data };
   },
   data() {
@@ -727,7 +593,6 @@ export default {
       image: null,
       logged_in: true,
       page: "rewards",
-      // roles: this.data.roles,
       deleted_acts: {},
       upload_type: "act",
       add_act: {
@@ -737,11 +602,9 @@ export default {
         start_time: "",
         end_time: ""
       }
-      // query: this.$route.query
     };
   },
   async beforeRouteUpdate(to, from, next) {
-    // console.log(to);
     if (!to.query.sort) to.query.sort = "";
     if (!to.query.search) to.query.search = "";
     if (!to.query.order) to.query.order = "";
@@ -948,20 +811,7 @@ export default {
         });
     },
     async save_act(index) {
-      // iziToast.show({
-      //   title: "Hey",
-      //   color: 'red',
-      //   message: "What would you like to add?",
-      //   position: 'topRight',
-      //   icon: 'fa fa-heart'
-      // });
-
-      // iziToast.error({
-      //   title: "Error",
-      //   message: "Illegal operation",
-      //   position: 'topRight'
-      // });
-
+     
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -972,13 +822,7 @@ export default {
       const value = document.getElementById("act_reward_points" + index).value;
       const amount = document.getElementById("act_amount" + index).value;
       const enabled_state = this.data.acts[index].enabled;
-      //If this is an event, get new start and end time too
-      // let start_time, end_time;
-
-      // if (this.data.acts[index].__t == "Event") {
-      //   start_time = document.getElementById("act_start_time" + index).value;
-      //   end_time = document.getElementById("act_end_time" + index).value;
-      // }
+      
       //Save previous name, description and reward points and enabled_state
       this.$set(this.data.acts[index], "previous_data", {
         name: this.data.acts[index].name,
@@ -987,47 +831,13 @@ export default {
         amount: this.data.acts[index].amount,
         enabled: enabled_state
       });
-      //If this is an event, save previous start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(
-      //     this.data.acts[index].previous_data,
-      //     "start_time",
-      //     this.data.acts[index].formated_start_time
-      //   );
-      //   this.$set(
-      //     this.data.acts[index].previous_data,
-      //     "end_time",
-      //     this.data.acts[index].formated_end_time
-      //   );
-      // }
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
-      //     start_time: this.data.acts[index].formated_start_time,
-      //     end_time: this.data.acts[index].formated_end_time
-      //   });
-      // }
+      
       //Update to new name, desription and reward points
       this.$set(this.data.acts[index], "name", name);
       this.$set(this.data.acts[index], "description", description);
       this.$set(this.data.acts[index], "value", value);
       this.$set(this.data.acts[index], "amount", amount);
-      // this.$set(this.data.acts[index], "value", value);
-      //If this is an event
-      //Update to new start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(
-      //     this.data.acts[index],
-      //     "formated_start_time",
-      //     moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      //   this.$set(
-      //     this.data.acts[index],
-      //     "formated_end_time",
-      //     moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      // }
-      //Remember to disable the act
-      // this.$set(this.data.acts[index].enabled, "state", false);
+      
       this.data.acts[index].enabled = false;
       //Remove input fields
       this.edit_act(index);
@@ -1038,12 +848,6 @@ export default {
       params.append("description", description);
       params.append("value", value);
       params.append("amount", amount);
-
-      //If this is an event, edit its start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   params.append("start_time", start_time);
-      //   params.append("end_time", end_time);
-      // }
 
       await axios
         .put(`/api/rewards/${vue_context.data.acts[index]._id}`, params, {
@@ -1081,24 +885,6 @@ export default {
             vue_context.data.acts[index].previous_data.enabled
           );
 
-          //If this is an event, revert to old start and end times
-          // if (vue_context.data.acts[index].__t == "Event") {
-          //   vue_context.$set(
-          //     vue_context.data.acts[index],
-          //     "formated_start_time",
-          //     vue_context.data.acts[index].previous_data.start_time
-          //   );
-          //   vue_context.$set(
-          //     vue_context.data.acts[index],
-          //     "formated_end_time",
-          //     vue_context.data.acts[index].previous_data.end_time
-          //   );
-          // }
-
-          //Tell the user that the act could not be edited
-          // let type_of_act = "act";
-          // if (vue_context.data.acts[index].__t == "Event")
-          //   type_of_act = "event";
           iziToast.error({
             title: "Error",
             message: `Sorry, the reward could not be edited`,
@@ -1117,18 +903,7 @@ export default {
       params.append("description", this.add_act.description);
       params.append("value", this.add_act.value);
       params.append("amount", this.add_act.amount);
-      // if (this.upload_type == "event") {
-      //   params.append(
-      //     "start_time",
-      //     // new Date(document.getElementById("start_time").value + 'Z')
-      //     new Date(document.getElementById("start_time").value)
-      //   );
-      //   params.append(
-      //     "end_time",
-      //     // new Date(document.getElementById("end_time").value + 'Z')
-      //     new Date(document.getElementById("end_time").value)
-      //   );
-      // }
+     
       await axios
         .post(`/api/rewards`, params, {
           headers: {
@@ -1136,60 +911,22 @@ export default {
           }
         })
         .then(function(res) {
-          // vue_context.data = res.data;
-          // console.log(res);
           vue_context.status_state = "Success";
           vue_context.status_message = res.data.message;
           vue_context.add_act.name = "";
           vue_context.add_act.description = "";
           vue_context.add_act.value = "";
           vue_context.add_act.amount = "";
-          // document.getElementById("end_time").value = "";
-          // document.getElementById("start_time").value = "";
-          // vue_context.add_act.reward_points = 0;
         })
         .catch(function(err) {
           vue_context.status_state = "Error";
           vue_context.status_message = err.response.data.message;
 
-          // if (err.response.status == 400) {
-          //   vue_context.$router.redirect("/logout");
-          // }
-          // console.log(err.response.data.message);
         });
-      //If error, display error
-      //If success, display success message with hint of manager's final say
-      //Then clear the form
+      
     },
     async search() {
-      // this.$nuxt.$loading.start();
-
-      // const token = this.$cookies.get("token");
-      // const refresh_token = this.$cookies.get("refresh_token");
-      // await axios
-      //   .get(
-      //     `/api/acts?type=${vue_context.query.type}&sort=${
-      //       vue_context.query.sort
-      //     }&order=${vue_context.query.order}&search=${
-      //       vue_context.query.search
-      //     }`,
-      //     {
-      //       headers: {
-      //         Cookie: `token=${token}; refresh_token=${refresh_token};`
-      //       }
-      //     }
-      //   )
-      //   .then(function(res) {
-      //     vue_context.data = res.data;
-      //   })
-      //   .catch(function(err) {
-      //     if (err.response.status == 400) {
-      //       vue_context.$router.redirect("/logout");
-      //     }
-      //   });
-
-      // vue_context.$nuxt.$loading.finish();
-
+      
       this.$router.push(
         `/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
@@ -1203,20 +940,7 @@ export default {
       if (!this.first_name || !this.last_name || !this.email || !this.password)
         this.error = "All fields must be present";
       else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
+        
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -1245,25 +969,5 @@ export default {
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

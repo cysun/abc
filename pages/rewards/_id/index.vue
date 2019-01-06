@@ -18,7 +18,7 @@
                 <h5>
                   <div class="row">
                     <a class="col-md-9" href="#" v-if="!data.edit">{{data.act.name}}</a>
-                    <h6 v-if="data.rewards">
+                    <h6 v-if="data.rewards && !data.edit">
                       <span class="badge badge-secondary">{{data.rewards.rewards[0].state}}</span>
                     </h6>
                   </div>
@@ -186,7 +186,7 @@
                   >
                 </div>
                 <div
-                  v-if="data.act.enabled && data.rewards && data.rewards.rewards[0].state == 'ON GOING'"
+                  v-if="data.rewards && data.rewards.rewards[0].state == 'ON GOING'"
                   class="form-inline justify-content-center"
                 >
                   <input
@@ -661,8 +661,8 @@ export default {
       const refresh_token = this.$cookies.get("refresh_token");
       
 
-      //Change state to "Collected"
-      this.data.rewards.rewards[0].state = "COLLECTED";
+      //Change state to "Completed"
+      this.data.rewards.rewards[0].state = "COMPLETED";
 
       //Make request to change state
       await axios

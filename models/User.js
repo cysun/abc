@@ -187,6 +187,17 @@ let userSchema = new mongoose.Schema({
     }
 });
 
+userSchema.index(
+    {
+        'first_name': 'text',
+        'last_name': 'text'
+    },
+    {
+        name: 'User name index',
+        weights: { 'first_name': 1, 'last_name': 2 }
+    }
+)
+
 // userSchema.index(
 //     {
 //         'acts.name': 'text',
