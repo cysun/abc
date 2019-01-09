@@ -188,6 +188,68 @@ router.get('/acts', async function (req, res, next) {
   }
 })
 
+router.get('/rewards', async function (req, res, next) {
+  try {
+    //Only admin can get here
+    if (!req.roles.administrator)
+      throw new Error("You do not have authorization");
+
+    //Return acts with respect to search, sort, order
+    let search = {};
+    if (req.query.search)
+      search = { '$text': { '$search': sanitize(req.query.search) } };
+
+    let page = parseInt(sanitize(req.query.page));
+    let sort = sanitize(req.query.sort);
+    let order = parseInt(sanitize(req.query.order));
+
+    //Handle invalid page
+    if (!page || page < 1)
+      page = 1
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "name";
+
+    //Handle invalid act order category
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    let offset = (page - 1) * 10;
+
+    let results;
+    let count;
+    results = Reward.find(
+      search,
+      {
+        name: true,
+        // description: true,
+        enabled: true,
+        creation_date: true,
+        state: true,
+        deleted: true,
+        reward_provider: true
+      }
+    ).sort({ [sort]: order }).skip(offset).limit(10).lean();
+
+    count = Act.find(search).countDocuments();
+
+    const promises = [results, count]
+    let returned_results, pages
+    await Promise.all(promises)
+      .then(function (values) {
+        returned_results = values[0];
+        count = values[1];
+        pages = Math.ceil(count / 10);
+      })
+    res.json({ data: returned_results, count: pages })
+  }
+  catch (err) {
+    console.log(err)
+    next(createError(400, err.message))
+  }
+})
+
 //Approve user act proof
 router.put('/:act_id/user/:user_id/approve', async function (req, res, next) {
   try {
