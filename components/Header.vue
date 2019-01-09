@@ -71,7 +71,7 @@
               >Calendar</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="roles && roles.administrator">
-              <nuxt-link class="nav-link" to="/admin">Admin</nuxt-link>
+              <a class="nav-link" href="/admin">Admin</a>
             </li>
             <li class="nav-item mr-lg-3">
               <a class="nav-link" href="/about">About</a>
