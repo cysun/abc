@@ -24,10 +24,9 @@ module.exports = {
       { src: '/js/responsiveslides.min.js' },
       { src: '/js/bootstrap-datetimepicker.js' },
       { src: '/js/SmoothScroll.min.js' },
-      { src: '/js/move-top.js' },
       { src: '/js/easing.js' },
-      { src: '/js/jquery.flexslider.js' },
-      { src: '/js/main.js' }
+      { src: '/js/jquery.flexslider.js' }
+      
     ]
   },
   /*

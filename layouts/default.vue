@@ -17,7 +17,9 @@ export default {
   head() {
     return {
       script: [
-        { src: '/js/bootstrap.js' }
+        { src: '/js/bootstrap.js' },
+        { src: '/js/move-top.js' },
+        { src: '/js/main.js' }
         // {
         //   src:
         //     "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"

@@ -690,7 +690,7 @@ router.get('/:id', async function (req, res, next) {
     if (!req.user)
       throw new Error("You do not have authorization");
 
-    const promised_act = Act.findById(req.params.id, "act_provider start_time end_time description tags enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
+    const promised_act = Act.findById(req.params.id, "act_provider deleted start_time end_time description tags enabled name reward_points state total_number_of_clicks total_number_of_completions").lean();
     const promised_user = User.findOne(
       { _id: req.user.id, 'acts.id': req.params.id },
       { 'acts.$': 1 }
@@ -1088,6 +1088,9 @@ router.post('/:type', async function (req, res, next) {
       act.tags = act_tags;
     }
 
+    if (req.roles.administrator)
+    act.enabled.state = true;
+
     await act.save();
     // user = user.toObject();
     // delete user.password;
@@ -1143,7 +1146,8 @@ router.put('/:id', async function (req, res, next) {
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
       throw new Error("You do not have authorization");
 
-    act.enabled.state = false;
+    if (!req.roles.administrator)
+      act.enabled.state = false;
     act.name = name;
     act.description = description;
     act.reward_points = reward_points;

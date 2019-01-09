@@ -5,6 +5,7 @@ const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const secret = require('../../secret');
+const globals = require('../../globals');
 const fs = require('fs');
 const mail = require('../../send_mail');
 const sanitize = require("sanitize-html");
@@ -24,8 +25,63 @@ const users = [
 ]
 
 /* GET users listing. */
-router.get('/users', function (req, res, next) {
-  res.json(users)
+router.get('/', async function (req, res, next) {
+  try {
+    //Only admin can get here
+    if (!req.roles.administrator)
+      throw new Error("You do not have authorization");
+
+    //Return users with respect to search, sort, order and
+    let search = {};
+    if (req.query.search)
+      search = { '$text': { '$search': sanitize(req.query.search) } };
+
+    let page = parseInt(sanitize(req.query.page));
+    let sort = sanitize(req.query.sort);
+    let order = parseInt(sanitize(req.query.order));
+
+    //Handle invalid page
+    if (!page || page < 1)
+      page = 1
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "first_name";
+
+    //Handle invalid act order category
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    let offset = (page - 1) * 10;
+
+    let results;
+    let count;
+    results = User.find(
+      search,
+      {
+        first_name: true,
+        last_name: true,
+        enabled: true,
+        creation_date: true
+      }
+    ).sort({ [sort]: order }).skip(offset).limit(10).lean();
+
+    count = User.find(search).countDocuments();
+
+    const promises = [results, count]
+    let returned_results, pages
+    await Promise.all(promises)
+      .then(function (values) {
+        returned_results = values[0];
+        count = values[1];
+        pages = Math.ceil(count / 10);
+      })
+    res.json({ data: returned_results, count: pages })
+  }
+  catch (err) {
+    console.log(err)
+    next(createError(400, err.message))
+  }
 })
 
 /* GET user by ID. */
@@ -89,17 +145,43 @@ router.post('/login', async function (req, res, next) {
 // Register User
 router.post('/register', upload.single('file'), async function (req, res, next) {
   try {
-    //If the user is already logged in, give error
-    if (req.user)
+    //If the user is already logged in and this is not the admin, give error
+    if (req.user && !req.roles.administrator)
       throw new Error("You must be logged out to access this endpoint");
     if (req.file)
       req.body.profile_picture = './tmp/' + req.file.filename
     let user = await User.initialize(req.body);
     await user.save();
     // await user.sendVerificationEmail();
-    const verification_token = await User.getUniqueName("email_verification_token", 70);
-    await mail.sendVerificationMail(user.unverified_email, verification_token);
-    user.email_verification_token = verification_token;
+    //If this is an admin and the enabled bit is sent
+    if (req.roles.administrator && req.body.enabled) {
+      //Don't send verification mail
+      //Enable the user
+      user.enabled = true;
+      //Handle email and unverified email
+      user.email = user.unverified_email;
+      user.unverified_email = undefined;
+    }
+    else {
+      const verification_token = await User.getUniqueName("email_verification_token", 70);
+      await mail.sendVerificationMail(user.unverified_email, verification_token);
+      user.email_verification_token = verification_token;
+    }
+
+    //If this is an admin
+    if (req.roles.administrator && req.body.enabled) {
+      //Give roles 
+      const roles = [];
+      if (req.body.act_poster)
+        roles.push({ name: "Act Poster" });
+      if (req.body.manager)
+        roles.push({ name: "Manager" });
+      if (req.body.reward_provider)
+        roles.push({ name: "Reward Provider" });
+      if (req.body.administrator)
+        roles.push({ name: "Administrator" });
+      user.roles = roles;
+    }
 
     await user.save();
     user = user.toObject();

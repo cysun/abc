@@ -265,11 +265,6 @@
                         </a>
                       </li>
                       <li>
-                        <nuxt-link to="/acts">
-                          <i class="fa fa-user"></i> Home
-                        </nuxt-link>
-                      </li>
-                      <li>
                         <a href="#">
                           <i class="fa fa-sign-out"></i> Logout
                         </a>
@@ -284,205 +279,105 @@
           </div>
           <!--heder end here-->
           <!-- script-for sticky-nav -->
+          <script>
+            $(document).ready(function() {
+              var navoffeset = $(".header-main").offset().top;
+              $(window).scroll(function() {
+                var scrollpos = $(window).scrollTop();
+                if (scrollpos >= navoffeset) {
+                  $(".header-main").addClass("fixed");
+                } else {
+                  $(".header-main").removeClass("fixed");
+                }
+              });
+            });
+          </script>
           <!-- /script-for sticky-nav -->
           <!--inner block start here-->
           <div class="inner-block">
-            <!--market updates updates-->
-            <div class="market-updates">
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-1">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_users}}</h3>
-                    <h4>Total Users</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
-                  </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-users fa-5x" style="color: white"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
+            <div class="login-main">
+              <div class="login-head">
+                <h1>Add Event</h1>
               </div>
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-2">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_acts}}</h3>
-                    <h4>Total Acts</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
+              <div class="login-block">
+                <form @submit.prevent="addAct">
+                  <input type="hidden" name="id" value="this_user._id">
+                  <label for="name">Name</label>
+                  <input type="text" name="name" id="name" placeholder="Name" v-model="name">
+                  <label for="description">Description</label>
+                  <input
+                    type="text"
+                    name="description"
+                    id="description"
+                    placeholder="Description"
+                    v-model="description"
+                  >
+                  <label for="start_time">Start Time</label>
+                  <div
+                    class="controls input-append date form_datetime"
+                    data-date-format="yyyy-mm-ddThh:ii"
+                    data-link-field="dtp_input1"
+                  >
+                    <input
+                      size="16"
+                      placeholder="Start time"
+                      readonly
+                      type="text"
+                      class="form-control"
+                      id="start_time"
+                      :value="start_time"
+                    >
+                    <span class="add-on">
+                      <i class="icon-remove"></i>
+                    </span>
+                    <span class="add-on">
+                      <i class="icon-th"></i>
+                    </span>
                   </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-bars fa-5x" style="color: white"></i>
+                  <input type="hidden" id="dtp_input1" value>
+                  <label for="end_time">End Time</label>
+                  <div
+                    class="controls input-append date form_datetime"
+                    data-date-format="yyyy-mm-ddThh:ii"
+                    data-link-field="dtp_input1"
+                  >
+                    <input
+                      size="16"
+                      placeholder="End Time"
+                      readonly
+                      type="text"
+                      class="form-control"
+                      id="end_time"
+                      :value="end_time"
+                    >
+                    <span class="add-on">
+                      <i class="icon-remove"></i>
+                    </span>
+                    <span class="add-on">
+                      <i class="icon-th"></i>
+                    </span>
                   </div>
-                  <div class="clearfix"></div>
-                </div>
-              </div>
-              <div class="col-md-4 market-update-gd">
-                <div class="market-update-block clr-block-3">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_rewards}}</h3>
-                    <h4>Total Rewards</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
-                  </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-gift fa-5x" style="color: white"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <!--market updates end here-->
-            <!--mainpage chit-chating-->
-            <div class="chit-chat-layer1">
-              <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent registrations</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>First name</th>
-                          <th>Last name</th>
-                          <th>Verified</th>
-                          <th>Registration time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(user, index) in data.users">
-                          <td>{{index + 1}}</td>
-                          <td>{{user.first_name}}</td>
-                          <td>{{user.last_name}}</td>
-                          <td>
-                            <span class="label label-danger">{{user.enabled}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{user.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/user/' + user._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent acts</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Poster's name</th>
-                          <th>Act's name</th>
-                          <th>Verified</th>
-                          <th>Creation time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(act, index) in data.acts">
-                          <td>{{index + 1}}</td>
-                          <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
-                          <td>{{act.name}}</td>
-                          <td>
-                            <span class="label label-danger">{{act.enabled.state}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/edit/act/' + act._id">
-                              <button class="btn btn-primary">Edit</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <div class="col-md-6 chit-chat-layer1-left">
-              <div class="work-progres">
-                <div class="chit-chat-heading">Recent Rewards</div>
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Poster's name</th>
-                        <th>Reward's name</th>
-                        <th>Verified</th>
-                        <th>Creation time</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(reward, index) in data.rewards">
-                        <td>{{index + 1}}</td>
-                        <td>{{reward.reward_provider.first_name}} {{reward.reward_provider.last_name}}</td>
-                        <td>{{reward.name}}</td>
-                        <td>
-                          <span class="label label-danger">{{reward.enabled}}</span>
-                        </td>
-                        <td>
-                          <span class="badge badge-info">{{reward.creation_date}}</span>
-                        </td>
-                        <td>
-                          <nuxt-link :to="'/admin/edit/reward/' + reward._id">
-                            <button class="btn btn-primary">Edit</button>
-                          </nuxt-link>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                  <label for="reward_points">Reward Points</label>
+                  <input
+                    type="text"
+                    name="reward_points"
+                    placeholder="Reward Points"
+                    id="reward_points"
+                    v-model="reward_points"
+                  >
+                  <label for="tags">Tags</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    placeholder="Tags (Seperate tags with a space)"
+                    id="tags"
+                    v-model="tags"
+                  >
+                  <input type="submit" name="edit" value="Add Event">
+                </form>
+                <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
             </div>
-
-            <!--climate start here-->
-            <div class="climate">
-              <div class="col-md-4 climate-grids">
-                <div class="climate-grid3">
-                  <div class="popular-brand">
-                    <div class="col-md-6 popular-bran-left">
-                      <h3>Best act of this month</h3>
-                      <h4>{{data.best_act[0].act[0].name}}</h4>
-                      <p
-                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                      >{{data.best_act[0].act[0].description}}</p>
-                    </div>
-                    <div class="col-md-6 popular-bran-right">
-                      <h3>{{data.best_act[0].count}}</h3>
-                    </div>
-                    <div class="clearfix"></div>
-                  </div>
-                  <div class="popular-follow">
-                    <div class="col-md-6 popular-follo-left">
-                      <h4 style="color: #FFBD33">Best Reward of this month</h4>
-                      <p style="color: #DBFF33">{{data.best_reward[0].reward[0].name}}</p>
-                      <p
-                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                      >{{data.best_reward[0].reward[0].description}}</p>
-                    </div>
-                    <div class="col-md-6 popular-follo-right">
-                      <h4>Amount Collected</h4>
-                      <h5>{{data.best_reward[0].count}}</h5>
-                    </div>
-                    <div class="clearfix"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <!--climate end here-->
           </div>
           <!--inner block end here-->
           <!--copy rights start here-->
@@ -518,12 +413,6 @@
               </a>
             </li>
             <li>
-              <nuxt-link to="/admin/users">
-                <i class="fa fa-users"></i>
-                <span>Users</span>
-              </nuxt-link>
-            </li>
-            <li>
               <a href="#">
                 <i class="fa fa-cogs"></i>
                 <span>Components</span>
@@ -556,7 +445,12 @@
                 </li>
               </ul>
             </li>
-
+            <li>
+              <a href="maps.html">
+                <i class="fa fa-map-marker"></i>
+                <span>Maps</span>
+              </a>
+            </li>
             <li id="menu-academico">
               <a href="#">
                 <i class="fa fa-file-text"></i>
@@ -630,139 +524,112 @@
       <div class="clearfix"></div>
     </div>
     <!--slide bar menu end here-->
+    <script>
+      var toggle = true;
+
+      $(".sidebar-icon").click(function() {
+        if (toggle) {
+          $(".page-container")
+            .addClass("sidebar-collapsed")
+            .removeClass("sidebar-collapsed-back");
+          $("#menu span").css({ position: "absolute" });
+        } else {
+          $(".page-container")
+            .removeClass("sidebar-collapsed")
+            .addClass("sidebar-collapsed-back");
+          setTimeout(function() {
+            $("#menu span").css({ position: "relative" });
+          }, 400);
+        }
+        toggle = !toggle;
+      });
+    </script>
   </div>
 </template>
 <script>
 import axios from "~/plugins/axios";
+let vue_context, iziToast;
 
 export default {
   layout: "admin",
-  async asyncData(context) {
-    const token = context.app.$cookies.get("token");
-    const refresh_token = context.app.$cookies.get("refresh_token");
-
-    if (!context.query.sort) context.query.sort = "";
-    if (!context.query.search) context.query.search = "";
-    if (!context.query.order) context.query.order = "";
-    if (!context.query.page) context.query.page = 1;
-    if (!context.query.type) context.query.type = "AVAILABLE";
-
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
-    let data;
-    // console.log(context)
-    await axios
-      .get(`/api/admin`, {
-        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
-      })
-      .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
-        data = res.data;
-        //Loop through data and format date
-        // data.acts.forEach(element => {
-        //   if (element.__t == "Event") {
-        //     element.formated_start_time = moment(element.start_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-        //     element.formated_end_time = moment(element.end_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-
-        //     element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-        //     element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-        //   }
-        // });
-      })
-      .catch(function(err) {
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
-      });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
-    return { data };
+  created: function() {
+    vue_context = this;
   },
-  head() {
+  async mounted() {
+    iziToast = require("iziToast");
+
+    $(".form_datetime").datetimepicker({
+      weekStart: 1,
+      todayBtn: 1,
+      autoclose: 1,
+      todayHighlight: 1,
+      startView: 2,
+      forceParse: 0,
+      showMeridian: 1
+    });
+
+    $(".form_datetime")
+      .datetimepicker()
+      .on("changeDate", function(e) {
+        //Update fields
+        vue_context.start_time = document.getElementById("start_time").value;
+        vue_context.end_time = document.getElementById("end_time").value;
+      });
+  },
+  methods: {
+    fileChanged(event) {
+      this.image = event.target.files[0];
+    },
+    async addAct() {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      const params = new URLSearchParams();
+
+      params.append("name", this.name);
+      params.append("description", this.description);
+      params.append("reward_points", this.reward_points);
+      if (this.tags) params.append("tags", this.tags);
+      params.append("start_time", this.start_time + "Z");
+      params.append("end_time", this.end_time + "Z");
+
+      await axios
+        .post(`/api/acts/event`, params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          iziToast.success({
+            title: "Success",
+            message: res.data.message,
+            position: "topRight"
+          });
+          vue_context.name = "";
+          vue_context.description = "";
+          vue_context.reward_points = 0;
+          vue_context.tags = "";
+
+          vue_context.start_time = "";
+          vue_context.end_time = "";
+        })
+        .catch(function(err) {
+          iziToast.error({
+            title: "Error",
+            message: err.response.data.message,
+            position: "topRight"
+          });
+        });
+    }
+  },
+  data() {
     return {
-      // script: [
-      //   { src: "js/admin/skycons.js" }
-      //   // {
-      //   //   src:
-      //   //     "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"
-      //   // }
-      // ],
-      // css: [
-      //   '~/assets/css/admin/style.css'
-      // ]
-      // link: [
-      //   {
-      //     href:
-      //       "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css",
-      //     rel: "stylesheet"
-      //   }
-      // ]
+      name: "",
+      description: "",
+      reward_points: "",
+      start_time: "",
+      end_time: "",
+      tags: ""
     };
-  },
-  mounted() {
-    $(document).ready(function() {
-      var navoffeset = $(".header-main").offset().top;
-      $(window).scroll(function() {
-        var scrollpos = $(window).scrollTop();
-        if (scrollpos >= navoffeset) {
-          $(".header-main").addClass("fixed");
-        } else {
-          $(".header-main").removeClass("fixed");
-        }
-      });
-    });
-
-    var toggle = true;
-
-    $(".sidebar-icon").click(function() {
-      if (toggle) {
-        $(".page-container")
-          .addClass("sidebar-collapsed")
-          .removeClass("sidebar-collapsed-back");
-        $("#menu span").css({ position: "absolute" });
-      } else {
-        $(".page-container")
-          .removeClass("sidebar-collapsed")
-          .addClass("sidebar-collapsed-back");
-        setTimeout(function() {
-          $("#menu span").css({ position: "relative" });
-        }, 400);
-      }
-      toggle = !toggle;
-    });
   }
 };
 </script>

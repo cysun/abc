@@ -10,7 +10,7 @@ export default {
     return {
       script: [
         { src: "js/admin/bootstrap.js" },
-        { src: "js/admin/scripts.js" },
+        // { src: "js/admin/scripts.js" },
         { src: "js/admin/jquery.nicescroll.js" },
         { src: "js/admin/skycons.js" }
         // {
