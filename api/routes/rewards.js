@@ -696,7 +696,7 @@ router.get("/:id", async function(req, res, next) {
     review = values[3];
     // console.log(user_act)
   });
-  res.json({ act, user: req.user, rewards: user_act, review });
+  res.json({ act, user: req.user, rewards: user_act, review, roles: req.roles });
 });
 
 router.put("/:reward_id/user/:user_id/request_reward", async function(

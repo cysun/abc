@@ -759,7 +759,7 @@ router.get('/:id', async function (req, res, next) {
       }
     }
 
-    res.json({ act, user: req.user, proofs: user_act });
+    res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
     next(createError(400, err.message))
   }

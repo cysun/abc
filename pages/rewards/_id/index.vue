@@ -282,8 +282,12 @@
                       class="badge badge-info"
                       style="cursor: pointer"
                     >Not Available</span>
-                    <span v-if="data.act.enabled.state" class="badge badge-info">Enabled</span>
-                    <span v-if="!data.act.enabled.state" class="badge badge-info">Disabled</span>
+                    <a
+                    tabindex="0"
+                      class="badge badge-info"
+                      @click="change_act_state_by_manager()"
+                      style="cursor: pointer"
+                    >{{data.act.enabled ? "Enabled" : "Disabled"}}</a>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!data.delete">
@@ -981,25 +985,26 @@ export default {
 
       // delete this.deleted_acts[index];
     },
-    async change_act_state(index) {
+    async change_act_state_by_manager()
+    {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
       //Store previous state of act
-      this.$set(this.data.acts[index], "previous_data", {
-        state: this.data.acts[index].state
+      this.$set(this.data.act, "previous_data", {
+        enabled: this.data.act.enabled
       });
       //Get new state
       let new_state;
-      if (this.data.acts[index].previous_data.state == "AVAILABLE")
-        new_state = "NOT_AVAILABLE";
-      else new_state = "AVAILABLE";
+      if (this.data.act.previous_data.enabled == true)
+        new_state = false;
+      else new_state = true;
       //Change state of act
-      this.$set(this.data.acts[index], "state", new_state);
+      this.$set(this.data.act, "enabled", new_state);
       //Make request to change state of act
 
       await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}/state`, {
+        .put(`/api/rewards/${vue_context.data.act._id}/state`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -1007,14 +1012,52 @@ export default {
         .catch(function(err) {
           //If error, revert state of act
           vue_context.$set(
-            vue_context.data.acts[index],
-            "state",
-            vue_context.data.acts[index].previous_data.state
+            vue_context.data.act,
+            "enabled",
+            vue_context.data.act.previous_data.enabled
           );
           //Tell the user that the act could not be altered
           iziToast.error({
             title: "Error",
-            message: "Sorry, the act state could not be altered",
+            message: "Sorry, the reward state could not be altered",
+            position: "topRight"
+          });
+        });
+    },
+    async change_act_state(index) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Store previous state of act
+      this.$set(this.data.act, "previous_data", {
+        state: this.data.act.state
+      });
+      //Get new state
+      let new_state;
+      if (this.data.act.previous_data.state == "AVAILABLE")
+        new_state = "NOT_AVAILABLE";
+      else new_state = "AVAILABLE";
+      //Change state of act
+      this.$set(this.data.act, "state", new_state);
+      //Make request to change state of act
+
+      await axios
+        .put(`/api/rewards/${vue_context.data.act._id}/user_state`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, revert state of act
+          vue_context.$set(
+            vue_context.data.act,
+            "state",
+            vue_context.data.act.previous_data.state
+          );
+          //Tell the user that the act could not be altered
+          iziToast.error({
+            title: "Error",
+            message: err.response.data.message,
             position: "topRight"
           });
         });

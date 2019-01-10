@@ -196,8 +196,14 @@
                       tabindex="0"
                       style="cursor: pointer"
                     >Not Available</a>
-                    <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
-                    <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
+                    <a
+                      v-if="data.roles.manager"
+                      tabindex="0"
+                      class="badge badge-info"
+                      @click="change_act_state_by_manager(index)"
+                      style="cursor: pointer"
+                    >{{act.enabled.state ? "Enabled" : "Disabled"}}</a>
+                    <span v-if="!data.roles.manager" class="badge badge-info">{{act.enabled.state ? "Enabled" : "Disabled"}}</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">
@@ -413,7 +419,11 @@
             </div>
             <div class="single-gd tech-btm">
               <h4>Top acts of the month</h4>
-              <div v-for="(top_act, index) in data.best_acts" class="blog-grids card card-body" style="margin-bottom: 10px">
+              <div
+                v-for="(top_act, index) in data.best_acts"
+                class="blog-grids card card-body"
+                style="margin-bottom: 10px"
+              >
                 <nuxt-link :to="'acts/' + top_act._id">{{top_act.act[0].name}}</nuxt-link>
                 <p
                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
@@ -613,8 +623,7 @@ export default {
     type_changed() {
       this.$router.push(`/acts?type=${this.query.type}`);
     },
-    upload_type_changed() {
-    },
+    upload_type_changed() {},
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
@@ -657,6 +666,45 @@ export default {
           iziToast.error({
             title: "Error",
             message: "Sorry, the tag could not be deleted",
+            position: "topRight"
+          });
+        });
+    },
+    async change_act_state_by_manager(index)
+    {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Store previous state of act
+      this.$set(this.data.acts[index], "previous_data", {
+        enabled: this.data.acts[index].enabled.state
+      });
+      //Get new state
+      let new_state;
+      if (this.data.acts[index].previous_data.enabled == true)
+        new_state = false;
+      else new_state = true;
+      //Change state of act
+      this.$set(this.data.acts[index].enabled, "state", new_state);
+      //Make request to change state of act
+
+      await axios
+        .put(`/api/acts/${vue_context.data.acts[index]._id}/enable/${new_state}`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, revert state of act
+          vue_context.$set(
+            vue_context.data.acts[index].enabled,
+            "state",
+            vue_context.data.acts[index].previous_data.enabled
+          );
+          //Tell the user that the act could not be altered
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the reward state could not be altered",
             position: "topRight"
           });
         });

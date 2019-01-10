@@ -180,8 +180,14 @@
                       tabindex="0"
                       style="cursor: pointer"
                     >Not Available</a>
-                    <span v-if="data.act.enabled.state" class="badge badge-info">Enabled</span>
-                    <span v-if="!data.act.enabled.state" class="badge badge-info">Disabled</span>
+                    <a
+                      v-if="data.roles.manager"
+                      tabindex="0"
+                      class="badge badge-info"
+                      @click="change_act_state_by_manager(index)"
+                      style="cursor: pointer"
+                    >{{data.act.enabled.state ? "Enabled" : "Disabled"}}</a>
+                    <span v-if="!data.roles.manager" class="badge badge-info">{{data.act.enabled.state ? "Enabled" : "Disabled"}}</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!data.delete">
@@ -534,6 +540,45 @@ export default {
           iziToast.error({
             title: "Error",
             message: "Sorry, the proof could not be deleted",
+            position: "topRight"
+          });
+        });
+    },
+    async change_act_state_by_manager(index)
+    {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      //Store previous state of act
+      this.$set(this.data.act, "previous_data", {
+        enabled: this.data.act.enabled.state
+      });
+      //Get new state
+      let new_state;
+      if (this.data.act.previous_data.enabled == true)
+        new_state = false;
+      else new_state = true;
+      //Change state of act
+      this.$set(this.data.act.enabled, "state", new_state);
+      //Make request to change state of act
+
+      await axios
+        .put(`/api/acts/${vue_context.data.act._id}/enable/${new_state}`, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .catch(function(err) {
+          //If error, revert state of act
+          vue_context.$set(
+            vue_context.data.act.enabled,
+            "state",
+            vue_context.data.act.previous_data.enabled
+          );
+          //Tell the user that the act could not be altered
+          iziToast.error({
+            title: "Error",
+            message: "Sorry, the reward state could not be altered",
             position: "topRight"
           });
         });
