@@ -82,6 +82,7 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
 ) {
   //Check if the user has enough points to get this reward
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const promised_user = User.findById(req.params.user_id).lean();
     const promised_reward = Reward.findById(req.params.reward_id).lean();
@@ -97,7 +98,7 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
       throw new Error("You do not have enough points to claim this reward");
 
     //Else
-    session.startTransaction();
+    
     user.id = user._id;
     delete user._id;
     const promised_rewards_change = Reward.findByIdAndUpdate(

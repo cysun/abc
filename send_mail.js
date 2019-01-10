@@ -158,8 +158,25 @@ async function notifyManagersOfProof(user_email, user_count) {
         });
     } catch (err) {
         // logger.error('Failed to send EmailVerification email');
-        console.log(err)
-        // throw new Error("Something went wrong. Please try again later");
+        throw new Error("Something went wrong. Please try again later");
+    }
+}
+
+async function notifyRewardProvidersOfRequestOrClaim(user_email) {
+
+    try {
+        await email.send({
+            template: 'notify_reward_providers',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: secret.website
+            }
+        });
+    } catch (err) {
+        // console.log(err);
+        throw new Error("Something went wrong. Please try again later");
     }
 }
 
@@ -170,5 +187,6 @@ module.exports = {
     sendProofApprovalMail,
     sendProofRejectionMail,
     sendRewardTransactionCompleteNotice,
+    notifyRewardProvidersOfRequestOrClaim,
     sendRewardcollectedNoticeToRewardProvider
 }
