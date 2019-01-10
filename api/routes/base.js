@@ -1,26 +1,27 @@
-const { Router } = require('express')
-const User = require('../../models/User');
-var createError = require('http-errors');
-const multer = require('multer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const globals = require('../../globals');
-const mail = require('../../send_mail');
-const fs = require('fs');
-const secret = require('../../secret');
+const { Router } = require("express");
+const User = require("../../models/User");
+var createError = require("http-errors");
+const multer = require("multer");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const globals = require("../../globals");
+const mail = require("../../send_mail");
+const fs = require("fs");
+const secret = require("../../secret");
 var upload = multer({
-  dest: 'tmp/'
+  dest: "tmp/"
 });
+const mongoose = require("mongoose");
 const util = require("util");
 const fs_delete_file = util.promisify(fs.unlink);
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 
-const router = Router()
+const router = Router();
 
 //Login User
-router.post('/login', async function (req, res, next) {
+router.post("/login", async function(req, res, next) {
   try {
     //Make sure valid details were sent
     if (!req.body.email || !req.body.password)
@@ -29,20 +30,17 @@ router.post('/login', async function (req, res, next) {
     const email = sanitize(req.body.email);
     const password = req.body.password;
 
-    if (!email || !password)
-      throw new Error("Incomplete request");
+    if (!email || !password) throw new Error("Incomplete request");
     //Get enabled user with this email
     const user = await User.findOne({ email: email, enabled: true });
     //If not exists
     //Return error
-    if (!user)
-      throw new Error("Invalid email/password combination");
+    if (!user) throw new Error("Invalid email/password combination");
     //Else
     //Check if password matches
-    const result = await bcrypt.compare(password, user.password)
+    const result = await bcrypt.compare(password, user.password);
     //If not, return error
-    if (!result)
-      throw new Error("Invalid email/password combination");
+    if (!result) throw new Error("Invalid email/password combination");
     //If all goes well
     //Create JWT
     const payload = {
@@ -50,33 +48,39 @@ router.post('/login', async function (req, res, next) {
       first_name: user.first_name,
       last_name: user.last_name,
       roles: user.roles
-    }
-    const user_token = jwt.sign(payload, process.env.SECRET_KEY, secret.signOptions);
+    };
+    const user_token = jwt.sign(
+      payload,
+      process.env.SECRET_KEY,
+      secret.signOptions
+    );
     //Insert this JWT into a cookie (Exists for one hour)
-    res.cookie('token', user_token, { maxAge: 3600000 })
+    res.cookie("token", user_token, { maxAge: 3600000 });
     //Insert the refresh token as well (Exists for a year)
-    res.cookie('refresh_token', user.refresh_token, {
+    res.cookie("refresh_token", user.refresh_token, {
       maxAge: 31536000000
-    })
+    });
     // //Redirect to homepage
     // res.redirect('/');
     //Return jwt and refresh token
     res.json({ token: user_token, refresh_token: user.refresh_token });
   } catch (err) {
-    next(createError(400, err.message))
+    next(createError(400, err.message));
   }
-})
+});
 
 // Register User
-router.post('/register', upload.single('file'), async function (req, res, next) {
+router.post("/register", upload.single("file"), async function(req, res, next) {
   try {
+    
     //If the user is already logged in and this is not the admin, give error
     if (req.user && !req.roles.administrator)
       throw new Error("You must be logged out to access this endpoint");
-    if (req.file)
-      req.body.profile_picture = './tmp/' + req.file.filename
+    if (req.file) req.body.profile_picture = "./tmp/" + req.file.filename;
     let user = await User.initialize(req.body);
-    await user.save();
+    
+    // await user.save();
+
     // await user.sendVerificationEmail();
     //If this is an admin and the enabled bit is sent
     if (req.roles.administrator && req.body.enabled) {
@@ -86,25 +90,26 @@ router.post('/register', upload.single('file'), async function (req, res, next) 
       //Handle email and unverified email
       user.email = user.unverified_email;
       user.unverified_email = undefined;
-    }
-    else {
-      const verification_token = await User.getUniqueName("email_verification_token", 70);
-      await mail.sendVerificationMail(user.unverified_email, verification_token);
+    } else {
+      const verification_token = await User.getUniqueName(
+        "email_verification_token",
+        70
+      );
+      await mail.sendVerificationMail(
+        user.unverified_email,
+        verification_token
+      );
       user.email_verification_token = verification_token;
     }
 
     //If this is an admin
     if (req.roles.administrator && req.body.enabled) {
-      //Give roles 
+      //Give roles
       const roles = [];
-      if (req.body.act_poster)
-        roles.push({ name: "Act Poster" });
-      if (req.body.manager)
-        roles.push({ name: "Manager" });
-      if (req.body.reward_provider)
-        roles.push({ name: "Reward Provider" });
-      if (req.body.administrator)
-        roles.push({ name: "Administrator" });
+      if (req.body.act_poster) roles.push({ name: "Act Poster" });
+      if (req.body.manager) roles.push({ name: "Manager" });
+      if (req.body.reward_provider) roles.push({ name: "Reward Provider" });
+      if (req.body.administrator) roles.push({ name: "Administrator" });
       user.roles = roles;
     }
 
@@ -114,17 +119,15 @@ router.post('/register', upload.single('file'), async function (req, res, next) 
     // res.redirect('/verify_account');
     res.json(user);
   } catch (err) {
-    next(createError(400, err.message))
-  }
-  finally {
+    next(createError(400, err.message));
+  } finally {
     //Delete uploaded file
-    if (req.file)
-      fs.unlinkSync(req.body.profile_picture);
+    if (req.file) fs.unlinkSync(req.body.profile_picture);
   }
-})
+});
 
 //Verify this user
-router.put('/verify/:verification_token', async function (req, res, next) {
+router.put("/verify/:verification_token", async function(req, res, next) {
   try {
     const token = sanitize(req.params.verification_token);
     //Get the user with this verification token
@@ -144,42 +147,51 @@ router.put('/verify/:verification_token', async function (req, res, next) {
         first_name: user.first_name,
         last_name: user.last_name,
         roles: user.roles
-      }
-      const user_token = jwt.sign(payload, process.env.SECRET_KEY, secret.signOptions);
+      };
+      const user_token = jwt.sign(
+        payload,
+        process.env.SECRET_KEY,
+        secret.signOptions
+      );
       //Insert this JWT into a cookie (Exists for one hour)
-      res.cookie('token', user_token, { maxAge: 3600000 })
+      res.cookie("token", user_token, { maxAge: 3600000 });
       //Insert the refresh token as well (Exists for a year)
-      res.cookie('refresh_token', user.refresh_token, {
+      res.cookie("refresh_token", user.refresh_token, {
         maxAge: 31536000000
-      })
+      });
       await user.save();
       //Delete all users whose unverified email is this user's email
       //Unlink their profile pictures first if exists
-      const about_to_be_deleted_users = await User.find({ unverified_email: user.email })
+      const about_to_be_deleted_users = await User.find({
+        unverified_email: user.email
+      });
       const promises = [];
       about_to_be_deleted_users.forEach(user => {
         if (user.profile_picture) {
-          const image = process.env.profile_picture_folder + user.profile_picture.replace(process.env.website + process.env.display_picture_folder, '');
+          const image =
+            process.env.profile_picture_folder +
+            user.profile_picture.replace(
+              process.env.website + process.env.display_picture_folder,
+              ""
+            );
           promises.push(fs_delete_file(image));
           // fs.unlink(image);
         }
       });
-      if (promises.length > 0)
-        await Promise.all(promises);
-      await User.deleteMany({ unverified_email: user.email })
+      if (promises.length > 0) await Promise.all(promises);
+      await User.deleteMany({ unverified_email: user.email });
       res.json({
         token: user_token,
         refresh_token: user.refresh_token
       });
       res.end();
       return;
-    }
-    else {
+    } else {
       throw new Error("Invalid token");
     }
   } catch (err) {
-    next(createError(400, err.message))
+    next(createError(400, err.message));
   }
 });
 
-module.exports = router
+module.exports = router;

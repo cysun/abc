@@ -17,13 +17,6 @@ var upload = multer({
 
 const router = Router()
 
-// Mock Users
-const users = [
-  { name: 'Alexandre' },
-  { name: 'Pooya' },
-  { name: 'Sébastien' }
-]
-
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
   try {
@@ -83,17 +76,6 @@ router.get('/', async function (req, res, next) {
     next(createError(400, err.message))
   }
 })
-
-/* GET user by ID. */
-router.get('/users/:id', function (req, res, next) {
-  const id = parseInt(req.params.id)
-  if (id >= 0 && id < users.length) {
-    res.json(users[id])
-  } else {
-    res.sendStatus(404)
-  }
-})
-
 
 
 //Edit user

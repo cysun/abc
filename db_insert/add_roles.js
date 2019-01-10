@@ -4,9 +4,10 @@ const Role = require('../models/Role');
 
 async function insertIntoDatabase() {
 
-    mongoose.connect('mongodb://localhost/ABC', {
+    mongoose.connect("mongodb://DESKTOP-P2ELC2L:27017,DESKTOP-P2ELC2L:27018,DESKTOP-P2ELC2L:27019/ABC", {
         useCreateIndex: true,
-        useNewUrlParser: true
+        useNewUrlParser: true,
+        replicaSet: 'rs'
     });
 
     const act_poster = new Role({

@@ -6,9 +6,10 @@ const bcrypt = require("bcryptjs");
 
 async function insertIntoDatabase() {
 
-    mongoose.connect('mongodb://localhost/ABC', {
+    mongoose.connect("mongodb://DESKTOP-P2ELC2L:27017,DESKTOP-P2ELC2L:27018,DESKTOP-P2ELC2L:27019/ABC", {
         useCreateIndex: true,
-        useNewUrlParser: true
+        useNewUrlParser: true,
+        replicaSet: 'rs'
     });
 
     const password = "password"

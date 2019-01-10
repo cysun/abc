@@ -108,7 +108,7 @@ const adminRouter = require("./routes/admin");
 
 mongoose.connection.on(
   "connected",
-  () => logger.info(`Mongoose connected to ${process.env.DBURL}`)
+  () => logger.info(`Mongoose connected to ${process.env.REPLICA_SET}`)
   // console.log(`Mongoose connected to ${process.env.DBURL}`)
 );
 mongoose.connection.on("disconnected", () =>
@@ -116,10 +116,12 @@ mongoose.connection.on("disconnected", () =>
   logger.info("Mongoose disconnected")
 );
 mongoose.connect(
-  process.env.DBURL,
+  // process.env.DBURL,
+  process.env.REPLICA_SET,
   {
     useCreateIndex: true,
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    replicaSet: 'rs'
   }
 );
 

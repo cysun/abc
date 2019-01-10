@@ -178,7 +178,7 @@
             <div class="climate">
               <div class="col-md-4 climate-grids">
                 <div class="climate-grid3">
-                  <div class="popular-brand">
+                  <div class="popular-brand" v-if="data.best_act[0]">
                     <div class="col-md-6 popular-bran-left">
                       <h3>Best act of this month</h3>
                       <h4>{{data.best_act[0].act[0].name}}</h4>
@@ -191,7 +191,7 @@
                     </div>
                     <div class="clearfix"></div>
                   </div>
-                  <div class="popular-follow">
+                  <div class="popular-follow" v-if="data.best_reward[0]">
                     <div class="col-md-6 popular-follo-left">
                       <h4 style="color: #FFBD33">Best Reward of this month</h4>
                       <p style="color: #DBFF33">{{data.best_reward[0].reward[0].name}}</p>
