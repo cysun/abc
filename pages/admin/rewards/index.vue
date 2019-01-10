@@ -3,10 +3,13 @@
     <div class="page-container">
       <div class="left-content">
         <div class="mother-grid-inner">
-         <my-header/>
+          <my-header/>
           <!-- /script-for sticky-nav -->
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
+            <div class="text-center">
+              <h1>Rewards</h1>
+            </div>
             <div class="chit-chat-layer1">
               <div class="col-md-2"></div>
               <div class="col-md-8 chit-chat-layer1">
@@ -80,11 +83,17 @@
                           <td>{{act.reward_provider.first_name}} {{act.reward_provider.last_name}}</td>
                           <td>{{act.name}}</td>
                           <td>
-                            <span class="label label-danger">{{act.enabled}}</span>
+                            <span
+                              class="label"
+                              :class="act.enabled ? 'label-success': 'label-danger'"
+                            >{{act.enabled}}</span>
                           </td>
                           <td>{{act.state}}</td>
                           <td>
-                            <span class="label label-danger">{{act.deleted}}</span>
+                            <span
+                              class="label"
+                              :class="act.deleted ? 'label-danger': 'label-success'"
+                            >{{act.deleted}}</span>
                           </td>
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
@@ -227,7 +236,11 @@ export default {
           );
         });
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+      });
     return { query: context.query, data };
   },
   async beforeRouteUpdate(to, from, next) {
@@ -258,7 +271,11 @@ export default {
           );
         });
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          vue_context.$router.redirect("/logout");
+        }
+      });
     vue_context.query = to.query;
     vue_context.data = data;
     next();
@@ -310,9 +327,9 @@ export default {
       scrollToElement(element);
 
       this.$router.push(
-        `/admin/acts?sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}&page=${index}
+        `/admin/acts?sort=${this.query.sort}&order=${this.query.order}&search=${
+          vue_context.query.search
+        }&page=${index}
         `
       );
     },

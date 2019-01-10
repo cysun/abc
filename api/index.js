@@ -1,21 +1,21 @@
-require('dotenv').load();
-const globals = require('../globals');
-const secret = require('../secret');
-const User = require('../models/User');
-const express = require('express')
-const mongoose = require('mongoose');
-var createError = require('http-errors');
-var cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
+require("dotenv").load();
+const globals = require("../globals");
+const secret = require("../secret");
+const User = require("../models/User");
+const express = require("express");
+const mongoose = require("mongoose");
+var createError = require("http-errors");
+var cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 // Create express instnace
-const app = express()
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-const logger = require('../logger').winston;
-const requestLogger = require('../logger').morgan;
+const logger = require("../logger").winston;
+const requestLogger = require("../logger").morgan;
 
 async function getUserFromJWT(req, res, next) {
   const verifyOptions = Object.assign({}, secret.signOptions);
@@ -41,19 +41,20 @@ async function getUserFromJWT(req, res, next) {
           first_name: user.first_name,
           last_name: user.last_name,
           roles: user.roles
-        }
-        const user_token = jwt.sign(payload, process.env.SECRET_KEY, secret.signOptions);
+        };
+        const user_token = jwt.sign(
+          payload,
+          process.env.SECRET_KEY,
+          secret.signOptions
+        );
         //Insert this JWT into a cookie (Exists for one hour)
-        res.cookie('token', user_token, { maxAge: 3600000 })
+        res.cookie("token", user_token, { maxAge: 3600000 });
         user = payload;
-      }
-      else
-        user = null
+      } else user = null;
     }
   }
   //Attach this user's details to the req object
-  if (user && user.id)
-    req.user = user;
+  if (user && user.id) req.user = user;
   next();
 }
 
@@ -63,7 +64,7 @@ async function getRoles(req, res, next) {
   if (req.user) {
     //Check roles
     if (req.user.roles.length > 0) {
-      req.roles = {}
+      req.roles = {};
       req.user.roles.forEach(element => {
         //Attach roles in array into distinct properties
         switch (element.name) {
@@ -89,50 +90,63 @@ async function getRoles(req, res, next) {
   }
   next();
 }
-// Require API routes
-const usersRouter = require('./routes/users')
-const actsRouter = require('./routes/acts')
-const baseRouter = require('./routes/base')
-const rewardsRouter = require('./routes/rewards')
-const adminRouter = require('./routes/admin')
 
-mongoose.connection.on('connected', () =>
-  logger.info(`Mongoose connected to ${process.env.DBURL}`)
+//Logout user
+function logoutUser(req, res, next) {
+  if (!req.user) {
+    res.status(401);
+    res.json({ message: "You must be loggged in to access this endpoint" });
+  } else next();
+}
+
+// Require API routes
+const usersRouter = require("./routes/users");
+const actsRouter = require("./routes/acts");
+const baseRouter = require("./routes/base");
+const rewardsRouter = require("./routes/rewards");
+const adminRouter = require("./routes/admin");
+
+mongoose.connection.on(
+  "connected",
+  () => logger.info(`Mongoose connected to ${process.env.DBURL}`)
   // console.log(`Mongoose connected to ${process.env.DBURL}`)
 );
-mongoose.connection.on('disconnected', () =>
+mongoose.connection.on("disconnected", () =>
   // console.log('Mongoose disconnected.')
-  logger.info('Mongoose disconnected')
+  logger.info("Mongoose disconnected")
 );
-mongoose.connect(process.env.DBURL, {
-  useCreateIndex: true,
-  useNewUrlParser: true
-});
+mongoose.connect(
+  process.env.DBURL,
+  {
+    useCreateIndex: true,
+    useNewUrlParser: true
+  }
+);
 
 // Import API Routes
 app.use(requestLogger);
 app.use(getUserFromJWT);
 app.use(getRoles);
-app.use('/', baseRouter);
-app.use('/acts', actsRouter);
-app.use('/users', usersRouter);
-app.use('/admin', adminRouter);
-app.use('/rewards', rewardsRouter);
+app.use("/", baseRouter);
+app.use(logoutUser);
+app.use("/acts", actsRouter);
+app.use("/users", usersRouter);
+app.use("/admin", adminRouter);
+app.use("/rewards", rewardsRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // // set locals, only providing error in development
   // res.locals.message = err.message;
   // res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   res.status(err.status || 500);
-  if (err.status == 404)
-    res.json({ message: "API endpoint not found" });
+  if (err.status == 404) res.json({ message: "API endpoint not found" });
   else {
     res.json({ message: err.message });
     //Redirect to the calling page with the error message in the url
@@ -149,14 +163,14 @@ app.use(function (err, req, res, next) {
 async function shutdown(signal, callback) {
   console.log(`${signal} received.`);
   await mongoose.disconnect();
-  if (typeof callback === 'function') callback();
+  if (typeof callback === "function") callback();
   else process.exit(0);
 }
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
-process.once('SIGUSR2', signal => {
-  shutdown(signal, () => process.kill(process.pid, 'SIGUSR2'));
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+process.once("SIGUSR2", signal => {
+  shutdown(signal, () => process.kill(process.pid, "SIGUSR2"));
 });
 
 //Uncomment this to debug
@@ -166,6 +180,6 @@ process.once('SIGUSR2', signal => {
 
 // Export the server middleware
 module.exports = {
-  path: '/api',
+  path: "/api",
   handler: app
-}
+};

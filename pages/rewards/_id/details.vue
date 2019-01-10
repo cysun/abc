@@ -210,6 +210,10 @@ export default {
         });
       })
       .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+
         // console.log(context.app.$cookies.getAll());
         // console.log(err.response.data.message);
         // if (err.response.status == 400) {
@@ -282,7 +286,11 @@ export default {
           );
         });
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          vue_context.$router.redirect("/logout");
+        }
+      });
     data.query = this.$route.query;
     data.requested = "requested";
     if (data.query.type == "CLOSED") data.requested = "collected";
@@ -396,7 +404,9 @@ export default {
       // var element = this.$refs["acts_come_here"];
 
       // scrollToElement(element);
-      this.$router.push(`/rewards/${this.$route.params.id}/details?type=${this.query.type}`);
+      this.$router.push(
+        `/rewards/${this.$route.params.id}/details?type=${this.query.type}`
+      );
     },
     type_changed() {
       // console.log(this.query.type);
@@ -444,7 +454,8 @@ export default {
         .catch(function(err) {
           //If error
           //Remove the value of this reward from the accumulated sum
-          vue_context.data.sum = vue_context.data.sum - vue_context.data.reward.value;
+          vue_context.data.sum =
+            vue_context.data.sum - vue_context.data.reward.value;
           //Place on screen
           vue_context.data.data.splice(
             index,

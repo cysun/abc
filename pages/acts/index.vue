@@ -183,17 +183,19 @@
                 <div class="row" v-if="act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
-                      href="#"
+                      tabindex="0"
+                      style="cursor: pointer"
                       class="badge badge-info"
                       @click="change_act_state(index)"
                       v-if="act.state == 'AVAILABLE'"
                     >Available</a>
-                    <span
+                    <a
                       @click="change_act_state(index)"
                       v-if="act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
+                      tabindex="0"
                       style="cursor: pointer"
-                    >Not Available</span>
+                    >Not Available</a>
                     <span v-if="act.enabled.state" class="badge badge-info">Enabled</span>
                     <span v-if="!act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
@@ -498,7 +500,7 @@ export default {
         });
       })
       .catch(function(err) {
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           context.redirect("/logout");
         }
       });
@@ -572,7 +574,7 @@ export default {
         vue_context.data = data;
       })
       .catch(function(err) {
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           vue_context.$router.redirect("/logout");
         }
       });

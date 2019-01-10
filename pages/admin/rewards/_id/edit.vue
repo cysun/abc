@@ -314,7 +314,11 @@ export default {
           data.act.end_time.length - 8
         );
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+      });
     return { data };
   }
 };

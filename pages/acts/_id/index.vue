@@ -167,17 +167,19 @@
                 <div class="row" v-if="data.act.act_provider.id == data.user.id">
                   <div class="col-md-7">
                     <a
-                      href="#"
+                      tabindex="0"
+                      style="cursor: pointer"
                       class="badge badge-info"
                       @click="change_act_state()"
                       v-if="data.act.state == 'AVAILABLE'"
                     >Available</a>
-                    <span
+                    <a
                       @click="change_act_state()"
                       v-if="data.act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
+                      tabindex="0"
                       style="cursor: pointer"
-                    >Not Available</span>
+                    >Not Available</a>
                     <span v-if="data.act.enabled.state" class="badge badge-info">Enabled</span>
                     <span v-if="!data.act.enabled.state" class="badge badge-info">Disabled</span>
                   </div>
@@ -316,8 +318,9 @@ export default {
         }
       })
       .catch(function(err) {
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           context.redirect("/logout");
+          return;
         }
       });
     if (!data.proofs) {
@@ -426,8 +429,7 @@ export default {
     type_changed() {
       this.$router.push(`/acts?type=${this.query.type}`);
     },
-    upload_type_changed() {
-    },
+    upload_type_changed() {},
     edit_act() {
       if (!this.data.edit) this.$set(this.data, "edit", true);
       else this.$set(this.data, "edit", false);

@@ -212,7 +212,7 @@ export default {
       .catch(function(err) {
         // console.log(context.app.$cookies.getAll());
         // console.log(err.response.data.message);
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           context.redirect("/logout");
         }
         // console.log(err.response.status);
@@ -271,7 +271,7 @@ export default {
         vue_context.data = res.data;
       })
       .catch(function(err) {
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           vue_context.$router.redirect("/logout");
         }
       });

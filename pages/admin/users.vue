@@ -8,6 +8,9 @@
           <!-- /script-for sticky-nav -->
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
+            <div class="text-center">
+              <h1>Users</h1>
+            </div>
             <div class="chit-chat-layer1">
               <div class="col-md-3"></div>
               <div class="col-md-6 chit-chat-layer1">
@@ -81,7 +84,10 @@
                           <td>{{user.first_name}}</td>
                           <td>{{user.last_name}}</td>
                           <td>
-                            <span class="label label-danger">{{user.enabled}}</span>
+                            <span
+                              class="label"
+                              :class="{'label-danger': !user.enabled, 'label-success': user.enabled }"
+                            >{{user.enabled}}</span>
                           </td>
                           <td>
                             <span class="badge badge-info">{{user.creation_date}}</span>
@@ -224,7 +230,11 @@ export default {
           );
         });
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+      });
     return { query: context.query, data };
   },
   async beforeRouteUpdate(to, from, next) {
@@ -255,7 +265,11 @@ export default {
           );
         });
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          vue_context.$router.redirect("/logout");
+        }
+      });
     vue_context.query = to.query;
     vue_context.data = data;
     next();

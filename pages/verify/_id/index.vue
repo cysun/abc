@@ -88,7 +88,10 @@ export default {
           // });
         })
         .catch(function(err) {
-          if (err.response) context.redirect("/");
+          if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+
           // console.log(err.response.data.message)
           // vue_context.$nuxt.$loading.finish();
           // if (err.response) vue_context.error = err.response.data.message;

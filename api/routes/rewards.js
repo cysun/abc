@@ -1231,6 +1231,9 @@ router.get("/:id/details", async function(req, res, next) {
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
       sort = "first_name";
 
+      if (sort == 'creation_date')
+      sort = "rewards.time"
+
     //Handle invalid act order category
     if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
       order = 1;

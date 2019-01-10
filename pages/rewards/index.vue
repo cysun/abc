@@ -575,7 +575,9 @@ export default {
         data = res.data;
       })
       .catch(function(err) {
-        
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
       });
    
     return { query: context.query, data };
@@ -626,7 +628,7 @@ export default {
         vue_context.data = res.data;
       })
       .catch(function(err) {
-        if (err.response.status == 400) {
+        if (err.response.status == 401) {
           vue_context.$router.redirect("/logout");
         }
       });

@@ -256,6 +256,10 @@ export default {
         // });
       })
       .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+
         // console.log(context.app.$cookies.getAll());
         // console.log(err.response.data.message);
         // if (err.response.status == 400) {

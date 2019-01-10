@@ -184,11 +184,15 @@ export default {
       .datetimepicker()
       .on("changeDate", function(e) {
         //Update fields
-        vue_context.data.act.start_time = document.getElementById('start_time').value;
-        vue_context.data.act.end_time = document.getElementById('end_time').value;
+        vue_context.data.act.start_time = document.getElementById(
+          "start_time"
+        ).value;
+        vue_context.data.act.end_time = document.getElementById(
+          "end_time"
+        ).value;
       });
 
-      var toggle = true;
+    var toggle = true;
 
     $(".sidebar-icon").click(function() {
       if (toggle) {
@@ -320,11 +324,8 @@ export default {
       params.append("description", this.data.act.description);
       params.append("reward_points", this.data.act.reward_points);
       if (this.data.act.start_time) {
-        params.append(
-          "start_time",
-          this.data.act.start_time + 'Z'
-        );
-        params.append("end_time", this.data.act.end_time + 'Z');
+        params.append("start_time", this.data.act.start_time + "Z");
+        params.append("end_time", this.data.act.end_time + "Z");
       }
       if (this.new_tags) params.append("tags", this.new_tags);
 
@@ -388,7 +389,11 @@ export default {
           data.act.end_time.length - 8
         );
       })
-      .catch(function(err) {});
+      .catch(function(err) {
+        if (err.response.status == 401) {
+          context.redirect("/logout");
+        }
+      });
     return { data };
   }
 };
