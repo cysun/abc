@@ -180,22 +180,24 @@
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.act_provider.id == data.user.id">
+                <div class="row" v-if="act.act_provider.id == data.user.id || data.roles.manager">
                   <div class="col-md-7">
-                    <a
-                      tabindex="0"
-                      style="cursor: pointer"
-                      class="badge badge-info"
-                      @click="change_act_state(index)"
-                      v-if="act.state == 'AVAILABLE'"
-                    >Available</a>
-                    <a
-                      @click="change_act_state(index)"
-                      v-if="act.state == 'NOT_AVAILABLE'"
-                      class="badge badge-info"
-                      tabindex="0"
-                      style="cursor: pointer"
-                    >Not Available</a>
+                    <span v-if="act.act_provider.id == data.user.id">
+                      <a
+                        tabindex="0"
+                        style="cursor: pointer"
+                        class="badge badge-info"
+                        @click="change_act_state(index)"
+                        v-if="act.state == 'AVAILABLE'"
+                      >Available</a>
+                      <a
+                        @click="change_act_state(index)"
+                        v-if="act.state == 'NOT_AVAILABLE'"
+                        class="badge badge-info"
+                        tabindex="0"
+                        style="cursor: pointer"
+                      >Not Available</a>
+                    </span>
                     <a
                       v-if="data.roles.manager"
                       tabindex="0"
@@ -203,7 +205,10 @@
                       @click="change_act_state_by_manager(index)"
                       style="cursor: pointer"
                     >{{act.enabled.state ? "Enabled" : "Disabled"}}</a>
-                    <span v-if="!data.roles.manager" class="badge badge-info">{{act.enabled.state ? "Enabled" : "Disabled"}}</span>
+                    <span
+                      v-if="!data.roles.manager"
+                      class="badge badge-info"
+                    >{{act.enabled.state ? "Enabled" : "Disabled"}}</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">
@@ -670,8 +675,7 @@ export default {
           });
         });
     },
-    async change_act_state_by_manager(index)
-    {
+    async change_act_state_by_manager(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -689,11 +693,14 @@ export default {
       //Make request to change state of act
 
       await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}/enable/${new_state}`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
+        .put(
+          `/api/acts/${vue_context.data.acts[index]._id}/enable/${new_state}`,
+          {
+            headers: {
+              Cookie: `token=${token}; refresh_token=${refresh_token};`
+            }
           }
-        })
+        )
         .catch(function(err) {
           //If error, revert state of act
           vue_context.$set(

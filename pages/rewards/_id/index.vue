@@ -268,8 +268,9 @@
                     </div>
                   </div>
                 </div>-->
-                <div class="row" v-if="data.act.reward_provider.id == data.user.id">
+                <div class="row" v-if="data.act.reward_provider.id == data.user.id || data.roles.manager">
                   <div class="col-md-7">
+                    <span v-if="data.act.reward_provider.id == data.user.id">
                     <a
                       href="#"
                       class="badge badge-info"
@@ -282,8 +283,10 @@
                       class="badge badge-info"
                       style="cursor: pointer"
                     >Not Available</span>
+                    </span>
                     <a
                     tabindex="0"
+                    v-if="data.roles.manager"
                       class="badge badge-info"
                       @click="change_act_state_by_manager()"
                       style="cursor: pointer"

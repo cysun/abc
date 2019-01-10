@@ -164,8 +164,9 @@
                     class="btn btn-primary"
                   >
                 </div>
-                <div class="row" v-if="data.act.act_provider.id == data.user.id">
+                <div class="row" v-if="data.act.act_provider.id == data.user.id || data.roles.manager">
                   <div class="col-md-7">
+                    <span v-if="data.act.act_provider.id == data.user.id">
                     <a
                       tabindex="0"
                       style="cursor: pointer"
@@ -180,6 +181,7 @@
                       tabindex="0"
                       style="cursor: pointer"
                     >Not Available</a>
+                    </span>
                     <a
                       v-if="data.roles.manager"
                       tabindex="0"

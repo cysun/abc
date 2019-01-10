@@ -83,7 +83,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
 
     // await user.sendVerificationEmail();
     //If this is an admin and the enabled bit is sent
-    if (req.roles.administrator && req.body.enabled) {
+    if (req.roles.administrator && req.body.enabled === 'true') {
       //Don't send verification mail
       //Enable the user
       user.enabled = true;
@@ -103,13 +103,13 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     }
 
     //If this is an admin
-    if (req.roles.administrator && req.body.enabled) {
+    if (req.roles.administrator) {
       //Give roles
       const roles = [];
-      if (req.body.act_poster) roles.push({ name: "Act Poster" });
-      if (req.body.manager) roles.push({ name: "Manager" });
-      if (req.body.reward_provider) roles.push({ name: "Reward Provider" });
-      if (req.body.administrator) roles.push({ name: "Administrator" });
+      if (req.body.act_poster === 'true') roles.push({ name: "Act Poster" });
+      if (req.body.manager === 'true') roles.push({ name: "Manager" });
+      if (req.body.reward_provider === 'true') roles.push({ name: "Reward Provider" });
+      if (req.body.administrator === 'true') roles.push({ name: "Administrator" });
       user.roles = roles;
     }
 

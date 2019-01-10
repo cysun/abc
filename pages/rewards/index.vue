@@ -202,8 +202,9 @@
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.reward_provider.id == data.user.id">
+                <div class="row" v-if="act.reward_provider.id == data.user.id || data.roles.manager">
                   <div class="col-md-7">
+                    <span v-if="act.reward_provider.id == data.user.id">
                     <a
                       tabindex="0"
                       class="badge badge-info"
@@ -218,7 +219,9 @@
                       class="badge badge-info"
                       style="cursor: pointer"
                     >Not Available</a>
+                    </span>
                     <!-- <span v-if="act.enabled" class="badge badge-info">Enabled</span> -->
+                    <span v-if="data.roles.manager">
                     <a
                     tabindex="0"
                       class="badge badge-info"
@@ -234,6 +237,7 @@
                       v-if="!act.enabled"
                       style="cursor: pointer"
                     >Disabled</a>
+                    </span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">

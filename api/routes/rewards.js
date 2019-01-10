@@ -830,7 +830,7 @@ router.post("/", async function(req, res, next) {
 //     fs.unlinkSync(req.body.profile_picture);
 // }
 
-//Edit act
+//Edit reward
 router.put("/:id", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
@@ -894,7 +894,7 @@ router.put("/:id", async function(req, res, next) {
 //Change Reward state
 router.put("/:id/state", async function(req, res, next) {
   try {
-    if (!req.roles || !req.roles.act_poster) {
+    if (!req.roles || !req.roles.manager) {
       throw new Error("You do not have authorization");
     }
 
@@ -904,8 +904,8 @@ router.put("/:id/state", async function(req, res, next) {
     if (act.enabled == true) new_state = false;
     else new_state = true;
 
-    //Only the admin or act poster who uploaded this act can alter it
-    if (!req.roles.administrator && req.user.id != act.reward_provider.id)
+    //Only managers
+    if (!req.roles.manager)
       throw new Error("You do not have authorization");
 
     act.enabled = new_state;
