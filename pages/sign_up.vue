@@ -129,7 +129,7 @@ export default {
         formData.append("password", this.password);
 
         axios
-          .post("/api/users/register", formData)
+          .post("/api/register", formData)
           .then(function(res) {
             //Redirect to verification page
             vue_context.$nuxt.$loading.finish();

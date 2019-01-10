@@ -94,7 +94,7 @@ export default {
         params.append("password", this.password);
 
         axios
-          .post("/api/users/login", params)
+          .post("/api/login", params)
           .then(function(res) {
             vue_context.$nuxt.$loading.finish();
             //Save cookies
