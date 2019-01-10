@@ -35,9 +35,9 @@
                 </a>
               </li>
               <li>
-                <nuxt-link to="/logout">
+                <a href="/logout">
                   <i class="fa fa-close"></i> Logout
-                </nuxt-link>
+                </a>
               </li>
             </ul>
           </li>

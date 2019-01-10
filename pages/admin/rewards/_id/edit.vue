@@ -305,14 +305,14 @@ export default {
         //   );
         // }
 
-        data.act.start_time = data.act.start_time.substring(
-          0,
-          data.act.start_time.length - 8
-        );
-        data.act.end_time = data.act.end_time.substring(
-          0,
-          data.act.end_time.length - 8
-        );
+        // data.act.start_time = data.act.start_time.substring(
+        //   0,
+        //   data.act.start_time.length - 8
+        // );
+        // data.act.end_time = data.act.end_time.substring(
+        //   0,
+        //   data.act.end_time.length - 8
+        // );
       })
       .catch(function(err) {
         if (err.response.status == 401) {

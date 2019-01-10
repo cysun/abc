@@ -201,7 +201,7 @@ export default {
         formData.append("enabled", this.enabled);
 
         axios
-          .post("/api/users/register", formData)
+          .post("/api/register", formData)
           .then(function(res) {
             vue_context.$nuxt.$loading.finish();
             iziToast.success({

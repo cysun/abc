@@ -1,13 +1,14 @@
 const nodemailer = require('nodemailer');
 const Email = require('email-templates');
+const secret = require('./secret');
 
 let error_occured = false;
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.email_address,
-        pass: process.env.email_password
+        user: secret.email_address,
+        pass: secret.email_password
     }
 });
 
@@ -142,9 +143,30 @@ async function sendRewardcollectedNoticeToRewardProvider(user_email, reward_id) 
     }
 }
 
+async function notifyManagersOfProof(user_email, user_count) {
+
+    try {
+        await email.send({
+            template: 'notify_managers',
+            message: {
+                to: user_email
+            },
+            locals: {
+                url: secret.website,
+                user_count
+            }
+        });
+    } catch (err) {
+        // logger.error('Failed to send EmailVerification email');
+        console.log(err)
+        // throw new Error("Something went wrong. Please try again later");
+    }
+}
+
 module.exports = {
     sendNewReviewNotice,
     sendVerificationMail,
+    notifyManagersOfProof,
     sendProofApprovalMail,
     sendProofRejectionMail,
     sendRewardTransactionCompleteNotice,

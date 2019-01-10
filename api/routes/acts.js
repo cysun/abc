@@ -492,8 +492,8 @@ router.get("/calendar", async function(req, res, next) {
 
   events.forEach(element => {
     element.title = element.name;
-    element.start = element.start_time;
-    element.end = element.end_time;
+    element.start = element.start_time + 'Z';
+    element.end = element.end_time + 'Z';
     element.url = `acts/${element._id}`;
   });
 

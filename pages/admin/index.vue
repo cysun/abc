@@ -124,7 +124,7 @@
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
                           <td>
-                            <nuxt-link :to="'/admin/edit/act/' + act._id">
+                            <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
                               <button class="btn btn-primary">Edit</button>
                             </nuxt-link>
                           </td>
@@ -163,7 +163,7 @@
                           <span class="badge badge-info">{{reward.creation_date}}</span>
                         </td>
                         <td>
-                          <nuxt-link :to="'/admin/edit/reward/' + reward._id">
+                          <nuxt-link :to="'/admin/rewards/' + reward._id + '/edit'">
                             <button class="btn btn-primary">Edit</button>
                           </nuxt-link>
                         </td>
