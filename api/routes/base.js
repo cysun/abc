@@ -3,6 +3,8 @@ const User = require("../../models/User");
 var createError = require("http-errors");
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
+const Act = require("../../models/Act");
+const Subscriber = require("../../models/Subscriber");
 const jwt = require("jsonwebtoken");
 const globals = require("../../globals");
 const mail = require("../../send_mail");
@@ -19,6 +21,34 @@ sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 
 const router = Router();
+
+//Add subscriber
+router.post("/add_subscriber", async function(req, res, next) {
+  try {
+    await Subscriber.create({ email: req.body.email });
+    res.json({
+      message: "Thank you. You have been added to our mailing list."
+    });
+  } catch (err) {
+    next(createError(400, err.message));
+  }
+});
+
+//Get latest Acts
+router.get("/latest_acts", async function(req, res, next) {
+  const latest_acts = await Act.find(
+    {
+      "enabled.state": true,
+      state: "AVAILABLE",
+      deleted: false
+    },
+    { description: true, creation_date: true }
+  )
+    .sort({ creation_date: -1 })
+    .limit(3);
+
+  res.json(latest_acts);
+});
 
 //Login User
 router.post("/login", async function(req, res, next) {
@@ -72,18 +102,17 @@ router.post("/login", async function(req, res, next) {
 // Register User
 router.post("/register", upload.single("file"), async function(req, res, next) {
   try {
-    
     //If the user is already logged in and this is not the admin, give error
     if (req.user && !req.roles.administrator)
       throw new Error("You must be logged out to access this endpoint");
     if (req.file) req.body.profile_picture = "./tmp/" + req.file.filename;
     let user = await User.initialize(req.body);
-    
+
     // await user.save();
 
     // await user.sendVerificationEmail();
     //If this is an admin and the enabled bit is sent
-    if (req.roles.administrator && req.body.enabled === 'true') {
+    if (req.roles.administrator && req.body.enabled === "true") {
       //Don't send verification mail
       //Enable the user
       user.enabled = true;
@@ -106,10 +135,12 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     if (req.roles.administrator) {
       //Give roles
       const roles = [];
-      if (req.body.act_poster === 'true') roles.push({ name: "Act Poster" });
-      if (req.body.manager === 'true') roles.push({ name: "Manager" });
-      if (req.body.reward_provider === 'true') roles.push({ name: "Reward Provider" });
-      if (req.body.administrator === 'true') roles.push({ name: "Administrator" });
+      if (req.body.act_poster === "true") roles.push({ name: "Act Poster" });
+      if (req.body.manager === "true") roles.push({ name: "Manager" });
+      if (req.body.reward_provider === "true")
+        roles.push({ name: "Reward Provider" });
+      if (req.body.administrator === "true")
+        roles.push({ name: "Administrator" });
       user.roles = roles;
     }
 
