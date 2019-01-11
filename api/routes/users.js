@@ -1,24 +1,24 @@
-const { Router } = require('express')
-const User = require('../../models/User');
-var createError = require('http-errors');
-const multer = require('multer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const secret = require('../../secret');
-const globals = require('../../globals');
-const fs = require('fs');
-const mail = require('../../send_mail');
+const { Router } = require("express");
+const User = require("../../models/User");
+var createError = require("http-errors");
+const multer = require("multer");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const secret = require("../../secret");
+const globals = require("../../globals");
+const fs = require("fs");
+const mail = require("../../send_mail");
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: 'tmp/'
+  dest: "tmp/"
 });
 
-const router = Router()
+const router = Router();
 
 /* GET users listing. */
-router.get('/', async function (req, res, next) {
+router.get("/", async function(req, res, next) {
   try {
     //Only admin can get here
     if (!req.roles.administrator)
@@ -27,15 +27,14 @@ router.get('/', async function (req, res, next) {
     //Return users with respect to search, sort, order and
     let search = {};
     if (req.query.search)
-      search = { '$text': { '$search': sanitize(req.query.search) } };
+      search = { $text: { $search: sanitize(req.query.search) } };
 
     let page = parseInt(sanitize(req.query.page));
     let sort = sanitize(req.query.sort);
     let order = parseInt(sanitize(req.query.order));
 
     //Handle invalid page
-    if (!page || page < 1)
-      page = 1
+    if (!page || page < 1) page = 1;
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
@@ -49,37 +48,35 @@ router.get('/', async function (req, res, next) {
 
     let results;
     let count;
-    results = User.find(
-      search,
-      {
-        first_name: true,
-        last_name: true,
-        enabled: true,
-        creation_date: true
-      }
-    ).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    results = User.find(search, {
+      first_name: true,
+      last_name: true,
+      enabled: true,
+      creation_date: true
+    })
+      .sort({ [sort]: order })
+      .skip(offset)
+      .limit(10)
+      .lean();
 
     count = User.find(search).countDocuments();
 
-    const promises = [results, count]
-    let returned_results, pages
-    await Promise.all(promises)
-      .then(function (values) {
-        returned_results = values[0];
-        count = values[1];
-        pages = Math.ceil(count / 10);
-      })
-    res.json({ data: returned_results, count: pages })
+    const promises = [results, count];
+    let returned_results, pages;
+    await Promise.all(promises).then(function(values) {
+      returned_results = values[0];
+      count = values[1];
+      pages = Math.ceil(count / 10);
+    });
+    res.json({ data: returned_results, count: pages });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
   }
-  catch (err) {
-    console.log(err)
-    next(createError(400, err.message))
-  }
-})
-
+});
 
 //Edit user
-router.get('/:id/edit', async function (req, res, next) {
+router.get("/:id/edit", async function(req, res, next) {
   try {
     // let users = await User.findById(req.params.id);
     // users.forEach(element => {
@@ -112,15 +109,35 @@ router.get('/:id/edit', async function (req, res, next) {
         });
       }
     }
-    res.json({ user, roles })
+    res.json({ user, roles });
     // res.render('admin_edit', { layout: 'admin_layout', roles: roles, title: "Admin dashboard", user: req.user, error: req.query.error, this_user: user });
   } catch (err) {
-    next(createError(400, err.message))
+    next(createError(400, err.message));
+  }
+});
+
+//Get user details
+router.get("/details", async function(req, res, next) {
+  try {
+    if (!req.user) {
+      res.json({});
+      return;
+    } else {
+      const user = await User.findById(req.user.id, {
+        _id: false,
+        first_name: true,
+        last_name: true,
+        email: true
+      });
+      res.json({ user, roles: req.roles });
+    }
+  } catch (err) {
+    next(createError(400, err.message));
   }
 });
 
 //Edit user
-router.put('/:id', async function (req, res, next) {
+router.put("/:id", async function(req, res, next) {
   try {
     const user = await User.findById(req.params.id);
     user.first_name = req.body.first_name;
@@ -130,8 +147,8 @@ router.put('/:id', async function (req, res, next) {
     await user.save();
     res.json({ message: "Success" });
   } catch (err) {
-    next(createError(400, err.message))
+    next(createError(400, err.message));
   }
 });
 
-module.exports = router
+module.exports = router;

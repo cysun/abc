@@ -1,6 +1,6 @@
 <template>
   <div>
-    <my-header :logged_in="logged_in" :page="page"/>
+    <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
     <my-banner/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
@@ -353,7 +353,7 @@ export default {
       password: "",
       files: null,
       logged_in: true,
-      page: "",
+      page: "acts",
       deleted_acts: {},
       upload_type: "act",
       add_act: {

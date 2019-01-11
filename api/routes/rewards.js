@@ -772,7 +772,7 @@ router.get("/:id/details", async function(req, res, next) {
         if (values[2][0]) sum = values[2][0].sum;
       }
     });
-    res.json({ data: returned_results, count: pages, sum, reward });
+    res.json({ data: returned_results, count: pages, sum, reward, roles: req.roles });
   } catch (err) {
     console.log(err);
     next(createError(400, err.message));

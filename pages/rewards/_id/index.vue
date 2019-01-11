@@ -1,6 +1,6 @@
 <template>
   <div>
-    <my-header :logged_in="logged_in" :page="page"/>
+    <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
     <my-banner/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
@@ -17,7 +17,7 @@
               <div class="blog_info">
                 <h5>
                   <div class="row">
-                    <a class="col-md-9" href="#" v-if="!data.edit">{{data.act.name}}</a>
+                    <a class="col-md-9" tabindex="-1" v-if="!data.edit">{{data.act.name}}</a>
                     <h6 v-if="data.rewards && !data.edit">
                       <span class="badge badge-secondary">{{data.rewards.rewards[0].state}}</span>
                     </h6>

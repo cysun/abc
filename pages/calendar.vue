@@ -1,6 +1,6 @@
 <template>
   <div>
-    <my-header :logged_in="logged_in" :page="page"/>
+    <my-header :logged_in="logged_in" :page="page" :roles="roles"/>
     <my-banner :title="title"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
@@ -18,6 +18,7 @@
 import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
+import jwt_decode from "jwt-decode";
 import moment from "moment";
 const globals = require("../globals");
 
@@ -160,21 +161,38 @@ export default {
   },
   // async asyncData({ query, req }) {
   async asyncData(context) {
-    //   console.log("I ran");
-    //If user is logged in, redirect to main page
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (context.app.$cookies.get("token")) {
-    //   context.redirect("/");
-    // }
+    const roles = {};
+    if (context.app.$cookies.get("token")) {
+      //Process JWT
+      const payload = jwt_decode(context.app.$cookies.get("token"));
+      //Get roles
+      if (payload.roles.length > 0) {
+        payload.roles.forEach(element => {
+          //Attach roles in array into distinct properties
+          switch (element.name) {
+            case "Act Poster":
+              roles.act_poster = true;
+              break;
+            case "Reward Provider":
+              roles.reward_provider = true;
+              break;
+            case "Manager":
+              roles.manager = true;
+              break;
+            case "Administrator":
+              roles.reward_provider = true;
+              roles.administrator = true;
+              roles.act_poster = true;
+              roles.manager = true;
+              break;
+          }
+        });
+        return { roles };
+      }
+    } else {
+      context.redirect("/logout");
+      return;
+    }
   },
   data() {
     return {
@@ -186,7 +204,8 @@ export default {
       password: "",
       image: null,
       logged_in: true,
-      page: "calendar"
+      page: "calendar",
+      roles: {}
       // events: [
       //   {
       //     title: "First Event",

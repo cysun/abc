@@ -26,8 +26,13 @@
                 Home
                 <span class="sr-only">(current)</span>
               </nuxt-link>
+            </li>            
+            <li class="nav-item mr-lg-3" v-if="logged_in">
+              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
             </li>
-
+            <li class="nav-item mr-lg-3" v-if="logged_in">
+              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">Rewards</nuxt-link>
+            </li>
             <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">
               <a
                 class="nav-link dropdown-toggle"
@@ -58,12 +63,6 @@
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
-            </li>
-            <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">Rewards</nuxt-link>
-            </li>
-            <li class="nav-item mr-lg-3" v-if="logged_in">
               <nuxt-link
                 to="/calendar"
                 class="nav-link"
@@ -74,10 +73,10 @@
               <a class="nav-link" href="/admin">Admin</a>
             </li>
             <li class="nav-item mr-lg-3">
-              <a class="nav-link" href="/about">About</a>
+              <nuxt-link class="nav-link" :class="{active: page == 'about'}" to="/about">About</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3">
-              <a class="nav-link" href="/contact">Contact</a>
+              <nuxt-link class="nav-link" :class="{active: page == 'contact'}" to="/contact">Contact</nuxt-link>
             </li>
             <li class="nav-item" v-if="!logged_in">
               <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">Login</nuxt-link>
