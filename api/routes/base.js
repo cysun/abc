@@ -27,7 +27,7 @@ router.post("/add_subscriber", async function(req, res, next) {
   try {
     await Subscriber.create({ email: req.body.email });
     res.json({
-      message: "Thank you. You have been added to our mailing list."
+      message: res.__("added_to_mailing_list")
     });
   } catch (err) {
     next(createError(400, err.message));
@@ -55,22 +55,22 @@ router.post("/login", async function(req, res, next) {
   try {
     //Make sure valid details were sent
     if (!req.body.email || !req.body.password)
-      throw new Error("Incomplete request");
+      throw new Error(res.__("incomplete_request"));
 
     const email = sanitize(req.body.email);
     const password = req.body.password;
 
-    if (!email || !password) throw new Error("Incomplete request");
+    if (!email || !password) throw new Error(res.__("incomplete_request"));
     //Get enabled user with this email
     const user = await User.findOne({ email: email, enabled: true });
     //If not exists
     //Return error
-    if (!user) throw new Error("Invalid email/password combination");
+    if (!user) throw new Error(res.__("invalid_email_password_combo"));
     //Else
     //Check if password matches
     const result = await bcrypt.compare(password, user.password);
     //If not, return error
-    if (!result) throw new Error("Invalid email/password combination");
+    if (!result) throw new Error(res.__("invalid_email_password_combo"));
     //If all goes well
     //Create JWT
     const payload = {
@@ -104,7 +104,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
   try {
     //If the user is already logged in and this is not the admin, give error
     if (req.user && !req.roles.administrator)
-      throw new Error("You must be logged out to access this endpoint");
+      throw new Error(res.__("you_must_be_logged_out"));
     if (req.file) req.body.profile_picture = "./tmp/" + req.file.filename;
     let user = await User.initialize(req.body);
 

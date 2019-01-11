@@ -22,7 +22,7 @@ router.get("/", async function(req, res, next) {
   try {
     //Only admin can get here
     if (!req.roles.administrator)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     //Return users with respect to search, sort, order and
     let search = {};

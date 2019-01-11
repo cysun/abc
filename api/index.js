@@ -1,4 +1,5 @@
 require("dotenv").load();
+
 const globals = require("../globals");
 const secret = require("../secret");
 const User = require("../models/User");
@@ -7,6 +8,12 @@ const mongoose = require("mongoose");
 var createError = require("http-errors");
 var cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+var hbs = require('hbs');
+var i18n = require("i18n");
+i18n.configure({
+  locales: ['en', 'es'],
+  directory: __dirname + '/locales'
+});
 
 // Create express instnace
 const app = express();
@@ -14,6 +21,15 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(i18n.init);
+
+hbs.registerHelper('__', function () {
+  return i18n.__.apply(this, arguments);
+});
+hbs.registerHelper('__n', function () {
+  return i18n.__n.apply(this, arguments);
+});
+
 const logger = require("../logger").winston;
 const requestLogger = require("../logger").morgan;
 

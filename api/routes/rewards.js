@@ -95,10 +95,10 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
 
     //If not, return error
     if (user.points < reward.value)
-      throw new Error("You do not have enough points to claim this reward");
+      throw new Error(res.__("not_enough_points"));
 
     //Else
-    
+
     user.id = user._id;
     delete user._id;
     const promised_rewards_change = Reward.findByIdAndUpdate(
@@ -182,8 +182,7 @@ router.put("/:reward_id/user/:user_id/collected", async function(
     const reward_changes = {};
 
     //If amount is less than 1, give error
-    if (reward.amount < 1)
-      throw new Error("Sorry, this reward is no longer available");
+    if (reward.amount < 1) throw new Error(res.__("reward_is_not_available"));
     //If amount is 1, make unavailable
     else if (reward.amount == 1) {
       reward_changes.state = "NOT_AVAILABLE";
@@ -271,7 +270,7 @@ router.put("/:id/enable/:state", async function(req, res, next) {
 router.get("/", async function(req, res, next) {
   try {
     if (!req.user) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
     //   try {
     //     let user = await User.findOne({});
@@ -772,7 +771,13 @@ router.get("/:id/details", async function(req, res, next) {
         if (values[2][0]) sum = values[2][0].sum;
       }
     });
-    res.json({ data: returned_results, count: pages, sum, reward, roles: req.roles });
+    res.json({
+      data: returned_results,
+      count: pages,
+      sum,
+      reward,
+      roles: req.roles
+    });
   } catch (err) {
     console.log(err);
     next(createError(400, err.message));
@@ -783,7 +788,7 @@ router.get("/:id/details", async function(req, res, next) {
 router.post("/", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const user = await User.findById(req.user.id).lean();
@@ -835,7 +840,7 @@ router.post("/", async function(req, res, next) {
 router.put("/:id", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     //Make sure all details were sent
@@ -845,7 +850,7 @@ router.put("/:id", async function(req, res, next) {
       !req.body.value ||
       !req.body.amount
     )
-      throw new Error("Incomplete request");
+      throw new Error(res.__('incomplete_request'));
 
     const name = sanitize(req.body.name);
     const description = sanitize(req.body.description);
@@ -853,12 +858,12 @@ router.put("/:id", async function(req, res, next) {
     const amount = sanitize(req.body.amount);
 
     if (!name || !description || !value || !amount)
-      throw new Error("Incomplete request");
+      throw new Error(res.__('incomplete_request'));
 
     const act = await Reward.findById(req.params.id);
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     act.enabled = false;
     act.name = name;
@@ -896,7 +901,7 @@ router.put("/:id", async function(req, res, next) {
 router.put("/:id/state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.manager) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const act = await Reward.findById(req.params.id);
@@ -906,8 +911,7 @@ router.put("/:id/state", async function(req, res, next) {
     else new_state = true;
 
     //Only managers
-    if (!req.roles.manager)
-      throw new Error("You do not have authorization");
+    if (!req.roles.manager) throw new Error(res.__('lack_auth'));
 
     act.enabled = new_state;
     await act.save();
@@ -922,7 +926,7 @@ router.put("/:id/state", async function(req, res, next) {
 router.put("/:id/user_state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const act = await Reward.findById(req.params.id);
@@ -933,7 +937,7 @@ router.put("/:id/user_state", async function(req, res, next) {
 
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     act.state = new_state;
     await act.save();
@@ -948,14 +952,14 @@ router.put("/:id/user_state", async function(req, res, next) {
 router.put("/:id/delete", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const act = await Reward.findById(req.params.id);
 
     //Only the admin or act poster who uploaded this act can delete it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     act.deleted = true;
     await act.save();

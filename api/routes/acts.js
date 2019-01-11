@@ -310,9 +310,10 @@ router.post("/:id/complete", upload.array("files"), async function(
   const session = await mongoose.startSession();
   try {
     //Non logged in users can't access this endpoint
-    if (!req.user) throw new Error("You do not have authorization");
+    if (!req.user) throw new Error(res.__("lack_auth"));
 
     const this_user = await User.findById(req.user.id);
+    //Debugging purposes
     if (this_user.email == "other_user@email.com")
       console.log("Other user was here");
 
@@ -332,7 +333,7 @@ router.post("/:id/complete", upload.array("files"), async function(
     //Make sure at least one file was uploaded
     if (!req.files)
       //If not, give error
-      throw new Error("No files were uploaded");
+      throw new Error(res.__("no_files"));
 
     //Get unique names for each file upload
     let promises = [];
@@ -492,8 +493,8 @@ router.get("/calendar", async function(req, res, next) {
 
   events.forEach(element => {
     element.title = element.name;
-    element.start = element.start_time + 'Z';
-    element.end = element.end_time + 'Z';
+    element.start = element.start_time + "Z";
+    element.end = element.end_time + "Z";
     element.url = `acts/${element._id}`;
   });
 
@@ -508,7 +509,7 @@ router.get("/:id", async function(req, res, next) {
 
   try {
     //Only logged in users can view act
-    if (!req.user) throw new Error("You do not have authorization");
+    if (!req.user) throw new Error(res.__("lack_auth"));
 
     const promised_act = Act.findById(
       req.params.id,
@@ -531,7 +532,7 @@ router.get("/:id", async function(req, res, next) {
     });
 
     //If act does not exist, error
-    if (!act) throw new Error("Act does not exist");
+    if (!act) throw new Error(res.__("act_does_not_exist"));
 
     //If this request is coming from the act poster who uploaded it or an admin
     //Return the act
@@ -543,26 +544,26 @@ router.get("/:id", async function(req, res, next) {
     if (!creator_rights) {
       //If this act is unavailable and this user has not completed it and this person doesn't have creator rights (Rightful act poster or admin)
       if (act.state == "NOT_AVAILABLE" && !user_act)
-        throw new Error("Act is not available");
+        throw new Error(res.__("act_is_not_available"));
       if (user_act)
         if (
           act.state == "NOT_AVAILABLE" &&
           user_act.acts[0].state != "COMPLETED"
         )
-          throw new Error("Act is not available");
+          throw new Error(res.__("act_is_not_available"));
       //If act is disabled and available
       //And this is a manager
       if (req.roles && req.roles.manager) {
         //Return the act
       } else {
         if (act.enabled.state == false && !user_act)
-          throw new Error("Act is disabled");
+          throw new Error(res.__("act_is_disabled"));
         if (user_act)
           if (
             act.enabled.state == false &&
             user_act.acts[0].state != "COMPLETED"
           )
-            throw new Error("Act is disabled");
+            throw new Error(res.__("act_is_disabled"));
       }
     }
 
@@ -577,7 +578,7 @@ router.get("/:id", async function(req, res, next) {
         display_act = true;
       }
       if (!display_act) {
-        throw new Error("Act has been deleted");
+        throw new Error(res.__("act_has_been_deleted"));
       }
     }
 
@@ -591,14 +592,13 @@ router.put("/:id/enable/:state", async function(req, res, next) {
   //Only managers and admins can get here
   //Change the state of the act accordingly
   try {
-    if (!req.roles || !req.roles.manager)
-      throw new Error("You do not have authorization");
+    if (!req.roles || !req.roles.manager) throw new Error(res.__("lack_auth"));
 
     const act = await Act.findById(req.params.id);
-    if (act.deleted) throw new Error("Act does not exist");
+    if (act.deleted) throw new Error(res.__("act_does_not_exist"));
 
     if (req.params.state !== "true" && req.params.state !== "false")
-      throw new Error("Invalid state");
+      throw new Error(res.__("invalid_state"));
 
     await Act.findByIdAndUpdate(req.params.id, {
       "enabled.state": req.params.state
@@ -613,7 +613,7 @@ router.put("/:id/enable/:state", async function(req, res, next) {
 router.get("/", async function(req, res, next) {
   try {
     if (!req.user) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__("lack_auth"));
     }
     //Get list of act IDs this user has completed
 
@@ -838,7 +838,7 @@ router.get("/", async function(req, res, next) {
 router.post("/:type", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__("lack_auth"));
     }
     // if (req.file)
     //     req.body.picture = './tmp/' + req.file.filename
@@ -848,11 +848,11 @@ router.post("/:type", async function(req, res, next) {
     //Handling events
     else if (req.params.type == "event") {
       if (!req.body.start_time || !req.body.end_time)
-        throw new Error("Incomplete request");
+        throw new Error(res.__("incomplete_request"));
 
       // console.log(req.body);
       if (moment(req.body.end_time).isBefore(req.body.start_time))
-        throw new Error("Start time must be before end time");
+        throw new Error(res.__("start_before_end"));
 
       act = await Event_Act.initialize(req.body);
       act.start_time = req.body.start_time;
@@ -902,7 +902,7 @@ router.put("/:id", async function(req, res, next) {
   try {
     // console.log(req.body);
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     //If this is not the admin
@@ -913,27 +913,27 @@ router.put("/:id", async function(req, res, next) {
         "act_provider.id": req.user.id
       });
       //If not, return error
-      if (!this_act) throw new Error("You do not have authorization");
+      if (!this_act) throw new Error(res.__('lack_auth'));
 
       //If the act is deleted, return error
-      if (this_act.deleted) throw new Error("Act does not exist");
+      if (this_act.deleted) throw new Error(res.__('act_does_not_exist'));
     }
 
     //Make sure all details were sent
     if (!req.body.name || !req.body.description || !req.body.reward_points)
-      throw new Error("Incomplete request");
+      throw new Error(res.__('incomplete_request'));
 
     const name = sanitize(req.body.name);
     const description = sanitize(req.body.description);
     const reward_points = sanitize(req.body.reward_points);
 
     if (!name || !description || !reward_points)
-      throw new Error("Incomplete request");
+      throw new Error(res.__('incomplete_request'));
 
     let act = await Act.findById(req.params.id);
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     if (!req.roles.administrator) act.enabled.state = false;
     act.name = name;
@@ -944,16 +944,16 @@ router.put("/:id", async function(req, res, next) {
     if (act.__t == "Event") {
       //Make sure all fields were sent
       if (!req.body.start_time || !req.body.end_time)
-        throw new Error("Incomplete request");
+        throw new Error(res.__('incomplete_request'));
 
       const start_time = sanitize(req.body.start_time);
       const end_time = sanitize(req.body.end_time);
 
-      if (!start_time || !end_time) throw new Error("Incomplete request");
+      if (!start_time || !end_time) throw new Error(res.__('incomplete_request'));
 
       //Make sure start time is before end time
       if (moment(req.body.end_time).isBefore(req.body.start_time))
-        throw new Error("Start time must be before end time");
+        throw new Error(res.__('start_before_end'));
 
       //Attach new values to it
       act.start_time = start_time;
@@ -1002,7 +1002,7 @@ router.put("/:id", async function(req, res, next) {
 router.put("/:id/state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const act = await Act.findById(req.params.id);
@@ -1010,12 +1010,12 @@ router.put("/:id/state", async function(req, res, next) {
     //Only an admin or the act poster who uploaded this act can change its state
     if (!req.roles.administrator) {
       if (act.act_provider.id != req.user.id)
-        throw new Error("You do not have authorization");
+        throw new Error(res.__('lack_auth'));
     }
 
     //If act does not exist, error
     //If act is deleted, give error
-    if (!act || act.deleted) throw new Error("Act does not exist");
+    if (!act || act.deleted) throw new Error(res.__('act_does_not_exist'));
 
     let new_state;
 
@@ -1024,7 +1024,7 @@ router.put("/:id/state", async function(req, res, next) {
 
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     act.state = new_state;
     await act.save();
@@ -1039,17 +1039,17 @@ router.put("/:id/state", async function(req, res, next) {
 router.put("/:id/delete", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
     }
 
     const act = await Act.findById(req.params.id);
 
     //Only the admin or act poster who uploaded this act can delete it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     //Deleted acts can't be deleted again
-    if (act.deleted) throw new Error("Non existent act");
+    if (act.deleted) throw new Error(res.__('act_does_not_exist'));
 
     act.deleted = true;
     await act.save();
@@ -1069,9 +1069,9 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     const user = await User.findOne({
       "acts.proof_of_completion.new_name": new_name
     });
-    if (!req.user) throw new Error("You do not have authorization");
+    if (!req.user) throw new Error(res.__('lack_auth'));
     if (!req.roles.administrator && user._id != req.user.id)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     // await User.findOneAndUpdate(
     //   { "acts.proof_of_completion.new_name": new_name },
@@ -1132,7 +1132,7 @@ router.delete("/proof/:new_name", async function(req, res, next) {
 router.delete("/:act_id/tag/:tag_id", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster)
-      throw new Error("You do not have authorization");
+      throw new Error(res.__('lack_auth'));
 
     //If this isn't the admin
     if (!req.roles.administrator) {
@@ -1142,9 +1142,9 @@ router.delete("/:act_id/tag/:tag_id", async function(req, res, next) {
         _id: req.params.act_id,
         "act_provider.id": req.user.id
       });
-      if (!this_act) throw new Error("You do not have authorization");
+      if (!this_act) throw new Error(res.__('lack_auth'));
 
-      if (this_act.deleted) throw new Error("Act does not exist");
+      if (this_act.deleted) throw new Error(res.__('act_does_not_exist'));
     }
 
     //Delete the tag from this act where _id is given
