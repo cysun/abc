@@ -4,7 +4,7 @@
     <my-banner :title="title"/>
     <section class="about py-5">
       <div class="container py-md-3 agile-info">
-        <h2 class="heading mb-md-5 mb-4">About Us</h2>
+        <h2 class="heading mb-md-5 mb-4">{{$t('about_us')}}</h2>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 w3-agile-grid mb-lg-0 mb-5">
             <p>

@@ -31,7 +31,7 @@
                   >
                 </h5>
                 <p>
-                  By {{data.act.act_provider.first_name}} {{data.act.act_provider.last_name}}
+                  {{$t('by')}} {{data.act.act_provider.first_name}} {{data.act.act_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
@@ -51,7 +51,7 @@
                     <span
                       v-if="!data.edit"
                       class="badge badge-light"
-                    >Start time: {{data.act.formated_start_time}}</span>
+                    >{{$t('start_time')}}: {{data.act.formated_start_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -60,7 +60,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="Start time"
+                          :placeholder="$t('start_time')"
                           type="text"
                           readonly
                           class="form-control"
@@ -81,7 +81,7 @@
                     <span
                       v-if="!data.edit"
                       class="badge badge-light"
-                    >End time: {{data.act.formated_end_time}}</span>
+                    >{{$t('end_time')}}: {{data.act.formated_end_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -90,7 +90,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="End time"
+                          :placeholder="$t('end_time')"
                           type="text"
                           readonly
                           class="form-control"
@@ -122,7 +122,7 @@
                 <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
                   <span
                     class="badge badge-warning"
-                  >Reason for rejection: {{data.proofs.acts[0].comments}}</span>
+                  >{{$t('reason_for_rejection')}}: {{data.proofs.acts[0].comments}}</span>
                 </div>
                 <div
                   style="margin-bottom: 5px"
@@ -133,8 +133,8 @@
                     tabindex="0"
                     v-if="data.proofs.acts[0].state !== 'COMPLETED'"
                     data-toggle="popover"
-                    :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
-                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
+                    :title="'<a href=\'' + proof.new_name + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>' + $t('delete') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
                     style="cursor: pointer"
@@ -160,27 +160,30 @@
                   <input
                     @click="uploadProof"
                     type="button"
-                    value="Upload proof of completion"
+                    :value="$t('upload_proof_of_completion')"
                     class="btn btn-primary"
                   >
                 </div>
-                <div class="row" v-if="data.act.act_provider.id == data.user.id || data.roles.manager">
+                <div
+                  class="row"
+                  v-if="data.act.act_provider.id == data.user.id || data.roles.manager"
+                >
                   <div class="col-md-7">
                     <span v-if="data.act.act_provider.id == data.user.id">
-                    <a
-                      tabindex="0"
-                      style="cursor: pointer"
-                      class="badge badge-info"
-                      @click="change_act_state()"
-                      v-if="data.act.state == 'AVAILABLE'"
-                    >Available</a>
-                    <a
-                      @click="change_act_state()"
-                      v-if="data.act.state == 'NOT_AVAILABLE'"
-                      class="badge badge-info"
-                      tabindex="0"
-                      style="cursor: pointer"
-                    >Not Available</a>
+                      <a
+                        tabindex="0"
+                        style="cursor: pointer"
+                        class="badge badge-info"
+                        @click="change_act_state()"
+                        v-if="data.act.state == 'AVAILABLE'"
+                      >{{$t('available')}}</a>
+                      <a
+                        @click="change_act_state()"
+                        v-if="data.act.state == 'NOT_AVAILABLE'"
+                        class="badge badge-info"
+                        tabindex="0"
+                        style="cursor: pointer"
+                      >{{$t('not_available')}}</a>
                     </span>
                     <a
                       v-if="data.roles.manager"
@@ -188,29 +191,52 @@
                       class="badge badge-info"
                       @click="change_act_state_by_manager(index)"
                       style="cursor: pointer"
-                    >{{data.act.enabled.state ? "Enabled" : "Disabled"}}</a>
-                    <span v-if="!data.roles.manager" class="badge badge-info">{{data.act.enabled.state ? "Enabled" : "Disabled"}}</span>
+                    >{{data.act.enabled.state ? $t('enabled') : $t('disabled')}}</a>
+                    <span
+                      v-if="!data.roles.manager"
+                      class="badge badge-info"
+                    >{{data.act.enabled.state ? $t('enabled') : $t('disabled')}}</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!data.delete">
-                      <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">Edit</button>
-                      <button v-if="data.edit" @click="save_act" class="btn btn-primary">Save</button>
-                      <button v-if="data.edit" @click="edit_act" class="btn btn-danger">Cancel</button>
+                      <button
+                        v-if="!data.edit"
+                        @click="edit_act"
+                        class="btn btn-primary"
+                      >{{$t('edit')}}</button>
+                      <button
+                        v-if="data.edit"
+                        @click="save_act"
+                        class="btn btn-primary"
+                      >{{$t('save')}}</button>
+                      <button
+                        v-if="data.edit"
+                        @click="edit_act"
+                        class="btn btn-danger"
+                      >{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!data.edit">
-                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">Delete</button>
-                      <button v-if="data.delete" @click="delete_act" class="btn btn-primary">Cancel</button>
+                      <button
+                        v-if="!data.delete"
+                        @click="delete_act"
+                        class="btn btn-danger"
+                      >{{$t('delete')}}</button>
+                      <button
+                        v-if="data.delete"
+                        @click="delete_act"
+                        class="btn btn-primary"
+                      >{{$t('cancel')}}</button>
                       <button
                         v-if="data.delete"
                         @click="confirm_delete_act"
                         class="btn btn-danger"
-                      >Confirm</button>
+                      >{{$t('confirm')}}</button>
                     </span>
                   </div>
                 </div>
                 <ul class="blog_list">
                   <li>
-                    <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
+                    <span :title="$t('Reward_points')" class="fa fa-credit-card" aria-hidden="true"></span>
                     <span v-if="!data.edit">{{data.act.reward_points}}</span>
                     <input
                       id="act_reward_points"
@@ -222,12 +248,16 @@
                     <i>|</i>
                   </li>
                   <li>
-                    <span title="Popularity" class="fa fa-angle-double-down" aria-hidden="true"></span>
+                    <span
+                      :title="$t('popularity')"
+                      class="fa fa-angle-double-down"
+                      aria-hidden="true"
+                    ></span>
                     {{data.act.total_number_of_clicks}}
                     <i>|</i>
                   </li>
                   <li>
-                    <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
+                    <span :title="$t('favorites')" class="fa fa-user" aria-hidden="true"></span>
                     {{data.act.total_number_of_completions}}
                   </li>
                 </ul>
@@ -250,7 +280,7 @@
                     type="text"
                     id="add_tag"
                     class="form-control"
-                    placeholder="Tags (Seperate tags by space)"
+                    :placeholder="$t('tags_placeholder')"
                   >
                 </div>
               </div>
@@ -546,8 +576,7 @@ export default {
           });
         });
     },
-    async change_act_state_by_manager(index)
-    {
+    async change_act_state_by_manager(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -557,8 +586,7 @@ export default {
       });
       //Get new state
       let new_state;
-      if (this.data.act.previous_data.enabled == true)
-        new_state = false;
+      if (this.data.act.previous_data.enabled == true) new_state = false;
       else new_state = true;
       //Change state of act
       this.$set(this.data.act.enabled, "state", new_state);

@@ -4,11 +4,11 @@
     <my-banner :title="title"/>
     <section class="about py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4" id="congratulations">Congratulations</h3>
+        <h3 class="heading mb-md-5 mb-4" id="congratulations">{{$t('congratlations')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
-            <p>Your account has been verified.</p>
-            <p>You will be automatically logged in shortly.</p>
+            <p>{{$t('your_account_has_been_verified')}}</p>
+            <p>{{$t('you_will_be_logged_in_shortly')}}</p>
           </div>
         </div>
       </div>

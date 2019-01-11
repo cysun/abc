@@ -10,38 +10,38 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Add Act</h1>
+                <h1>{{$t('add_act')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="addAct">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="name">Name</label>
-                  <input type="text" name="name" id="name" placeholder="Name" v-model="name">
-                  <label for="description">Description</label>
+                  <label for="name">{{$t('name')}}</label>
+                  <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
+                  <label for="description">{{$t('description')}}</label>
                   <input
                     type="text"
                     name="description"
                     id="description"
-                    placeholder="Description"
+                    :placeholder="$t('description')"
                     v-model="description"
                   >
-                  <label for="reward_points">Reward Points</label>
+                  <label for="reward_points">{{$t('Reward_points')}}</label>
                   <input
                     type="text"
                     name="reward_points"
-                    placeholder="Reward Points"
+                    :placeholder="$t('Reward_points')"
                     id="reward_points"
                     v-model="reward_points"
                   >
-                  <label for="tags">Tags</label>
+                  <label for="tags">{{$t('tags')}}</label>
                   <input
                     type="text"
                     name="tags"
-                    placeholder="Tags (Seperate tags with a space)"
+                    :placeholder="$t('tags_placeholder')"
                     id="tags"
                     v-model="tags"
                   >
-                  <input type="submit" name="edit" value="Add Act">
+                  <input type="submit" name="edit" :value="$t('add_act')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
@@ -111,7 +111,7 @@ export default {
       params.append("description", this.description);
       params.append("reward_points", this.reward_points);
       if (this.tags) params.append("tags", this.tags);
-      
+
       await axios
         .post(`/api/acts/act`, params, {
           headers: {
@@ -128,7 +128,6 @@ export default {
           vue_context.description = "";
           vue_context.reward_points = 0;
           vue_context.tags = "";
-
         })
         .catch(function(err) {
           iziToast.error({

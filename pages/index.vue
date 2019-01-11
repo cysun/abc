@@ -8,11 +8,13 @@
             <div class="slider-info bg1 w3-agile-grid">
               <div class="bs-slider-overlay">
                 <div class="banner-text container agile-info">
-                  <h5 class="tag text-center mb-3 text-uppercase">Acquire wealth</h5>
-                  <h1 class="movetxt text-center agile-title text-uppercase">join us to gain</h1>
+                  <h5 class="tag text-center mb-3 text-uppercase">{{$t('financial_well_being')}}</h5>
+                  <h1
+                    class="movetxt text-center agile-title text-uppercase"
+                  >{{$t('enhancing_the_financial')}}</h1>
                   <h2
                     class="movetxt text-center mb-3 agile-title text-uppercase"
-                  >Financial Knowledge</h2>
+                  >{{$t('capability_of_individuals')}}</h2>
                 </div>
               </div>
             </div>
@@ -22,25 +24,11 @@
     </section>
     <section class="about py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4">{{$t('navs.about.title')}}</h3>
+        <h3 class="heading mb-md-5 mb-4">{{$t('about_us')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
-            <p>
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
-              the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley
-              of type and scrambled it to make a type specimen book. It has survived not only five centuries,
-              but also the leap into electronic typesetting, remaining essentially unchanged. It was
-              popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-              and more recently with desktop publishing software like Aldus PageMaker including versions of
-              Lorem Ipsum.
-            </p>
-            <p class="mt-2 mb-3">
-              The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for
-              those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero
-              are also reproduced in their exact original form, accompanied by English versions from the 1914
-              translation by H. Rackham.
-            </p>{{!--
-            <a href="about.html">Read More</a> --}}
+            <p>{{$t('about_us_text_1')}}</p>
+            <p class="mt-2 mb-3">{{$t('about_us_text_2')}}</p>
           </div>
           <div class="col-lg-3 col-md-4 w3-agile-grid pr-md-0">
             <h3 class="margin">15+ years experience</h3>
@@ -217,20 +205,13 @@
     <section class="quotes py-5 text-center">
       <div class="container py-md-3">
         <div class="quotes-info agile-info-quotes">
-          <h3 class="mb-3">Join us today</h3>
-          <p>
-            Cras blandit nibh ut pretium elementum. Duis bibendum convallis nun ca dictum. Quisquen ac ipsum
-            porta,
-            ultrices metus sit amet,
-            curs in nisl. Duis aliquet varius sem sit amet.
-          </p>
-          <a class="bt mt-4 mr-2 text-capitalize" href="#" role="button">Top of page</a>
-          {{!--
-          <a
-            class="bt mt-4 text-capitalize start"
-            href="contact.html"
+          <h3 class="mb-3">{{$t('join_us_today_header')}}</h3>
+          <p>{{$t('join_us_today')}}</p>
+          <nuxt-link
+            class="bt mt-4 mr-2 text-capitalize"
+            to="/sign_up"
             role="button"
-          >Get Started</a> --}}
+          >{{$t('sign_up')}}</nuxt-link>
         </div>
       </div>
     </section>
@@ -243,15 +224,7 @@ export default {
     MyHeader
   },
   async asyncData(context) {
-    // if (process.server) {
-      if (context.app.$cookies.get("token")) context.redirect("/acts");
-      // const cookiesRes = context.req.headers.cookie.getAll();
-      // console.log(context.app.$cookies.getAll());
-      // context.app.$cookies.set("token", "My token", {
-      //   path: "/",
-      //   maxAge: 60 * 60 * 24 * 7
-      // });
-    // }
+    if (context.app.$cookies.get("token")) context.redirect("/acts");
   }
 };
 </script>

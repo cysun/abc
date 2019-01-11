@@ -12,47 +12,47 @@
             <div class="market-updates">
               <div class="col-md-4 market-update-gd">
                 <nuxt-link to="/admin/users">
-                <div class="market-update-block clr-block-1">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_users}}</h3>
-                    <h4>Total Users</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
+                  <div class="market-update-block clr-block-1">
+                    <div class="col-md-8 market-update-left">
+                      <h3>{{data.total_users}}</h3>
+                      <h4>{{$t('total_users')}}</h4>
+                      <!-- <p>Other hand, we denounce</p> -->
+                    </div>
+                    <div class="col-md-4 market-update-right">
+                      <i class="fa fa-users fa-5x" style="color: white"></i>
+                    </div>
+                    <div class="clearfix"></div>
                   </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-users fa-5x" style="color: white"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
                 </nuxt-link>
               </div>
               <div class="col-md-4 market-update-gd">
                 <nuxt-link to="/admin/acts">
-                <div class="market-update-block clr-block-2">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_acts}}</h3>
-                    <h4>Total Acts</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
+                  <div class="market-update-block clr-block-2">
+                    <div class="col-md-8 market-update-left">
+                      <h3>{{data.total_acts}}</h3>
+                      <h4>{{$t('total_acts')}}</h4>
+                      <!-- <p>Other hand, we denounce</p> -->
+                    </div>
+                    <div class="col-md-4 market-update-right">
+                      <i class="fa fa-bars fa-5x" style="color: white"></i>
+                    </div>
+                    <div class="clearfix"></div>
                   </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-bars fa-5x" style="color: white"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
                 </nuxt-link>
               </div>
               <div class="col-md-4 market-update-gd">
                 <nuxt-link to="/admin/rewards">
-                <div class="market-update-block clr-block-3">
-                  <div class="col-md-8 market-update-left">
-                    <h3>{{data.total_rewards}}</h3>
-                    <h4>Total Rewards</h4>
-                    <!-- <p>Other hand, we denounce</p> -->
+                  <div class="market-update-block clr-block-3">
+                    <div class="col-md-8 market-update-left">
+                      <h3>{{data.total_rewards}}</h3>
+                      <h4>{{$t('total_rewards')}}</h4>
+                      <!-- <p>Other hand, we denounce</p> -->
+                    </div>
+                    <div class="col-md-4 market-update-right">
+                      <i class="fa fa-gift fa-5x" style="color: white"></i>
+                    </div>
+                    <div class="clearfix"></div>
                   </div>
-                  <div class="col-md-4 market-update-right">
-                    <i class="fa fa-gift fa-5x" style="color: white"></i>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
                 </nuxt-link>
               </div>
               <div class="clearfix"></div>
@@ -62,17 +62,17 @@
             <div class="chit-chat-layer1">
               <div class="col-md-6 chit-chat-layer1-left">
                 <div class="work-progres">
-                  <div class="chit-chat-heading">Recent registrations</div>
+                  <div class="chit-chat-heading">{{$t('recent_registrations')}}</div>
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>First name</th>
-                          <th>Last name</th>
-                          <th>Verified</th>
-                          <th>Registration time</th>
-                          <th>Actions</th>
+                          <th>{{$t('first_name')}}</th>
+                          <th>{{$t('last_name')}}</th>
+                          <th>{{$t('verified')}}</th>
+                          <th>{{$t('registration_time')}}</th>
+                          <th>{{$t('actions')}}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -88,7 +88,7 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/user/' + user._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                         </tr>
@@ -99,17 +99,17 @@
               </div>
               <div class="col-md-6 chit-chat-layer1-left">
                 <div class="work-progres">
-                  <div class="chit-chat-heading">Recent acts</div>
+                  <div class="chit-chat-heading">{{$t('recent_acts')}}</div>
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Poster's name</th>
-                          <th>Act's name</th>
-                          <th>Verified</th>
-                          <th>Creation time</th>
-                          <th>Actions</th>
+                          <th>{{$t('poster_name')}}</th>
+                          <th>{{$t('act_name')}}</th>
+                          <th>{{$t('verified')}}</th>
+                          <th>{{$t('creation_date')}}</th>
+                          <th>{{$t('actions')}}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -125,7 +125,7 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                         </tr>
@@ -138,17 +138,17 @@
             </div>
             <div class="col-md-6 chit-chat-layer1-left">
               <div class="work-progres">
-                <div class="chit-chat-heading">Recent Rewards</div>
+                <div class="chit-chat-heading">{{$t('recent_rewards')}}</div>
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>Poster's name</th>
-                        <th>Reward's name</th>
-                        <th>Verified</th>
-                        <th>Creation time</th>
-                        <th>Actions</th>
+                        <th>{{$t('poster_name')}}</th>
+                        <th>{{$t('reward_name')}}</th>
+                        <th>{{$t('verified')}}</th>
+                        <th>{{$t('creation_date')}}</th>
+                        <th>{{$t('actions')}}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -164,7 +164,7 @@
                         </td>
                         <td>
                           <nuxt-link :to="'/admin/rewards/' + reward._id + '/edit'">
-                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn btn-primary">{{$t('edit')}}</button>
                           </nuxt-link>
                         </td>
                       </tr>
@@ -180,7 +180,7 @@
                 <div class="climate-grid3">
                   <div class="popular-brand" v-if="data.best_act[0]">
                     <div class="col-md-6 popular-bran-left">
-                      <h3>Best act of this month</h3>
+                      <h3>{{$t('best_act_of_the_month')}}</h3>
                       <h4>{{data.best_act[0].act[0].name}}</h4>
                       <p
                         style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
@@ -193,14 +193,14 @@
                   </div>
                   <div class="popular-follow" v-if="data.best_reward[0]">
                     <div class="col-md-6 popular-follo-left">
-                      <h4 style="color: #FFBD33">Best Reward of this month</h4>
+                      <h4 style="color: #FFBD33">{{$t('best_reward_of_this_month')}}</h4>
                       <p style="color: #DBFF33">{{data.best_reward[0].reward[0].name}}</p>
                       <p
                         style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                       >{{data.best_reward[0].reward[0].description}}</p>
                     </div>
                     <div class="col-md-6 popular-follo-right">
-                      <h4>Amount Collected</h4>
+                      <h4>{{$t('amount_collected')}}</h4>
                       <h5>{{data.best_reward[0].count}}</h5>
                     </div>
                     <div class="clearfix"></div>
@@ -314,7 +314,7 @@ export default {
     // context.query.sort = "Hello";
     return { data };
   },
-  
+
   mounted() {
     //Sticky header code
     // $(document).ready(function() {

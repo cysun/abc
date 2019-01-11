@@ -8,40 +8,40 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Edit Reward</h1>
+                <h1>{{$t('edit_reward')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="editAct">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="name">Name</label>
+                  <label for="name">{{$t('name')}}</label>
                   <input
                     type="text"
                     name="name"
                     id="name"
-                    placeholder="Name"
+                    :placeholder="$t('name')"
                     v-model="data.act.name"
                   >
-                  <label for="description">Description</label>
+                  <label for="description">{{$t('description')}}</label>
                   <input
                     type="text"
                     name="description"
                     id="description"
-                    placeholder="Description"
+                    :placeholder="$t('description')"
                     v-model="data.act.description"
                   >
-                  <label for="reward_points">Value</label>
+                  <label for="reward_points">{{$t('value')}}</label>
                   <input
                     type="text"
                     name="reward_points"
-                    placeholder="Value"
+                    :placeholder="$t('value')"
                     id="reward_points"
                     v-model="data.act.value"
                   >
-                  <label for="amount">Amount</label>
+                  <label for="amount">{{$t('amount')}}</label>
                   <input
                     type="text"
                     name="amount"
-                    placeholder="Amount"
+                    :placeholder="$t('amount')"
                     id="amount"
                     v-model="data.act.amount"
                   >
@@ -52,7 +52,7 @@
                       style="cursor: pointer; margin-right: 1px"
                       class="badge badge-secondary"
                       @click="change_state()"
-                    >{{data.act.enabled ? 'Enabled' : 'Disabled'}}</a>
+                    >{{data.act.enabled ? $t('enabled') : $t('disabled')}}</a>
                     <a
                       tabindex="0"
                       style="cursor: pointer; margin-right: 1px"
@@ -64,12 +64,12 @@
                       v-if="data.act.deleted"
                       style="margin-right: 1px"
                       class="badge badge-secondary"
-                    >Deleted</span>
+                    >{{$t('deleted')}}</span>
                   </div>
                   <div class="forgot-top-grids">
                     <div class="clearfix"></div>
                   </div>
-                  <input type="submit" name="edit" value="Edit">
+                  <input type="submit" name="edit" :value="$t('edit')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>

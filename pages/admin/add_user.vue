@@ -10,40 +10,46 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Add User</h1>
+                <h1>{{$t('add_user')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="addUser">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="first_name">First name</label>
+                  <label for="first_name">{{$t('first_name')}}</label>
                   <input
                     type="text"
                     name="first_name"
                     id="first_name"
-                    placeholder="First name"
+                    :placeholder="$t('first_name')"
                     v-model="first_name"
                   >
-                  <label for="last_name">Last name</label>
+                  <label for="last_name">{{$t('last_name')}}</label>
                   <input
                     type="text"
                     name="last_name"
                     id="last_name"
-                    placeholder="Last name"
+                    :placeholder="$t('last_name')"
                     v-model="last_name"
                   >
-                  <label for="email">Email</label>
-                  <input type="text" name="email" placeholder="Email" id="email" v-model="email">
-                  <label for="password">Password</label>
+                  <label for="email">{{$t('email')}}</label>
+                  <input
+                    type="text"
+                    name="email"
+                    :placeholder="$t('email')"
+                    id="email"
+                    v-model="email"
+                  >
+                  <label for="password">{{$t('password')}}</label>
                   <input
                     type="password"
                     name="password"
-                    placeholder="Password"
+                    :placeholder="$t('password')"
                     id="password"
                     v-model="password"
                   >
-                  <label for="image">Profile picture</label>
+                  <label for="image">{{$t('profile_picture')}}</label>
                   <input @change="fileChanged" type="file" name="image" id="image">
-                  <h3>Roles</h3>
+                  <h3>{{$t('roles')}}</h3>
                   <div class="forgot-top-grids">
                     <div class="forgot-grid">
                       <ul>
@@ -51,36 +57,39 @@
                           <input
                             type="checkbox"
                             id="act_poster"
-                            value="Act Poster"
+                            :value="$t('act_poster')"
                             v-model="roles.act_poster"
                             name="roles"
                           >
                           <label for="act_poster">
-                            <span></span>Act poster
+                            <span></span>
+                            {{$t('act_poster')}}
                           </label>
                         </li>
                         <li>
                           <input
                             type="checkbox"
                             id="reward_provider"
-                            value="Reward Provider"
+                            :value="$t('reward_provider')"
                             v-model="roles.reward_provider"
                             name="roles"
                           >
                           <label for="reward_provider">
-                            <span></span>Reward provider
+                            <span></span>
+                            {{$t('reward_provider')}}
                           </label>
                         </li>
                         <li>
                           <input
                             type="checkbox"
                             id="manager"
-                            value="Manager"
+                            :value="$t('manager')"
                             v-model="roles.manager"
                             name="roles"
                           >
                           <label for="manager">
-                            <span></span>Manager
+                            <span></span>
+                            {{$t('manager')}}
                           </label>
                         </li>
                         <li>
@@ -88,11 +97,12 @@
                             type="checkbox"
                             id="admin"
                             v-model="roles.administrator"
-                            value="Administrator"
+                            :value="$t('administrator')"
                             name="roles"
                           >
                           <label for="admin">
-                            <span></span>Admin
+                            <span></span>
+                            {{$t('admin')}}
                           </label>
                         </li>
                         <li>
@@ -104,14 +114,15 @@
                             name="enabled"
                           >
                           <label for="enabled">
-                            <span></span>Enabled
+                            <span></span>
+                            {{$t('enabled')}}
                           </label>
                         </li>
                       </ul>
                     </div>
                     <div class="clearfix"></div>
                   </div>
-                  <input type="submit" name="edit" value="Add user">
+                  <input type="submit" name="edit" :value="$t('add_user')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
@@ -128,7 +139,6 @@
       <div class="clearfix"></div>
     </div>
     <!--slide bar menu end here-->
-    
   </div>
 </template>
 <script>

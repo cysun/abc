@@ -3,11 +3,11 @@
     <div class="container-fluid p-5">
       <div class="row footer-gap">
         <div class="col-lg-5 mb-lg-0 mb-4">
-          <h3 class="text-capitalize mb-3">About Company</h3>
-          <p>We are a collaboration between the California State University of Los Angeles, local nonprofit agencies, and other institutions. We seek to increase financial capability, and ultimately financial well-being, of anyone who wishes to join us.</p>
+          <h3 class="text-capitalize mb-3">{{$t('about_company')}}</h3>
+          <p>{{$t('about_us_text_1')}}</p>
           <div class="row mt-4">
             <div class="col-md-6">
-              <h3 class="text-capitalize mb-3">Connect With Us</h3>
+              <h3 class="text-capitalize mb-3">{{$t('connect_with_us')}}</h3>
               <p>
                 <span class="fab fa-twitter"></span> twitter/@my_website
               </p>
@@ -25,7 +25,7 @@
               </a>
             </div>
             <div class="col-md-6 mt-md-0 mt-5">
-              <h3 class="text-capitalize mb-3">Head Quarters</h3>
+              <h3 class="text-capitalize mb-3">{{$t('head_quarters')}}</h3>
               <address class="mb-0">
                 <p class="mb-2">
                   <i class="fas fa-map-marker"></i> ABC Asset Building Clinic,
@@ -34,7 +34,7 @@
                   California 90032
                 </p>
                 <p>
-                  <i class="fas mr-1 fa-clock"></i> Timings : 10 a.m to 6 p.m
+                  <i class="fas mr-1 fa-clock"></i> {{$t('time')}}: 10 a.m to 6 p.m
                 </p>
                 <p>
                   <i class="fas mr-1 fa-phone"></i> +12 445 8976 2334
@@ -51,26 +51,26 @@
           </div>
         </div>
         <div class="col-lg-3 col-md-6 mt-lg-0 mt-sm-0 p-md-0">
-          <h3 class="text-capitalize mb-3">Services</h3>
+          <h3 class="text-capitalize mb-3">{{$t('services')}}</h3>
           <ul>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> Affordable Housing.
+              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('affordable_housing')}}.
             </li>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> Utility Assistance.
+              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('utility_assistance')}}.
             </li>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> Savings and Credit.
+              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('savings_and_credit')}}.
             </li>
           </ul>
-          <h3 class="text-capitalize mt-4 mb-3">Newsletter</h3>
-          <p class="mb-3">Subscribe to Our Newsletter to get News, Amazing Offers &amp; More</p>
+          <h3 class="text-capitalize mt-4 mb-3">{{$t('newsletter')}}</h3>
+          <p class="mb-3">{{$t('subscribe_text')}}</p>
           <form @submit.prevent="addSubscriber">
             <input
               type="email"
               v-model="subscriber"
               name="Email"
-              placeholder="Enter your email..."
+              :placeholder="$t('enter_your_email_address')"
               required
             >
             <button class="btn1">
@@ -80,7 +80,7 @@
           </form>
         </div>
         <div class="col-lg-4 col-md-6 mt-lg-0 mt-md-0 mt-4 p-md-0">
-          <h3 class="text-capitalize mb-3">Latest Acts</h3>
+          <h3 class="text-capitalize mb-3">{{$t('latest_acts')}}</h3>
           <div class="blog-grids row mb-3" v-for="(act, index) in acts">
             <div class="col-md-4 col-sm-3 col-4 pr-sm-3 pr-0 blog-grid-left">
               <nuxt-link :to="'/acts/' + act._id">
@@ -104,7 +104,7 @@
     </div>
     <div class="copyright pb-sm-5 pb-4 text-center">
       <p>
-        © 2019 ABC. All Rights Reserved | Design by
+        © 2019 ABC. {{$t('all_rights_reserved')}} | Design by
         <a
           href="http://www.W3Layouts.com"
           target="_blank"

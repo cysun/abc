@@ -5,7 +5,9 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
-        <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
+        <span
+          class="badge badge-primary float-right"
+        >{{data.reward_points.points}} {{$t('reward_points')}}</span>
         <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
@@ -16,44 +18,47 @@
                 name="search"
                 v-model="query.search"
                 class="form-control"
-                placeholder="Search"
+                :placeholder="$t('search')"
                 @keyup.enter="search"
               >
               <select class="form-control" name="sort" v-model="query.sort">
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
+                <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
+                <option
+                  value="creation_date"
+                  :selected="query.sort == 'creation_date'"
+                >{{$t('date')}}</option>
                 <option
                   value="total_number_of_completions"
                   :selected="query.sort == 'total_number_of_completions'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
+                >{{$t('favorites')}}</option>
+                <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                 <option
                   value="total_number_of_clicks"
                   :selected="query.sort == 'total_number_of_clicks'"
-                >Popularity</option>
+                >{{$t('popularity')}}</option>
                 <option
                   value="reward_points"
                   :selected="query.sort == 'reward_points'"
-                >Reward points</option>
+                >{{$t('Reward_points')}}</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
+                <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
+                <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
+                <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">Available</option>
-                <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">Under Review</option>
-                <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">Completed</option>
-                <option value="REJECTED" :selected="!query.type == 'REJECTED'">Rejected</option>
+                <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
+                <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">{{$t('under_review')}}</option>
+                <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">{{$t('completed')}}</option>
+                <option value="REJECTED" :selected="!query.type == 'REJECTED'">{{$t('rejected')}}</option>
                 <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >My Acts</option>
+                >{{$t('my_acts')}}</option>
               </select>
             </span>
             <button
@@ -61,8 +66,8 @@
               @click="search"
               class="btn btn-primary"
               style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
+            >{{$t('search')}}</button>
+            <button @click="reset" type="button" class="btn btn-danger">{{$t('reset')}}</button>
           </div>
         </div>
         <br>
@@ -92,7 +97,7 @@
                   >
                 </h5>
                 <p>
-                  By {{act.act_provider.first_name}} {{act.act_provider.last_name}}
+                  {{$t('by')}} {{act.act_provider.first_name}} {{act.act_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
@@ -112,7 +117,7 @@
                     <span
                       v-if="!act.edit"
                       class="badge badge-light"
-                    >Start time: {{act.formated_start_time}}</span>
+                    >{{$t('start_time')}}: {{act.formated_start_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -121,7 +126,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="Start time"
+                          :placeholder="$t('start_time')"
                           type="text"
                           readonly
                           class="form-control"
@@ -142,7 +147,7 @@
                     <span
                       v-if="!act.edit"
                       class="badge badge-light"
-                    >End time: {{act.formated_end_time}}</span>
+                    >{{$t('end_time')}}: {{act.formated_end_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -151,7 +156,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="End time"
+                          :placeholder="$t('end_time')"
                           type="text"
                           readonly
                           class="form-control"
@@ -189,14 +194,14 @@
                         class="badge badge-info"
                         @click="change_act_state(index)"
                         v-if="act.state == 'AVAILABLE'"
-                      >Available</a>
+                      >{{$t('available')}}</a>
                       <a
                         @click="change_act_state(index)"
                         v-if="act.state == 'NOT_AVAILABLE'"
                         class="badge badge-info"
                         tabindex="0"
                         style="cursor: pointer"
-                      >Not Available</a>
+                      >{{$t('not_available')}}</a>
                     </span>
                     <a
                       v-if="data.roles.manager"
@@ -204,40 +209,40 @@
                       class="badge badge-info"
                       @click="change_act_state_by_manager(index)"
                       style="cursor: pointer"
-                    >{{act.enabled.state ? "Enabled" : "Disabled"}}</a>
+                    >{{act.enabled.state ? $t('enabled') : $t('disabled')}}</a>
                     <span
                       v-if="!data.roles.manager"
                       class="badge badge-info"
-                    >{{act.enabled.state ? "Enabled" : "Disabled"}}</span>
+                    >{{act.enabled.state ? $t('enabled') : $t('disabled')}}</span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">
-                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">Edit</button>
-                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
-                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">Cancel</button>
+                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button>
+                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
+                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!act.edit">
                       <button
                         v-if="!act.delete"
                         @click="delete_act(index)"
                         class="btn btn-danger"
-                      >Delete</button>
+                      >{{$t('delete')}}</button>
                       <button
                         v-if="act.delete"
                         @click="delete_act(index)"
                         class="btn btn-primary"
-                      >Cancel</button>
+                      >{{$t('cancel')}}</button>
                       <button
                         v-if="act.delete"
                         @click="confirm_delete_act(index)"
                         class="btn btn-danger"
-                      >Confirm</button>
+                      >{{$t('confirm')}}</button>
                     </span>
                   </div>
                 </div>
                 <ul class="blog_list">
                   <li>
-                    <span title="Rewards points" class="fa fa-credit-card" aria-hidden="true"></span>
+                    <span :title="$t('Reward_points')" class="fa fa-credit-card" aria-hidden="true"></span>
                     <span v-if="!act.edit">{{act.reward_points}}</span>
                     <input
                       :id="'act_reward_points' + index"
@@ -249,12 +254,12 @@
                     <i>|</i>
                   </li>
                   <li>
-                    <span title="Popularity" class="fa fa-angle-double-down" aria-hidden="true"></span>
+                    <span :title="$t('popularity')" class="fa fa-angle-double-down" aria-hidden="true"></span>
                     {{act.total_number_of_clicks}}
                     <i>|</i>
                   </li>
                   <li>
-                    <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
+                    <span :title="$t('favorites')" class="fa fa-user" aria-hidden="true"></span>
                     {{act.total_number_of_completions}}
                   </li>
                 </ul>
@@ -277,7 +282,7 @@
                     type="text"
                     id="add_tag"
                     class="form-control"
-                    placeholder="Tags (Seperate tags by space)"
+                    :placeholder="$t('tags_placeholder')"
                   >
                 </div>
               </div>
@@ -288,7 +293,7 @@
             <nav aria-label="Page navigation example" v-if="data.count">
               <ul class="pagination justify-content-center">
                 <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
+                  <a class="page-link" @click="previous">{{$t('previous')}}</a>
                 </li>
 
                 <li
@@ -304,7 +309,7 @@
                 </li>
 
                 <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
+                  <a class="page-link" @click="next">{{$t('next')}}</a>
                 </li>
               </ul>
             </nav>
@@ -321,8 +326,8 @@
                 {{status_message}}
               </div>
               <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">Add Act</option>
-                <option value="event">Add Event</option>
+                <option value="act">{{$t('add_act')}}</option>
+                <option value="event">{{$t('add_event')}}</option>
               </select>
               <br>
               <!-- <h4>Add Act</h4> -->
@@ -332,14 +337,14 @@
                   v-model="add_act.name"
                   type="text"
                   name="name"
-                  placeholder="Name"
+                  :placeholder="$t('name')"
                   required
                 >
                 <textarea
                   rows="10"
                   class="form-control"
                   name="description"
-                  placeholder="Description"
+                  :placeholder="$t('description')"
                   required
                   v-model="add_act.description"
                 ></textarea>
@@ -351,7 +356,7 @@
                   >
                     <input
                       size="16"
-                      placeholder="Start time"
+                      :placeholder="$t('start_time')"
                       readonly
                       type="text"
                       class="form-control"
@@ -375,7 +380,7 @@
                       size="16"
                       id="end_time"
                       readonly
-                      placeholder="End time"
+                      :placeholder="$t('end_time')"
                       type="text"
                       class="form-control"
                       value
@@ -404,7 +409,7 @@
                   class="form-control"
                   type="number"
                   name="reward_points"
-                  placeholder="Reward points"
+                  :placeholder="$t('Reward_points')"
                   required
                   v-model="add_act.reward_points"
                 >
@@ -412,18 +417,18 @@
                   class="form-control"
                   type="text"
                   name="tags"
-                  placeholder="Tags (Seperate tags with a space)"
+                  :placeholder="$t('tags_placeholder')"
                   v-model="add_act.tags"
                 >
                 <!-- <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" id="file" type="file" name="file">-->
                 <div class="button">
-                  <input class="form-control" type="submit" value="Submit">
+                  <input class="form-control" type="submit" :value="$t('submit')">
                 </div>
               </form>
             </div>
             <div class="single-gd tech-btm">
-              <h4>Top acts of the month</h4>
+              <h4>{{$t('top_acts_of_the_month')}}</h4>
               <div
                 v-for="(top_act, index) in data.best_acts"
                 class="blog-grids card card-body"
@@ -523,7 +528,7 @@ export default {
   },
   data() {
     return {
-      title: "Acts",
+      title: "acts",
       error: "",
       status_message: "",
       status_state: "",

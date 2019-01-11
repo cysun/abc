@@ -4,7 +4,7 @@
     <my-banner :title="data.reward.name"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <div class="container py-md-3">
-        <span class="badge badge-primary float-right">Accumulated {{data.sum}} points</span>
+        <span class="badge badge-primary float-right">{{$t('Accumulated')}} {{data.sum}} {{$t('points')}}</span>
         <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
@@ -16,7 +16,7 @@
                 :disabled="query.type == 'REVIEWS'"
                 v-model="query.search"
                 class="form-control"
-                placeholder="Search"
+                :placeholder="$t('search')"
                 @keyup.enter="search"
               >
               <select
@@ -25,10 +25,10 @@
                 name="sort"
                 v-model="query.sort"
               >
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
-                <option value="first_name" :selected="query.sort == 'first_name'">First Name</option>
-                <option value="last_name" :selected="query.sort == 'last_name'">Last Name</option>
+                <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
+                <option value="creation_date" :selected="query.sort == 'creation_date'">{{$t('date')}}</option>
+                <option value="first_name" :selected="query.sort == 'first_name'">{{$t('first_name')}}</option>
+                <option value="last_name" :selected="query.sort == 'last_name'">{{$t('last_name')}}</option>
               </select>
               
               <select
@@ -37,21 +37,21 @@
                 name="order"
                 v-model="query.order"
               >
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
+                <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
+                <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
+                <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="OPEN" :selected="!query.type == 'OPEN'">Open Transactions</option>
-                <option value="CLOSED" :selected="!query.type == 'CLOSED'">Closed Transactions</option>
-                <option value="REVIEWS" :selected="!query.type == 'REVIEWS'">User Reviews</option>
+                <option value="OPEN" :selected="!query.type == 'OPEN'">{{$t('open_transactions')}}</option>
+                <option value="CLOSED" :selected="!query.type == 'CLOSED'">{{$t('closed_transactions')}}</option>
+                <option value="REVIEWS" :selected="!query.type == 'REVIEWS'">{{$t('user_reviews')}}</option>
                 <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >My Acts</option>
+                >{{$t('my_acts')}}</option>
               </select>
             </span>
             <button
@@ -59,8 +59,8 @@
               @click="search"
               class="btn btn-primary"
               style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
+            >{{$t('search')}}</button>
+            <input @click="reset" type="button" class="btn btn-danger" :value="$t('reset')">
           </div>
         </div>
         <br>
@@ -69,34 +69,34 @@
             class="btn btn-primary"
             @click="showReward"
             style="margin-bottom: 10px"
-          >Reward details</button>
+          >{{$t('reward_details')}}</button>
           <table class="table table-striped table-hover" v-if="query.type != 'REVIEWS'">
             <thead>
-              <th scope="col" data-type="string">User's name</th>
+              <th scope="col" data-type="string">{{$t('users_name')}}</th>
               <th scope="col" data-type="number">Date reward was {{data.requested}}</th>
               <th
                 v-if="data.query.type == 'OPEN'"
                 scope="col"
                 data-role="annotation"
-              >Confirm collection</th>
+              >{{$t('confirm_collection')}}</th>
             </thead>
 
             <tr v-for="(user, index) in data.data">
               <td>{{user.first_name}} {{user.last_name}}</td>
               <td>{{user.rewards[0].time}}</td>
               <td v-if="data.query.type == 'OPEN'">
-                <button @click="confirmCollection(index)" class="btn btn-primary">Confirm collection</button>
+                <button @click="confirmCollection(index)" class="btn btn-primary">{{$t('confirm_collection')}}</button>
               </td>
             </tr>
           </table>
           <div v-if="data.query.type == 'REVIEWS'" class="comment-top w3-agile-grid">
-            <h4>Reviews</h4>
+            <h4>{{$t('reviews')}}</h4>
             <div class="media mb-3" v-for="(user, index) in data.data">
               <div class="media-body">
                 <h5 class="mt-0">{{user.first_name}} {{user.last_name}}</h5>
-                <p>Reward rating: {{user.reward_rating}}</p>
+                <p>{{$t('reward_rating')}}< {{user.reward_rating}}</p>
                 <p v-if="user.reward_comments">{{user.reward_comments}}</p>
-                <p>Reward provider rating: {{user.reward_provider_rating}}</p>
+                <p>{{$t('reward_provider_rating')}}< {{user.reward_provider_rating}}</p>
                 <p v-if="user.reward_provider_comments">{{user.reward_provider_comments}}</p>
               </div>
             </div>
@@ -106,7 +106,7 @@
         <nav aria-label="Page navigation example" v-if="data.count">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{disabled: data.query.page == '1'}">
-              <a class="page-link" @click="previous">Previous</a>
+              <a class="page-link" @click="previous">{{$t('previous')}}</a>
             </li>
 
             <li
@@ -122,7 +122,7 @@
             </li>
 
             <li class="page-item" :class="{disabled: data.query.page == data.count}">
-              <a class="page-link" @click="next">Next</a>
+              <a class="page-link" @click="next">{{$t('next')}}</a>
             </li>
           </ul>
         </nav>

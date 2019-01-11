@@ -13,7 +13,7 @@
                   id="first_name"
                   name="first_name"
                   v-model="first_name"
-                  placeholder="First name"
+                  :placeholder="$t('first_name')"
                   required
                 >
               </div>
@@ -23,7 +23,7 @@
                   id="last_name"
                   name="last_name"
                   v-model="last_name"
-                  placeholder="Last name"
+                  :placeholder="$t('last_name')"
                   required
                 >
               </div>
@@ -34,7 +34,7 @@
                 id="email"
                 name="email"
                 v-model="email"
-                placeholder="Email"
+                :placeholder="$t('email')"
                 required
               >
             </div>
@@ -44,14 +44,14 @@
                 id="password"
                 name="password"
                 v-model="password"
-                placeholder="Password"
+                :placeholder="$t('password')"
                 required
                 @keyup.enter="register"
               >
             </div>
             <div class="styled-input white">
               <div>
-                <label for="profile_picture">Profile picture</label>
+                <label for="profile_picture">{{$t('profile_picture')}}</label>
               </div>
               <input @change="fileChanged" type="file" name="file" id="profile_picture">
             </div>
@@ -60,7 +60,7 @@
                 id="create_account_button"
                 @click="register"
                 type="submit"
-                value="CREATE AN ACCOUNT"
+                :value="$t('CREATE_AN_ACCOUNT')"
               >
             </div>
           </div>

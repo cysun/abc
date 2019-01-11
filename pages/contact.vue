@@ -4,14 +4,14 @@
     <my-banner :title="title"/>
     <section class="contact py-5">
       <div class="container">
-        <h2 class="heading mb-lg-5 mb-4">Contact Us</h2>
+        <h2 class="heading mb-lg-5 mb-4">{{$t('contact_us')}}</h2>
         <div class="row contact-grids w3-agile-grid">
           <div class="row col-md-4 col-sm-6 contact-grid1 w3-agile-grid">
             <div class="col-3 text-center">
               <i class="fas fa-envelope-open"></i>
             </div>
             <div class="col-9 p-0">
-              <h4>Email</h4>
+              <h4>{{$t('email')}}</h4>
               <p>
                 <a href="mailto:info@example.com">info@example.com</a>
               </p>
@@ -22,7 +22,7 @@
               <i class="fas fa-phone"></i>
             </div>
             <div class="col-9 p-0">
-              <h4>Call Us</h4>
+              <h4>{{$t('call_us')}}</h4>
               <p>+11 887 8976 2334</p>
             </div>
           </div>
@@ -31,7 +31,7 @@
               <i class="fas fa-laptop"></i>
             </div>
             <div class="col-9 p-0">
-              <h4>Career</h4>
+              <h4>{{$t('fax')}}</h4>
               <p>
                 <a href="mailto:example@career.com">example@career.com</a>
               </p>
@@ -47,7 +47,7 @@
                     type="text"
                     :value="data.user.name"
                     name="Name"
-                    placeholder="Name"
+                    :placeholder="$t('name')"
                     required
                   >
                 </div>
@@ -56,19 +56,19 @@
                     type="email"
                     name="Email"
                     :value="data.user.email"
-                    placeholder="Email"
+                    :placeholder="$t('email')"
                     required
                   >
                 </div>
               </div>
               <div class="styled-input">
-                <input type="text" name="phone" placeholder="Phone Number" required>
+                <input type="text" name="phone" :placeholder="$t('phone_number')" required>
               </div>
               <div class="styled-input">
-                <textarea name="Message" placeholder="Message" required></textarea>
+                <textarea name="Message" :placeholder="$t('message')" required></textarea>
               </div>
               <div class="click mt-3">
-                <input type="submit" value="SEND">
+                <input type="submit" :value="$t('send')">
               </div>
             </form>
           </div>

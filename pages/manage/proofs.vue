@@ -6,13 +6,13 @@
       <div class="container py-md-3">
         <table ref="acts_come_here" class="table table-striped table-hover">
           <thead>
-            <th scope="col" data-type="string">User's name</th>
-            <th scope="col" data-type="number">Act name</th>
-            <th scope="col" data-role="annotation">Reward</th>
-            <th scope="col" data-role="annotation">Proof</th>
-            <th scope="col" data-role="annotation">Approve</th>
-            <th scope="col" data-role="annotation">Reject</th>
-            <th scope="col" data-role="annotation">Details</th>
+            <th scope="col" data-type="string">{{$t('users_name')}}</th>
+            <th scope="col" data-type="number">{{$t('act_name')}}</th>
+            <th scope="col" data-role="annotation">{{$t('reward')}}</th>
+            <th scope="col" data-role="annotation">{{$t('proof')}}</th>
+            <th scope="col" data-role="annotation">{{$t('approve')}}</th>
+            <th scope="col" data-role="annotation">{{$t('reject')}}</th>
+            <th scope="col" data-role="annotation">{{$t('details')}}</th>
           </thead>
           <template v-for="(act, index) in data.acts">
             <tr v-for="(user, user_index) in act.users_under_review">
@@ -28,19 +28,19 @@
                     :data-content="user.popover_html"
                     data-trigger="focus"
                     data-html="true"
-                  >View Proofs</a>
+                  >{{$t('view_proofs')}}</a>
                 <!-- <a href="this.proof_of_completion">View Proof</a> -->
               </td>
               <td>
-                <button @click="approve(act._id, user.id, index, user_index)" class="btn btn-success">Approve</button>
+                <button @click="approve(act._id, user.id, index, user_index)" class="btn btn-success">{{$t('approve')}}</button>
               </td>
               <td>
                 <input type="text" v-model="user.reject_comment" @keyup.enter="reject(act._id, user.id, index, user_index)" class="form-control" name="reason">
-                <!-- <button type="submit" class="btn btn-danger" name="choice" value="reject">Reject</button> -->
+                <!-- <button type="submit" class="btn btn-danger" name="choice" value="reject">{{$t('reject')}}</button> -->
               </td>
               <td>
                 <nuxt-link :to="'/acts/' + act._id">
-                  <button class="btn btn-primary">Details</button>
+                  <button class="btn btn-primary">{{$t('details')}}</button>
                 </nuxt-link>
               </td>
             </tr>
@@ -50,7 +50,7 @@
         <nav aria-label="Page navigation example" v-if="data.count">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{disabled: data.query.page == '1'}">
-              <a class="page-link" @click="previous">Previous</a>
+              <a class="page-link" @click="previous">{{$t('previous')}}</a>
             </li>
 
             <li
@@ -66,7 +66,7 @@
             </li>
 
             <li class="page-item" :class="{disabled: data.query.page == data.count}">
-              <a class="page-link" @click="next">Next</a>
+              <a class="page-link" @click="next">{{$t('next')}}</a>
             </li>
           </ul>
         </nav>

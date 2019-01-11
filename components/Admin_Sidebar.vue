@@ -15,54 +15,54 @@
         <li id="menu-home">
           <nuxt-link to="/admin">
             <i class="fa fa-area-chart"></i>
-            <span>Dashboard</span>
+            <span>{{$t('dashboard')}}</span>
           </nuxt-link>
         </li>
         <li>
           <a href="#">
             <i class="fa fa-users"></i>
-            <span>Users</span>
+            <span>{{$t('users')}}</span>
             <span class="fa fa-angle-right" style="float: right"></span>
           </a>
           <ul>
             <li>
-              <nuxt-link to="/admin/add_user">Add User</nuxt-link>
+              <nuxt-link to="/admin/add_user">{{$t('add_user')}}</nuxt-link>
             </li>
             <li>
-              <nuxt-link to="/admin/users">View Users</nuxt-link>
+              <nuxt-link to="/admin/users">{{$t('view_users')}}</nuxt-link>
             </li>
           </ul>
         </li>
         <li>
           <a href="#">
             <i class="fa fa-calendar-check-o"></i>
-            <span>Acts</span>
+            <span>{{$t('acts')}}</span>
             <span class="fa fa-angle-right" style="float: right"></span>
           </a>
           <ul>
             <li>
-              <nuxt-link to="/admin/add_act">Add Act</nuxt-link>
+              <nuxt-link to="/admin/add_act">{{$t('add_act')}}</nuxt-link>
             </li>
             <li>
-              <nuxt-link to="/admin/add_event">Add Event</nuxt-link>
+              <nuxt-link to="/admin/add_event">{{$t('add_event')}}</nuxt-link>
             </li>
             <li>
-              <nuxt-link to="/admin/acts">View Acts</nuxt-link>
+              <nuxt-link to="/admin/acts">{{$t('view_acts')}}</nuxt-link>
             </li>
           </ul>
         </li>
         <li>
           <a href="#">
             <i class="fa fa-gift"></i>
-            <span>Rewards</span>
+            <span>{{$t('rewards')}}</span>
             <span class="fa fa-angle-right" style="float: right"></span>
           </a>
           <ul>
             <li>
-              <nuxt-link to="/admin/add_reward">Add Reward</nuxt-link>
+              <nuxt-link to="/admin/add_reward">{{$t('add_reward')}}</nuxt-link>
             </li>
             <li>
-              <nuxt-link to="/admin/rewards">View Rewards</nuxt-link>
+              <nuxt-link to="/admin/rewards">{{$t('view_rewards')}}</nuxt-link>
             </li>
           </ul>
         </li>

@@ -8,7 +8,7 @@
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
             <div class="text-center">
-              <h1>Acts</h1>
+              <h1>{{$t('acts')}}</h1>
             </div>
             <div class="chit-chat-layer1">
               <div class="col-md-2"></div>
@@ -22,34 +22,34 @@
                           name="search"
                           v-model="query.search"
                           class="form-control"
-                          placeholder="Search"
+                          :placeholder="$t('search')"
                           @keyup.enter="search"
                         >
                         <select class="form-control" name="sort" v-model="query.sort">
-                          <option value disabled :selected="!query.sort">Sort by</option>
+                          <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
                           <option
                             value="creation_date"
                             :selected="query.sort == 'creation_date'"
-                          >Date</option>
+                          >{{$t('date')}}</option>
                           <option
                             value="total_number_of_completions"
                             :selected="query.sort == 'total_number_of_completions'"
-                          >Favorites</option>
-                          <option value="name" :selected="query.sort == 'name'">Name</option>
+                          >{{$t('favorites')}}</option>
+                          <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                           <option
                             value="total_number_of_clicks"
                             :selected="query.sort == 'total_number_of_clicks'"
-                          >Popularity</option>
+                          >{{$t('popularity')}}</option>
                           <option
                             value="reward_points"
                             :selected="query.sort == 'reward_points'"
-                          >Reward points</option>
+                          >{{$t('Reward_points')}}</option>
                         </select>
                         
                         <select class="form-control" name="order" v-model="query.order">
-                          <option value disabled :selected="!query.order">Sort direction</option>
-                          <option value="1" :selected="query.order == '1'">Ascending</option>
-                          <option value="-1" :selected="query.order == '-1'">Descending</option>
+                          <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
+                          <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
+                          <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
                         </select>
                       </span>
                       <button
@@ -57,24 +57,24 @@
                         @click="search"
                         class="btn btn-primary"
                         style="margin-right: 10px"
-                      >Search</button>
-                      <input @click="reset" type="button" class="btn btn-danger" value="Reset">
+                      >{{$t('search')}}</button>
+                      <input @click="reset" type="button" class="btn btn-danger" :value="$t('reset')">
                     </div>
                   </div>
                   <br>
-                  <div class="chit-chat-heading">Acts</div>
+                  <div class="chit-chat-heading">{{$t('acts')}}</div>
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Poster's name</th>
-                          <th>Act's name</th>
-                          <th>Verified</th>
-                          <th>State</th>
-                          <th>Deleted</th>
-                          <th>Creation Date</th>
-                          <th>Actions</th>
+                          <th>{{$t('poster_name')}}</th>
+                          <th>{{$t('act_name')}}</th>
+                          <th>{{$t('verified')}}</th>
+                          <th>{{$t('state')}}</th>
+                          <th>{{$t('deleted')}}</th>
+                          <th>{{$t('creation_date')}}</th>
+                          <th>{{$t('actions')}}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -100,7 +100,7 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                         </tr>
@@ -111,7 +111,7 @@
                     <nav aria-label="Page navigation example" v-if="data.count">
                       <ul class="pagination justify-content-center">
                         <li class="page-item" :class="{disabled: query.page == '1'}">
-                          <a class="page-link" @click="previous">Previous</a>
+                          <a class="page-link" @click="previous">{{$t('previous')}}</a>
                         </li>
 
                         <li
@@ -127,7 +127,7 @@
                         </li>
 
                         <li class="page-item" :class="{disabled: query.page == data.count}">
-                          <a class="page-link" @click="next">Next</a>
+                          <a class="page-link" @click="next">{{$t('next')}}</a>
                         </li>
                       </ul>
                     </nav>
@@ -142,7 +142,7 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Poster's name</th>
+                          <th>{{$t('poster_name')}}</th>
                           <th>Act's name</th>
                           <th>Verified</th>
                           <th>Creation time</th>
@@ -162,7 +162,7 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/edit/act/' + act._id">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                         </tr>

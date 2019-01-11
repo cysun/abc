@@ -12,43 +12,43 @@
                 name="search"
                 v-model="query.search"
                 class="form-control"
-                placeholder="Search"
+                :placeholder="$t('search')"
                 @keyup.enter="search"
               >
               <select class="form-control" name="sort" v-model="query.sort">
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
+                <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
+                <option value="creation_date" :selected="query.sort == 'creation_date'">{{$t('date')}}</option>
                 <option
                   value="total_number_of_completions"
                   :selected="query.sort == 'total_number_of_completions'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
+                >{{$t('favorites')}}</option>
+                <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                 <option
                   value="total_number_of_clicks"
                   :selected="query.sort == 'total_number_of_clicks'"
-                >Popularity</option>
+                >{{$t('popularity')}}</option>
                 <option
                   value="reward_points"
                   :selected="query.sort == 'reward_points'"
-                >Reward points</option>
+                >{{$t('Reward_points')}}</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
+                <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
+                <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
+                <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="ALL" :selected="!query.type == 'ALL'">All</option>
-                <option value="ENABLED" :selected="!query.type == 'ENABLED'">Enabled</option>
-                <option value="DISABLED" :selected="!query.type == 'DISABLED'">Disabled</option>
+                <option value="ALL" :selected="!query.type == 'ALL'">{{$t('all')}}</option>
+                <option value="ENABLED" :selected="!query.type == 'ENABLED'">{{$t('enabled')}}</option>
+                <option value="DISABLED" :selected="!query.type == 'DISABLED'">{{$t('disabled')}}</option>
                 <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >My Acts</option>
+                >{{$t('my_acts')}}</option>
               </select>
             </span>
             <button
@@ -56,18 +56,18 @@
               @click="search"
               class="btn btn-primary"
               style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
+            >{{$t('search')}}</button>
+            <input @click="reset" type="button" class="btn btn-danger" :value="$t('reset')">
           </div>
         </div>
         <br>
         <table class="table table-striped table-hover" ref="acts_come_here">
           <thead>
-            <th scope="col" data-type="string">Poster's name</th>
-            <th scope="col" data-type="number">Act name</th>
-            <th scope="col" data-role="annotation">Reward</th>
-            <th scope="col" data-role="annotation">State</th>
-            <th scope="col" data-role="annotation">Details</th>
+            <th scope="col" data-type="string">{{$t('poster_name')}}</th>
+            <th scope="col" data-type="number">{{$t('act_name')}}</th>
+            <th scope="col" data-role="annotation">{{$t('reward')}}</th>
+            <th scope="col" data-role="annotation">{{$t('state')}}</th>
+            <th scope="col" data-role="annotation">{{$t('details')}}</th>
           </thead>
 
           <tr v-for="(act, index) in data.acts">
@@ -79,11 +79,11 @@
                 @click="change_state(index, act.enabled.state)"
                 class="btn"
                 :class="{'btn-danger': act.enabled.state, 'btn-success': !act.enabled.state}"
-              >{{act.enabled.state ? 'Disable':'Enable' }}</button>
+              >{{act.enabled.state ? $t('disable') : $t('enable') }}</button>
             </td>
             <td>
               <nuxt-link :to="'/acts/' + act._id">
-                <button class="btn btn-primary">Details</button>
+                <button class="btn btn-primary">{{$t('details')}}</button>
               </nuxt-link>
             </td>
           </tr>
@@ -92,7 +92,7 @@
             <nav aria-label="Page navigation example" v-if="data.count">
               <ul class="pagination justify-content-center">
                 <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
+                  <a class="page-link" @click="previous">{{$t('previous')}}</a>
                 </li>
 
                 <li
@@ -108,7 +108,7 @@
                 </li>
 
                 <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
+                  <a class="page-link" @click="next">{{$t('next')}}</a>
                 </li>
               </ul>
             </nav>
@@ -224,7 +224,7 @@ export default {
   },
   data() {
     return {
-      title: "Manage Acts",
+      title: "manage_acts",
       error: "",
       status_message: "",
       status_state: "",

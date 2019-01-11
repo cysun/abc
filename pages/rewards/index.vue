@@ -11,7 +11,7 @@
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
           </div>
         </div>-->
-        <span class="badge badge-primary float-right">{{data.reward_points.points}} reward points</span>
+        <span class="badge badge-primary float-right">{{data.reward_points.points}} {{$t('reward points')}}</span>
         <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
@@ -22,51 +22,51 @@
                 name="search"
                 v-model="query.search"
                 class="form-control"
-                placeholder="Search"
+                :placeholder="$t('search')"
                 @keyup.enter="search"
               >
               <select class="form-control" name="sort" v-model="query.sort">
-                <option value disabled :selected="!query.sort">Sort by</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">Date</option>
+                <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
+                <option value="creation_date" :selected="query.sort == 'creation_date'">{{$t('date')}}</option>
                 <option
                   value="total_number_of_users_who_got_this_reward"
                   :selected="query.sort == 'total_number_of_users_who_got_this_reward'"
-                >Favorites</option>
-                <option value="name" :selected="query.sort == 'name'">Name</option>
+                >{{$t('favorites')}}</option>
+                <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                 <option
                   value="total_number_of_users_who_clicked_on_this_reward"
                   :selected="query.sort == 'total_number_of_users_who_clicked_on_this_reward'"
-                >Popularity</option>
+                >{{$t('popularity')}}</option>
                 <option
                   value="value"
                   :selected="query.sort == 'value'"
-                >Value</option>
+                >{{$t('value')}}</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">
-                <option value disabled :selected="!query.order">Sort direction</option>
-                <option value="1" :selected="query.order == '1'">Ascending</option>
-                <option value="-1" :selected="query.order == '-1'">Descending</option>
+                <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
+                <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
+                <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
-                <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">Available</option>
-                <option value="REQUESTED" :selected="!query.type == 'REQUESTED'">Requested</option>
-                <option value="COLLECTED" :selected="!query.type == 'COLLECTED'">Collected</option>
+                <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
+                <option value="REQUESTED" :selected="!query.type == 'REQUESTED'">{{$t('requested')}}</option>
+                <option value="COLLECTED" :selected="!query.type == 'COLLECTED'">{{$t('collected')}}</option>
                 <template v-if="data.roles && data.roles.act_poster">
                 <option disabled>──────────</option>
                 <option
                   value="MY_REWARDS"
                   :selected="!query.type == 'MY_REWARDS'"
-                >My Rewards</option>
+                >{{$t('my_rewards')}}</option>
                 <option
                   value="OPEN"
                   :selected="!query.type == 'OPEN'"
-                >Open Transactions</option>
+                >{{$t('open_transactions')}}</option>
                 <option
                   value="CLOSED"
                   :selected="!query.type == 'CLOSED'"
-                >Closed Transactions</option>
+                >{{$t('closed_transactions')}}</option>
                 </template>
               </select>
             </span>
@@ -75,8 +75,8 @@
               @click="search"
               class="btn btn-primary"
               style="margin-right: 10px"
-            >Search</button>
-            <input @click="reset" type="button" class="btn btn-danger" value="Reset">
+            >{{$t('search')}}</button>
+            <input @click="reset" type="button" class="btn btn-danger" :value="$t('reset')">
           </div>
         </div>
         <br>
@@ -101,8 +101,8 @@
                     tabindex="0"
                     v-if="!act.edit && act.reward_provider.id == data.user.id"
                     data-toggle="popover"
-                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '\'>View</a>'"
-                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '/details\'>More details</a>'"
+                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '/details\'>' + $t('more_details') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
                   >{{act.name}}</a>                  
@@ -116,7 +116,7 @@
                   >
                 </h5>
                 <p>
-                  By {{act.reward_provider.first_name}} {{act.reward_provider.last_name}}
+                  {{$t('by')}} {{act.reward_provider.first_name}} {{act.reward_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
@@ -136,7 +136,7 @@
                     <span
                       v-if="!act.edit"
                       class="badge badge-light"
-                    >Start time: {{act.formated_start_time}}</span>
+                    >{{$t('start_time')}}: {{act.formated_start_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -145,7 +145,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="Start time"
+                          :placeholder="$t('start_time')"
                           type="text"
                           class="form-control"
                           :value="act.start_time"
@@ -165,7 +165,7 @@
                     <span
                       v-if="!act.edit"
                       class="badge badge-light"
-                    >End time: {{act.formated_end_time}}</span>
+                    >{{$t('end_time')}}: {{act.formated_end_time}}</span>
                     <div v-if="act.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -174,7 +174,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="End time"
+                          :placeholder="$t('end_time')"
                           type="text"
                           class="form-control"
                           :value="act.end_time"
@@ -211,16 +211,16 @@
                       @click="change_act_state(index)"
                       v-if="act.state == 'AVAILABLE'"
                       style="cursor: pointer"
-                    >Available</a>
+                    >{{$t('available')}}</a>
                     <a
                     tabindex="0"
                       @click="change_act_state(index)"
                       v-if="act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
                       style="cursor: pointer"
-                    >Not Available</a>
+                    >{{$t('not_available')}}</a>
                     </span>
-                    <!-- <span v-if="act.enabled" class="badge badge-info">Enabled</span> -->
+                    <!-- <span v-if="act.enabled" class="badge badge-info">{{$t('enabled')}}</span> -->
                     <span v-if="data.roles.manager">
                     <a
                     tabindex="0"
@@ -228,46 +228,46 @@
                       @click="change_act_state_by_manager(index)"
                       v-if="act.enabled"
                       style="cursor: pointer"
-                    >Enabled</a>
-                    <!-- <span v-if="!act.enabled" class="badge badge-info">Disabled</span> -->
+                    >{{$t('enabled')}}</a>
+                    <!-- <span v-if="!act.enabled" class="badge badge-info">{{$t('disabled')}}</span> -->
                     <a
                     tabindex="0"
                       class="badge badge-info"
                       @click="change_act_state_by_manager(index)"
                       v-if="!act.enabled"
                       style="cursor: pointer"
-                    >Disabled</a>
+                    >{{$t('disabled')}}</a>
                     </span>
                   </div>
                   <div class="col-md-5">
                     <span v-if="!act.delete">
-                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">Edit</button>
-                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">Save</button>
-                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">Cancel</button>
+                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button>
+                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
+                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!act.edit">
                       <button
                         v-if="!act.delete"
                         @click="delete_act(index)"
                         class="btn btn-danger"
-                      >Delete</button>
+                      >' + {{$t('delete')}} + '</button>
                       <button
                         v-if="act.delete"
                         @click="delete_act(index)"
                         class="btn btn-primary"
-                      >Cancel</button>
+                      >{{$t('cancel')}}</button>
                       <button
                         v-if="act.delete"
                         @click="confirm_delete_act(index)"
                         class="btn btn-danger"
-                      >Confirm</button>
+                      >{{$t('confirm')}}</button>
                     </span>
                   </div>
                 </div>
                 <ul class="blog_list">
                   <li>
                     <span
-                      title="Rewards points needed to get this reward"
+                      :title="$t('reward_points_needed_to_collect_this_reward')"
                       class="fa fa-credit-card"
                       aria-hidden="true"
                     ></span>
@@ -317,7 +317,7 @@
             <nav aria-label="Page navigation example" v-if="data.count">
               <ul class="pagination justify-content-center">
                 <li class="page-item" :class="{disabled: data.query.page == '1'}">
-                  <a class="page-link" @click="previous">Previous</a>
+                  <a class="page-link" @click="previous">{{$t('previous')}}</a>
                 </li>
 
                 <li
@@ -333,7 +333,7 @@
                 </li>
 
                 <li class="page-item" :class="{disabled: data.query.page == data.count}">
-                  <a class="page-link" @click="next">Next</a>
+                  <a class="page-link" @click="next">{{$t('next')}}</a>
                 </li>
               </ul>
             </nav>
@@ -350,24 +350,24 @@
                 {{status_message}}
               </div>
               <!-- <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">Add Reward</option>
+                <option value="act">{{$t('add_reward')}}</option>
               </select>
               <br>-->
-              <h4>Add Reward</h4>
+              <h4>{{$t('add_reward')}}</h4>
               <form @submit.prevent="addAct">
                 <input
                   class="form-control"
                   v-model="add_act.name"
                   type="text"
                   name="name"
-                  placeholder="Name"
+                  :placeholder="$t('name')"
                   required
                 >
                 <textarea
                   rows="10"
                   class="form-control"
                   name="description"
-                  placeholder="Description"
+                  :placeholder="$t('description')"
                   required
                   v-model="add_act.description"
                 ></textarea>
@@ -379,7 +379,7 @@
                   >
                     <input
                       size="16"
-                      placeholder="Start time"
+                      :placeholder="$t('start_time')"
                       type="text"
                       class="form-control"
                       value
@@ -401,7 +401,7 @@
                     <input
                       size="16"
                       id="end_time"
-                      placeholder="End time"
+                      :placeholder="$t('end_time')"
                       type="text"
                       class="form-control"
                       value
@@ -430,7 +430,7 @@
                   class="form-control"
                   type="number"
                   name="reward_points"
-                  placeholder="Value"
+                  :placeholder="$t('value')"
                   required
                   v-model="add_act.value"
                 >
@@ -438,7 +438,7 @@
                   class="form-control"
                   type="number"
                   name="reward_points"
-                  placeholder="Amount"
+                  :placeholder="$t('amount')"
                   required
                   v-model="add_act.amount"
                 >
@@ -448,58 +448,6 @@
                   <input class="form-control" type="submit" value="Submit">
                 </div>
               </form>
-            </div>
-            
-            <div class="single-gd tech-btm">
-              <h4>Top stories of the week</h4>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a1.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a2.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="blog-grids">
-                <div class="blog-grid-left">
-                  <a href="single.html">
-                    <img src="images/a3.jpg" class="img-fluid mb-0" alt>
-                  </a>
-                </div>
-                <div class="blog-grid-right">
-                  <h5>
-                    <a href="single.html">Pellentesque dui, non felis. Maecenas male</a>
-                  </h5>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-            </div>
-            <div class="single-gd">
-              <h4>Recent Post</h4>
-              <img src="images/a1.jpg" class="img-fluid" alt>
-              <p>
-                Lorem Ipsum convallis diam sapien consequat magna vulputate ornare malesuada. id dignissim velit id felis ac
-                cursus eros.
-                Cras a elit.
-              </p>
             </div>
           </aside>
         </div>

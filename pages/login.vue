@@ -11,7 +11,7 @@
                 type="email"
                 id="email"
                 name="email"
-                placeholder="Email"
+                :placeholder="$t('email')"
                 v-model="email"
                 required
               >
@@ -21,14 +21,14 @@
                 type="password"
                 id="password"
                 name="password"
-                placeholder="Password"
+                :placeholder="$t('password')"
                 v-model="password"
                 required
                 @keyup.enter="login"
               >
             </div>
             <div class="click mt-3">
-              <input type="submit" @click="login" id="login_button" value="LOGIN">
+              <input type="submit" @click="login" id="login_button" :value="$t('LOGIN')">
             </div>
           </div>
         </div>

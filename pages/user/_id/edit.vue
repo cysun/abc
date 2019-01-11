@@ -8,37 +8,37 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Edit user</h1>
+                <h1>{{$t('edit_user')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="editUser">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="first_name">First name</label>
+                  <label for="first_name">{{$t('first_name')}}</label>
                   <input
                     type="text"
                     name="first_name"
                     id="first_name"
-                    placeholder="First name"
+                    :placeholder="$t('first_name')"
                     v-model="data.user.first_name"
                   >
-                  <label for="last_name">Last name</label>
+                  <label for="last_name">{{$t('last_name')}}</label>
                   <input
                     type="text"
                     name="last_name"
                     id="last_name"
-                    placeholder="Last name"
+                    :placeholder="$t('last_name')"
                     v-model="data.user.last_name"
                   >
                   <label for="email">Email</label>
                   <input
                     type="text"
                     name="email"
-                    placeholder="Email"
+                    :placeholder="$t('email')"
                     id="email"
                     disabled
                     :value="data.user.email"
                   >
-                  <h3>Roles</h3>
+                  <h3>{{$t('roles')}}</h3>
                   <div class="forgot-top-grids">
                     <div class="forgot-grid">
                       <ul>
@@ -51,31 +51,34 @@
                             name="roles"
                           >
                           <label for="act_poster">
-                            <span></span>Act poster
+                            <span></span>
+                            {{$t('act_poster')}}
                           </label>
                         </li>
                         <li>
                           <input
                             type="checkbox"
                             id="reward_provider"
-                            value="Reward Provider"
+                            :value="$t('reward_provider')"
                             v-model="data.roles.reward_provider"
                             name="roles"
                           >
                           <label for="reward_provider">
-                            <span></span>Reward provider
+                            <span></span>
+                            {{$t('reward_provider')}}
                           </label>
                         </li>
                         <li>
                           <input
                             type="checkbox"
                             id="manager"
-                            value="Manager"
+                            :value="$t('manager')"
                             v-model="data.roles.manager"
                             name="roles"
                           >
                           <label for="manager">
-                            <span></span>Manager
+                            <span></span>
+                            {{$t('manager')}}
                           </label>
                         </li>
                         <li>
@@ -87,7 +90,8 @@
                             name="roles"
                           >
                           <label for="admin">
-                            <span></span>Admin
+                            <span></span>
+                            {{$t('admin')}}
                           </label>
                         </li>
                         <li>
@@ -99,14 +103,15 @@
                             name="enabled"
                           >
                           <label for="enabled">
-                            <span></span>Enabled
+                            <span></span>
+                            {{$t('enabled')}}
                           </label>
                         </li>
                       </ul>
                     </div>
                     <div class="clearfix"></div>
                   </div>
-                  <input type="submit" name="edit" value="Edit">
+                  <input type="submit" name="edit" :value="$t('edit')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
@@ -121,7 +126,6 @@
       <my-sidebar/>
       <div class="clearfix"></div>
     </div>
-    
   </div>
 </template>
 <script>
@@ -166,7 +170,7 @@ export default {
   methods: {
     async editUser() {
       //Format data
-    //   const params = new URLSearchParams();
+      //   const params = new URLSearchParams();
 
       const roles = [];
       if (this.data.roles.act_poster) roles.push({ name: "Act Poster" });
@@ -175,17 +179,17 @@ export default {
       if (this.data.roles.manager) roles.push({ name: "Manager" });
       if (this.data.roles.administrator) roles.push({ name: "Administrator" });
 
-        const json = {
-            first_name: this.data.user.first_name,
-            last_name: this.data.user.last_name,
-            enabled: this.data.user.enabled,
-            roles: roles
-        }
+      const json = {
+        first_name: this.data.user.first_name,
+        last_name: this.data.user.last_name,
+        enabled: this.data.user.enabled,
+        roles: roles
+      };
 
-    //   params.append("first_name", this.data.user.first_name);
-    //   params.append("last_name", this.data.user.last_name);
-    //   params.append("enabled", this.data.user.enabled);
-    //   params.append("roles", roles);
+      //   params.append("first_name", this.data.user.first_name);
+      //   params.append("last_name", this.data.user.last_name);
+      //   params.append("enabled", this.data.user.enabled);
+      //   params.append("roles", roles);
 
       //Send request to edit user
       const token = this.$cookies.get("token");

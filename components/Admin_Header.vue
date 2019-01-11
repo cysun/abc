@@ -4,7 +4,7 @@
     <div class="header-left">
       <div class="logo-name">
         <nuxt-link to="/admin">
-          <h1>Administrator Dashboard</h1>
+          <h1>{{$t('admin_dashboard')}}</h1>
           <!--<img id="logo" src="" alt="Logo"/>-->
         </nuxt-link>
       </div>
@@ -21,7 +21,7 @@
                 </span>
                 <div class="user-name">
                   <p>Dr Joanna</p>
-                  <span>Administrator</span>
+                  <span>{{$t('administrator')}}</span>
                 </div>
                 <i class="fa fa-angle-down lnr"></i>
                 <i class="fa fa-angle-up lnr"></i>
@@ -31,12 +31,12 @@
             <ul class="dropdown-menu drp-mnu">
               <li>
                 <a href="/acts">
-                  <i class="fa fa-home"></i> Home
+                  <i class="fa fa-home"></i> {{$t('home')}}
                 </a>
               </li>
               <li>
                 <a href="/logout">
-                  <i class="fa fa-close"></i> Logout
+                  <i class="fa fa-close"></i> {{$t('log_out')}}
                 </a>
               </li>
             </ul>

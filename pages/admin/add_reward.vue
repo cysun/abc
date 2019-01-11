@@ -9,38 +9,38 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Add Reward</h1>
+                <h1>{{$t('add_reward')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="addAct">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="name">Name</label>
-                  <input type="text" name="name" id="name" placeholder="Name" v-model="name">
-                  <label for="description">Description</label>
+                  <label for="name">{{$t('name')}}</label>
+                  <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
+                  <label for="description">{{$t('description')}}</label>
                   <input
                     type="text"
                     name="description"
                     id="description"
-                    placeholder="Description"
+                    :placeholder="$t('description')"
                     v-model="description"
                   >
-                  <label for="reward_points">Value</label>
+                  <label for="reward_points">{{$t('value')}}</label>
                   <input
                     type="text"
                     name="reward_points"
-                    placeholder="Value"
+                    :placeholder="$t('value')"
                     id="reward_points"
                     v-model="value"
                   >
-                  <label for="amount">Amount</label>
+                  <label for="amount">{{$t('amount')}}</label>
                   <input
                     type="text"
                     name="amount"
-                    placeholder="Amount"
+                    :placeholder="$t('amount')"
                     id="amount"
                     v-model="amount"
                   >
-                  <input type="submit" name="edit" value="Add Reward">
+                  <input type="submit" name="edit" :value="$t('add_reward')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>

@@ -38,6 +38,7 @@
     "mongoose": "^5.4.0",
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
+    "n-readlines": "^1.0.0",
     "nodemailer": "^4.7.0",
     "nuxt": "latest",
     "nuxt-i18n": "^5.4.4",
@@ -52,7 +53,8 @@
     "source-map-support": "^0.4.15",
     "util.promisify": "^1.0.0",
     "vue-i18n": "^8.5.0",
-    "winston": "^3.1.0"
+    "winston": "^3.1.0",
+    "yandex.translate": "^1.0.1"
   },
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "^0.3.0",

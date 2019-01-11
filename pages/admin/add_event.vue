@@ -9,22 +9,22 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>Add Event</h1>
+                <h1>{{$t('add_event')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="addAct">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="name">Name</label>
-                  <input type="text" name="name" id="name" placeholder="Name" v-model="name">
-                  <label for="description">Description</label>
+                  <label for="name">{{$t('name')}}</label>
+                  <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
+                  <label for="description">{{$t('description')}}</label>
                   <input
                     type="text"
                     name="description"
                     id="description"
-                    placeholder="Description"
+                    :placeholder="$t('description')"
                     v-model="description"
                   >
-                  <label for="start_time">Start Time</label>
+                  <label for="start_time">{{$t('start_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -32,7 +32,7 @@
                   >
                     <input
                       size="16"
-                      placeholder="Start time"
+                      :placeholder="$t('start_time')"
                       readonly
                       type="text"
                       class="form-control"
@@ -47,7 +47,7 @@
                     </span>
                   </div>
                   <input type="hidden" id="dtp_input1" value>
-                  <label for="end_time">End Time</label>
+                  <label for="end_time">{{$t('end_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -55,7 +55,7 @@
                   >
                     <input
                       size="16"
-                      placeholder="End Time"
+                      :placeholder="$t('end_time')"
                       readonly
                       type="text"
                       class="form-control"
@@ -69,23 +69,23 @@
                       <i class="icon-th"></i>
                     </span>
                   </div>
-                  <label for="reward_points">Reward Points</label>
+                  <label for="reward_points">{{$t('Reward_points')}}</label>
                   <input
                     type="text"
                     name="reward_points"
-                    placeholder="Reward Points"
+                    :placeholder="$t('Reward_points')"
                     id="reward_points"
                     v-model="reward_points"
                   >
-                  <label for="tags">Tags</label>
+                  <label for="tags">{{$t('tags')}}</label>
                   <input
                     type="text"
                     name="tags"
-                    placeholder="Tags (Seperate tags with a space)"
+                    :placeholder="$t('tags_placeholder')"
                     id="tags"
                     v-model="tags"
                   >
-                  <input type="submit" name="edit" value="Add Event">
+                  <input type="submit" name="edit" :value="$t('add_event')">
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
@@ -101,7 +101,6 @@
       <div class="clearfix"></div>
     </div>
     <!--slide bar menu end here-->
-    
   </div>
 </template>
 <script>

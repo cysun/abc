@@ -23,15 +23,15 @@
           <ul class="navbar-nav mx-auto text-center">
             <li v-if="!logged_in" :class="{active: !page}" class="nav-item mr-lg-3">
               <nuxt-link to="/" class="nav-link">
-                Home
+                {{$t('home')}}
                 <span class="sr-only">(current)</span>
               </nuxt-link>
-            </li>            
-            <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">Acts</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">Rewards</nuxt-link>
+              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">{{$t('acts')}}</nuxt-link>
+            </li>
+            <li class="nav-item mr-lg-3" v-if="logged_in">
+              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">{{$t('rewards')}}</nuxt-link>
             </li>
             <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">
               <a
@@ -43,23 +43,23 @@
                 aria-haspopup="true"
                 aria-expanded="false"
                 :class="{active: page == 'manage_acts' || page == 'manage_proofs' || page == 'manage_rewards' }"
-              >Manage</a>
+              >{{$t('manage')}}</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <nuxt-link
                   to="/manage/acts"
                   class="dropdown-item"
                   :class="{active: page == 'manage_acts'}"
-                >Acts</nuxt-link>
+                >{{$t('acts')}}</nuxt-link>
                 <nuxt-link
                   to="/manage/proofs"
                   class="dropdown-item"
                   :class="{active: page == 'manage_proofs'}"
-                >Proofs</nuxt-link>
+                >{{$t('proofs')}}</nuxt-link>
                 <nuxt-link
                   to="/manage/rewards"
                   class="dropdown-item"
                   :class="{active: page == 'manage_rewards'}"
-                >Rewards</nuxt-link>
+                >{{$t('rewards')}}</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
@@ -67,43 +67,27 @@
                 to="/calendar"
                 class="nav-link"
                 :class="{active: page == 'calendar'}"
-              >Calendar</nuxt-link>
+              >{{$t('calendar')}}</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="roles && roles.administrator">
-              <a class="nav-link" href="/admin">Admin</a>
+              <a class="nav-link" href="/admin">{{$t('admin')}}</a>
             </li>
             <li class="nav-item mr-lg-3">
-              <nuxt-link class="nav-link" :class="{active: page == 'about'}" to="/about">About</nuxt-link>
+              <nuxt-link class="nav-link" :class="{active: page == 'about'}" to="/about">{{$t('about')}}</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3">
-              <nuxt-link class="nav-link" :class="{active: page == 'contact'}" to="/contact">Contact</nuxt-link>
+              <nuxt-link class="nav-link" :class="{active: page == 'contact'}" to="/contact">{{$t('contact')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="!logged_in">
-              <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">Login</nuxt-link>
+              <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">{{$t('login')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="!logged_in" :class="{active: page == 'sign_up'}">
-              <nuxt-link class="nav-link" to="/sign_up">Sign up</nuxt-link>
+              <nuxt-link class="nav-link" to="/sign_up">{{$t('sign_up')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="logged_in">
-              <a class="nav-link" @click="logout" href="#">Log out</a>
-              <!-- <a class="nav-link" href="/logout">Log out</a> -->
+              <a class="nav-link" @click="logout" href="#">{{$t('log_out')}}</a>
             </li>
           </ul>
-          <!-- <div class="buttons">
-            <a href="tel:+12 445 8976 2334">
-              <p>
-                <i class="fas mr-1 fa-phone"></i>+12 445 8976 2334
-              </p>
-            </a>
-          </div>
-          <div class="little_margin"></div>
-          <div class="buttons">
-            <a href="mailto:abc@finance.com">
-              <p>
-                <i class="fas mr-1 fa-envelope"></i>abc@finance.com
-              </p>
-            </a>
-          </div>-->
         </div>
       </nav>
     </div>

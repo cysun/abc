@@ -4,11 +4,11 @@
     <my-banner :title="title"/>
     <section class="about py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4" id="congratulations">Congratulations</h3>
+        <h3 class="heading mb-md-5 mb-4" id="congratulations">{{$t('congratulations')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
-            <p>Your account has been created but we need to verify your identity before you can log in.</p>
-            <p>Click on the link we sent to your email account to verify your account.</p>
+            <p>{{$t('your_account_has_been_created')}}</p>
+            <p>{{$t('click_on_the_link_to_verify')}}</p>
           </div>
         </div>
       </div>
@@ -19,15 +19,6 @@
 import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
-// import base64Img from 'base64-img';
-// function getCookie(cookiename, cookies) {
-//   // Get name followed by anything except a semicolon
-//   var cookiestring = RegExp("" + cookiename + "[^;]+").exec(cookies);
-//   // Return everything after the equal sign, or an empty string if the cookie name not found
-//   return decodeURIComponent(
-//     !!cookiestring ? cookiestring.toString().replace(/^[^=]+./, "") : ""
-//   );
-// }
 
 let vue_context;
 

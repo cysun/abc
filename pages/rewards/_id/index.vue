@@ -31,7 +31,7 @@
                   >
                 </h5>
                 <p>
-                  By {{data.act.reward_provider.first_name}} {{data.act.reward_provider.last_name}}
+                  {{$t('by')}} {{data.act.reward_provider.first_name}} {{data.act.reward_provider.last_name}}
                   <a
                     href="#"
                     class="user-blog"
@@ -51,7 +51,7 @@
                     <span
                       v-if="!data.edit"
                       class="badge badge-light"
-                    >Start time: {{data.act.formated_start_time}}</span>
+                    >{{$t('start_time')}}: {{data.act.formated_start_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -60,7 +60,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="Start time"
+                          :placeholder="$t('start_time')"
                           type="text"
                           class="form-control"
                           :value="data.act.start_time"
@@ -80,7 +80,7 @@
                     <span
                       v-if="!data.edit"
                       class="badge badge-light"
-                    >End time: {{data.act.formated_end_time}}</span>
+                    >{{$t('end_time')}}: {{data.act.formated_end_time}}</span>
                     <div v-if="data.edit">
                       <div
                         class="controls input-append date form_datetime"
@@ -89,7 +89,7 @@
                       >
                         <input
                           size="16"
-                          placeholder="End time"
+                          :placeholder="$t('end_time')"
                           type="text"
                           class="form-control"
                           :value="data.act.end_time"
@@ -120,7 +120,7 @@
                 <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
                   <span
                     class="badge badge-warning"
-                  >Reason for rejection: {{data.proofs.acts[0].comments}}</span>
+                  >{{$t('reason_for_rejection')}}: {{data.proofs.acts[0].comments}}</span>
                 </div>
                 <div
                   style="margin-bottom: 5px"
@@ -131,8 +131,8 @@
                     tabindex="0"
                     v-if="data.proofs.acts[0].state !== 'COMPLETED'"
                     data-toggle="popover"
-                    :title="'<a href=\'' + proof.new_name + '\'>View</a>'"
-                    :data-content="'<a id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>Delete</a>'"
+                    :title="'<a href=\'' + proof.new_name + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>' + $t('delete') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
                   >{{proof.original_name}}</a>
@@ -141,35 +141,27 @@
                     :href="proof.new_name"
                   >{{proof.original_name}}</a>
                 </div>
-                <script>
-                  //function deleteProof(index) {
-                  //alert(index);
-                  //console.log(this.__NUXT__.data[0].data)
-                  //console.log(this.__NUXT__.data[0].data.act.name);
-                  //console.log(this);
-                  //}
-                </script>
                 <br>
                 
                 <form id="smileys" v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review" @submit.prevent="submitRating">
-                  <span class="align-top">Rate the reward: </span>
+                  <span class="align-top">{{$t('rate_the_reward')}}: </span>
   <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
 	<input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
 	<input type="radio" name="smiley" value="3" class="neutral" v-model="reward_rating">
 	<input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
   <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
-  <textarea class="form-control" v-model="reward_comments" placeholder="Additional comments about the reward"></textarea>
+  <textarea class="form-control" v-model="reward_comments" :placeholder="$t('additional_comments_about_the_reward')"></textarea>
     
 <br>
-                  <span class="align-top">Rate the reward provider: </span>
+                  <span class="align-top">{{$t('rate_the_reward_provider')}}: </span>
   <input type="radio" name="smiley1" value="1" class="devil" v-model="reward_provider_rating">
 	<input type="radio" name="smiley1" value="2" class="sad" v-model="reward_provider_rating">
 	<input type="radio" name="smiley1" value="3" class="neutral" v-model="reward_provider_rating">
 	<input type="radio" name="smiley1" value="4" class="happy" v-model="reward_provider_rating">
   <input type="radio" name="smiley1" value="5" class="love" v-model="reward_provider_rating">
-  <textarea class="form-control" v-model="reward_provider_comments" placeholder="Additional comments about the reward provider"></textarea>
+  <textarea class="form-control" v-model="reward_provider_comments" :placeholder="$t('additional_comments_about_the_reward_provider')"></textarea>
   <br>
-<div class='text-center'><input class='btn btn-primary' type='submit' value='Submit Rating'></div>    
+<div class='text-center'><input class='btn btn-primary' type='submit' :value="$t('submit_rating')"></div>    
 </form>
 
 
@@ -181,7 +173,7 @@
                   <input
                     @click="requestReward"
                     type="button"
-                    value="Request reward"
+                    :value="$t('request_reward')"
                     class="btn btn-primary"
                   >
                 </div>
@@ -192,82 +184,11 @@
                   <input
                     @click="collectedReward"
                     type="button"
-                    value="I have collected the reward"
+                    :value="$t('i_have_collected_the_reward')"
                     class="btn btn-primary"
                   >
                 </div>
                 <br>
-                <!-- <div v-if="data.__t == 'Event'">
-                  <div>
-                    <span
-                      v-if="!data.edit"
-                      class="badge badge-light"
-                    >Start time: {{data.formated_start_time}}</span>
-                    <div v-if="data.edit">
-                      <div
-                        class="controls input-append date form_datetime"
-                        data-date-format="yyyy-mm-ddThh:ii"
-                        data-link-field="dtp_input1"
-                      >
-                        <input
-                          size="16"
-                          placeholder="Start time"
-                          type="text"
-                          class="form-control"
-                          :value="data.start_time"
-                          id="act_start_time"
-                        >
-                        <span class="add-on">
-                          <i class="icon-remove"></i>
-                        </span>
-                        <span class="add-on">
-                          <i class="icon-th"></i>
-                        </span>
-                      </div>
-                      <input type="hidden" id="dtp_input1" value>
-                    </div>
-                  </div>
-                  <div>
-                    <span
-                      v-if="!data.edit"
-                      class="badge badge-light"
-                    >End time: {{data.formated_end_time}}</span>
-                    <div v-if="data.edit">
-                      <div
-                        class="controls input-append date form_datetime"
-                        data-date-format="yyyy-mm-ddThh:ii"
-                        data-link-field="dtp_input1"
-                      >
-                        <input
-                          size="16"
-                          placeholder="End time"
-                          type="text"
-                          class="form-control"
-                          :value="data.end_time"
-                          :id="'act_end_time' + index"
-                        >
-                        <span class="add-on">
-                          <i class="icon-remove"></i>
-                        </span>
-                        <span class="add-on">
-                          <i class="icon-th"></i>
-                        </span>
-                      </div>
-                      <input type="hidden" id="dtp_input1" value>
-                      <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
-                      </script>
-                    </div>
-                  </div>
-                </div>-->
                 <div class="row" v-if="data.act.reward_provider.id == data.user.id || data.roles.manager">
                   <div class="col-md-7">
                     <span v-if="data.act.reward_provider.id == data.user.id">
@@ -276,13 +197,13 @@
                       class="badge badge-info"
                       @click="change_act_state(index)"
                       v-if="data.act.state == 'AVAILABLE'"
-                    >Available</a>
+                    >{{$t('available')}}</a>
                     <span
                       @click="change_act_state(index)"
                       v-if="data.act.state == 'NOT_AVAILABLE'"
                       class="badge badge-info"
                       style="cursor: pointer"
-                    >Not Available</span>
+                    >{{$t('not_available')}}</span>
                     </span>
                     <a
                     tabindex="0"
@@ -294,25 +215,25 @@
                   </div>
                   <div class="col-md-5">
                     <span v-if="!data.delete">
-                      <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">Edit</button>
-                      <button v-if="data.edit" @click="save_act" class="btn btn-primary">Save</button>
-                      <button v-if="data.edit" @click="edit_act" class="btn btn-danger">Cancel</button>
+                      <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">{{$t('edit')}}</button>
+                      <button v-if="data.edit" @click="save_act" class="btn btn-primary">{{$t('save')}}</button>
+                      <button v-if="data.edit" @click="edit_act" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!data.edit">
-                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">Delete</button>
-                      <button v-if="data.delete" @click="delete_act" class="btn btn-primary">Cancel</button>
+                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">' + {{$t('delete')}} + '</button>
+                      <button v-if="data.delete" @click="delete_act" class="btn btn-primary">{{$t('cancel')}}</button>
                       <button
                         v-if="data.delete"
                         @click="confirm_delete_act"
                         class="btn btn-danger"
-                      >Confirm</button>
+                      >{{$t('confirm')}}</button>
                     </span>
                   </div>
                 </div>
                 <ul class="blog_list">
                   <li>
                     <span
-                      title="Rewards points needed to collect this reward"
+                      :title="$t('reward_points_needed_to_collect_this_reward')"
                       class="fa fa-credit-card"
                       aria-hidden="true"
                     ></span>
@@ -358,69 +279,6 @@
               </div>
               <div class="clearfix"></div>
             </article>
-            <!-- <article class="blog-x row"> -->
-            <!-- <div class="blog-img w3-agile-grid">
-						<img src="act.image" alt="" class="img-fluid" />
-            </div>-->
-            <!-- <div class="blog_info">
-						<p>By
-							<a href="#" class="user-blog">act.act_provider.first_name act.act_provider.last_name</a>
-						</p>
-
-						<p>act.description</p>
-						#if act.users_who_completed_this_act
-						<div class='justify-content-center'>
-							!-- <h4>Proof of completion</h4>
-							<img height='50%' width='50%' src='act.users_who_completed_this_act.proof_of_completion'> --
-							<a href='act.users_who_completed_this_act.proof_of_completion'>View proof of completion</a>
-						</div>
-						/if
-						<br>
-						#if_eq act.users_who_completed_this_act.state 'COMPLETED'
-						else
-						<form class='form-inline justify-content-center' method='POST' action='/acts/act._id/complete' enctype="multipart/form-data">
-							<input type='file' class='form-control' name='file'>
-							<input type='submit' value='upload_text' class='btn btn-primary'>
-						</form>
-						/if_eq
-						<br>
-						<ul class="blog_list">
-							<li>
-								<span title='Rewards points' class="fa fa-credit-card" aria-hidden="true"></span>
-								act.reward_points
-								<i>|</i>
-							</li>
-							<li>
-								<span title='Popularity' class="fa fa-angle-double-down" aria-hidden="true"></span>
-								act.total_number_of_clicks
-								<i>|</i>
-							</li>
-							<li>
-								<span title='Favorites' class="fa fa-heart" aria-hidden="true"></span>
-								act.total_number_of_completions
-								!-- <i>|</i> --
-							</li>
-							!-- <li>
-								<a href="#">
-									<span class="fa fa-tag" aria-hidden="true"></span>
-									13</a>
-							</li> --
-						</ul>
-						!-- <ul class="blog_list">
-							<li>
-								<span class="fa fa-angle-double-down" aria-hidden="true"></span>
-								act.users_who_clicked_on_this_act.length
-								<i>|</i>
-							</li>
-							<li>
-								<span class="fa fa-heart" aria-hidden="true"></span>
-								act.users_who_completed_this_act.length
-								<i>|</i>
-							</li>
-						</ul> --
-					</div>
-					<div class="clearfix"></div>
-            </article>-->
           </div>
         </div>
       </div>
@@ -442,27 +300,6 @@ export default {
     MyBanner,
     MyHeader
   },
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js' },
-  //     ]
-  //   }
-  // },
-
-  // head() {
-  //   return {
-  //     script: [
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/li1bs/moment.js/2.13.0/moment.js' },
-  //       // { src: 'js/collapse.js' },
-  //       // { src: 'js/transition.js' },
-  //       { src: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js' }
-  //     ],
-  //     link: [
-  //       {href:"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css", rel:"stylesheet"}
-  //     ]
-  //   }
-  // },
   created: function() {
     vue_context = this;
   },
@@ -473,21 +310,7 @@ export default {
 });
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
-
-      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
-      //   console.log(event);
-      // });
-      // $('[data-toggle="popover"]').on('hide.bs.popover', function(event){
-      //   console.log(event);
-      // });
     });
-
-    // $(document).on("click", ".smiley", function(event) {
-    //   event.stopPropagation();
-    //   event.stopImmediatePropagation();
-    //   alert("Hello World");
-    //   // alert(event.target[0].value)
-    // });
 
     $(document).on("click", ".delete_name", function(event) {
       event.stopPropagation();
@@ -499,37 +322,11 @@ export default {
       // return;
 
       vue_context.deleteProof(index, id);
-
-      //Save the current state of the proof
-      //Remove the proof from the screen
-      //Send request to remove the proof from the database
-      //If something goes wrong, put the proof back
-      //and give an error message
-      // console.log(index, id);
     });
-
-    //     $('.delete_name').click(function(event) {
-    //     var text = $(event.target).text();
-    //     var target = $(event.target);
-    //     console.log(target)
-    // });
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
   async fetch(context) {},
   // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -539,61 +336,13 @@ export default {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
-        // data.user = res.data.user;
-        // console.log(res.data)
-        //Loop through data and format date
-        // if (data.act.__t == "Event") {
-        //   data.act.formated_start_time = moment(data.act.start_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        //   data.act.formated_end_time = moment(data.act.end_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-
-        //   data.act.start_time = data.act.start_time.substring(
-        //     0,
-        //     data.act.start_time.length - 8
-        //   );
-        //   data.act.end_time = data.act.end_time.substring(0, data.act.end_time.length - 8);
-        // }
       })
       .catch(function(err) {
         if (err.response.status == 401) {
           context.redirect("/logout");
         }
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
-    // console.log(data);
     if (!data.proofs) {
       const acts = {
         acts: [{ state: "" }]
@@ -1277,34 +1026,6 @@ export default {
       //Then clear the form
     },
     async search() {
-      // this.$nuxt.$loading.start();
-
-      // const token = this.$cookies.get("token");
-      // const refresh_token = this.$cookies.get("refresh_token");
-      // await axios
-      //   .get(
-      //     `/api/acts?type=${vue_context.query.type}&sort=${
-      //       vue_context.query.sort
-      //     }&order=${vue_context.query.order}&search=${
-      //       vue_context.query.search
-      //     }`,
-      //     {
-      //       headers: {
-      //         Cookie: `token=${token}; refresh_token=${refresh_token};`
-      //       }
-      //     }
-      //   )
-      //   .then(function(res) {
-      //     vue_context.data = res.data;
-      //   })
-      //   .catch(function(err) {
-      //     if (err.response.status == 400) {
-      //       vue_context.$router.redirect("/logout");
-      //     }
-      //   });
-
-      // vue_context.$nuxt.$loading.finish();
-
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
