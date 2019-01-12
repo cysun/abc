@@ -16,6 +16,7 @@ var upload = multer({
 const mongoose = require("mongoose");
 const util = require("util");
 const fs_delete_file = util.promisify(fs.unlink);
+const logger = require("../../logger").winston;
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
@@ -26,11 +27,13 @@ const router = Router();
 router.post("/add_subscriber", async function(req, res, next) {
   try {
     await Subscriber.create({ email: req.body.email });
+    logger.info(`${req.body.email} successfully added to mailing list`);
     res.json({
       message: res.__("added_to_mailing_list")
     });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.body.email} failed to join mailing list`);
   }
 });
 
@@ -93,9 +96,11 @@ router.post("/login", async function(req, res, next) {
     // //Redirect to homepage
     // res.redirect('/');
     //Return jwt and refresh token
+    logger.info(`${req.body.email} successfully logged in`);
     res.json({ token: user_token, refresh_token: user.refresh_token });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.body.email} failed to login`);
   }
 });
 
@@ -148,9 +153,11 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     user = user.toObject();
     delete user.password;
     // res.redirect('/verify_account');
+    logger.info(`${req.body.email} successfully added registered`);
     res.json(user);
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.body.email} failed to register`);
   } finally {
     //Delete uploaded file
     if (req.file) fs.unlinkSync(req.body.profile_picture);
@@ -211,6 +218,7 @@ router.put("/verify/:verification_token", async function(req, res, next) {
       });
       if (promises.length > 0) await Promise.all(promises);
       await User.deleteMany({ unverified_email: user.email });
+      logger.info(`${user.email} successfully verified`);
       res.json({
         token: user_token,
         refresh_token: user.refresh_token
@@ -222,6 +230,11 @@ router.put("/verify/:verification_token", async function(req, res, next) {
     }
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(
+      `User with this verification token ${
+        req.params.verification_token
+      } was not verified`
+    );
   }
 });
 

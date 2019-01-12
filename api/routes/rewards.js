@@ -17,6 +17,7 @@ const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
+const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -65,6 +66,7 @@ router.get("/:id", async function(req, res, next) {
     review = values[3];
     // console.log(user_act)
   });
+  logger.info(`${req.user.id} successfully got rewards`);
   res.json({
     act,
     user: req.user,
@@ -79,7 +81,7 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
   req,
   res,
   next
-) {
+) {  
   //Check if the user has enough points to get this reward
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -128,18 +130,20 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
     await Promise.all([promised_rewards_change, promised_user_change]);
 
     await session.commitTransaction();
+    logger.info(`${req.user.id} successfully requested reward ${req.params.reward_id}`);
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to request reward ${req.params.reward_id}`);
   } finally {
     session.endSession();
   }
 });
 
 router.put("/:reward_id/review", async function(req, res, next) {
-  try {
+  try {    
     //Add this user to the review array for this reward
     const user = req.user;
     user.reward_rating = req.body.reward_rating;
@@ -156,10 +160,12 @@ router.put("/:reward_id/review", async function(req, res, next) {
     // await mail.sendMail(reward.reward_provider.email, "There is a new review of your reward", `Your reward has a new review`);
     await mail.sendNewReviewNotice(reward.reward_provider.email);
 
+    logger.info(`${req.user.id} successfully reviewed reward ${req.params.reward_id}`);
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to review reward ${req.params.reward_id}`);
   }
 });
 
@@ -167,7 +173,7 @@ router.put("/:reward_id/user/:user_id/collected", async function(
   req,
   res,
   next
-) {
+) {  
   const session = await mongoose.startSession();
   try {
     const promised_user = User.findById(req.params.user_id).lean();
@@ -243,11 +249,13 @@ router.put("/:reward_id/user/:user_id/collected", async function(
       promised_reward_provider_change
     ]);
     await session.commitTransaction();
+    logger.info(`${req.user.id} successfully collected reward ${req.params.reward_id}`);
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to collect reward ${req.params.reward_id}`);
   } finally {
     session.endSession();
   }
@@ -260,9 +268,11 @@ router.put("/:id/enable/:state", async function(req, res, next) {
     await Reward.findByIdAndUpdate(req.params.id, {
       enabled: req.params.state
     });
+    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to change reward ${req.params.id} state`);
   }
 });
 
@@ -270,7 +280,7 @@ router.put("/:id/enable/:state", async function(req, res, next) {
 router.get("/", async function(req, res, next) {
   try {
     if (!req.user) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
     //   try {
     //     let user = await User.findOne({});
@@ -529,12 +539,80 @@ router.get("/", async function(req, res, next) {
       ]);
     }
 
+    //Get best rewards of the month
+    //Get the 3 highest collected rewards this month
+    //Get current month and year
+    const date = new Date();
+    const this_month = date.getMonth();
+    const this_year = date.getFullYear();
+    let next_year = this_year;
+    //Get next month (If 12, make it 0)
+    let next_month = this_month + 1;
+    if (next_month > 11) {
+      next_month = 0;
+      next_year += 1;
+    }
+    //Get first days in both months
+    // const lower_date = `${this_year}-${this_month}-1`;
+    // const upper_date = `${next_year}-${next_month}-1`;
+
+    lower_date = new Date(this_year, this_month, 1);
+    upper_date = new Date(next_year, next_month, 1);
+
+    //Get the count of collected users in between this period per act
+    const promised_best_acts_for_this_month = Reward.aggregate([
+      {
+        //Get rewards that have been collected this month
+        $match: {
+          users_who_claimed_this_reward: {
+            $elemMatch: {
+              state: "COMPLETED",
+              time: { $gte: lower_date, $lt: upper_date }
+            }
+          }
+        }
+      },
+      //Split based on the users who completed the acts
+      { $unwind: "$users_who_claimed_this_reward" },
+      //Get only the users who completed each act in the specified period
+      {
+        $match: {
+          "users_who_claimed_this_reward.state": "COMPLETED",
+          "users_who_claimed_this_reward.time": {
+            $gte: lower_date,
+            $lt: upper_date
+          }
+        }
+      },
+      //Count the users per act and get each act's details
+      {
+        $group: {
+          _id: "$_id",
+          act: {
+            $addToSet: {
+              name: "$name",
+              description: "$description"
+            }
+          },
+          count: {
+            $sum: 1
+          }
+        }
+      },
+      //Sort by count in decreasing order
+      { $sort: { count: -1 } },
+      //Get only 3 acts
+      { $limit: 3 }
+    ]);
+
     let promises = [promised_acts, promised_count, promised_user_reward_points];
     if (type == "OPEN")
       promises.push(promised_open_acts, promised_open_acts_count);
+    promises.push(promised_best_acts_for_this_month);
     let acts;
     let count = 0;
     let reward_points;
+    let best_acts;
     let result = {};
     let counter;
     await Promise.all(promises).then(function(values) {
@@ -557,6 +635,7 @@ router.get("/", async function(req, res, next) {
         // });
         // console.log(acts);
       }
+      best_acts = values[values.length - 1];
     });
     const act_count = count;
     count = Math.ceil(count / 10);
@@ -582,9 +661,12 @@ router.get("/", async function(req, res, next) {
     // if (!req.query.type)
     //     req.query.type = type
 
+    logger.info(`${req.user.id} successfully got rewards`);
+
     res.json({
       reward_points,
       acts,
+      best_acts,
       type,
       current_page,
       act_count,
@@ -599,14 +681,14 @@ router.get("/", async function(req, res, next) {
 
     // res.render('acts', { type, current_page, query: req.query, count, title: "Acts", acts, total_acts: total, user: req.user, roles: req.roles });
   } catch (err) {
-    console.log(err);
     next(createError(400, err.message));
+    logger.info(`${req.user.id} failed to get rewards`);
   }
 });
 
 //Show users relationships with rewards
 router.get("/:id/details", async function(req, res, next) {
-  try {
+  try {    
     let search = {};
     if (req.query.search)
       search = { $text: { $search: sanitize(req.query.search) } };
@@ -771,6 +853,7 @@ router.get("/:id/details", async function(req, res, next) {
         if (values[2][0]) sum = values[2][0].sum;
       }
     });
+    logger.info(`${req.user.id} successfully got reward ${req.params.id} relationships`);
     res.json({
       data: returned_results,
       count: pages,
@@ -779,8 +862,8 @@ router.get("/:id/details", async function(req, res, next) {
       roles: req.roles
     });
   } catch (err) {
-    console.log(err);
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get reward ${req.params.id} relationships`);
   }
 });
 
@@ -788,7 +871,7 @@ router.get("/:id/details", async function(req, res, next) {
 router.post("/", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const user = await User.findById(req.user.id).lean();
@@ -825,9 +908,11 @@ router.post("/", async function(req, res, next) {
     // user = user.toObject();
     // delete user.password;
     // res.redirect('/acts?success=Success');
+    logger.info(`${req.user.id} successfully created reward`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to create reward ${reward}`);
   }
 });
 // finally {
@@ -840,7 +925,7 @@ router.post("/", async function(req, res, next) {
 router.put("/:id", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     //Make sure all details were sent
@@ -850,7 +935,7 @@ router.put("/:id", async function(req, res, next) {
       !req.body.value ||
       !req.body.amount
     )
-      throw new Error(res.__('incomplete_request'));
+      throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
     const description = sanitize(req.body.description);
@@ -858,12 +943,12 @@ router.put("/:id", async function(req, res, next) {
     const amount = sanitize(req.body.amount);
 
     if (!name || !description || !value || !amount)
-      throw new Error(res.__('incomplete_request'));
+      throw new Error(res.__("incomplete_request"));
 
     const act = await Reward.findById(req.params.id);
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     act.enabled = false;
     act.name = name;
@@ -891,9 +976,11 @@ router.put("/:id", async function(req, res, next) {
     if (req.roles.administrator) act.enabled = true;
     await act.save();
 
+    logger.info(`${req.user.id} successfully edited reward ${req.params.id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to edit reward ${req.params.id}`);
   }
 });
 
@@ -901,7 +988,7 @@ router.put("/:id", async function(req, res, next) {
 router.put("/:id/state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.manager) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const act = await Reward.findById(req.params.id);
@@ -911,14 +998,16 @@ router.put("/:id/state", async function(req, res, next) {
     else new_state = true;
 
     //Only managers
-    if (!req.roles.manager) throw new Error(res.__('lack_auth'));
+    if (!req.roles.manager) throw new Error(res.__("lack_auth"));
 
     act.enabled = new_state;
     await act.save();
 
+    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.info(`${req.user.id} failed to change reward ${req.params.id} state`);
   }
 });
 
@@ -926,7 +1015,7 @@ router.put("/:id/state", async function(req, res, next) {
 router.put("/:id/user_state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const act = await Reward.findById(req.params.id);
@@ -937,14 +1026,16 @@ router.put("/:id/user_state", async function(req, res, next) {
 
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     act.state = new_state;
     await act.save();
 
+    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to change reward ${req.params.id} state`);
   }
 });
 
@@ -952,21 +1043,23 @@ router.put("/:id/user_state", async function(req, res, next) {
 router.put("/:id/delete", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const act = await Reward.findById(req.params.id);
 
     //Only the admin or act poster who uploaded this act can delete it
     if (!req.roles.administrator && req.user.id != act.reward_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     act.deleted = true;
     await act.save();
 
+    logger.info(`${req.user.id} successfully deleted reward ${req.params.id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete reward ${req.params.id}`);
   }
 });
 

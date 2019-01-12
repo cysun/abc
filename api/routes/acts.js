@@ -17,6 +17,7 @@ const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
+const logger = require("../../logger").winston;
 const mailTest = require("../../mail_test");
 const moment = require("moment");
 sanitize.defaults.allowedAttributes = [];
@@ -141,10 +142,12 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
     await mail.sendProofApprovalMail(user.email, req.params.act_id);
     await session.commitTransaction();
 
+    logger.info(`${user.email} act was approved actID: ${act._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
+    logger.error(`${user.email} act failed to be approved actID: ${act._id}`);
   } finally {
     session.endSession();
   }
@@ -227,10 +230,14 @@ router.put("/:act_id/user/:user_id/disapprove", async function(req, res, next) {
     );
 
     await session.commitTransaction();
+    logger.info(`${user.email} act was disapproved actID: ${act._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
+    logger.error(
+      `${user.email} act failed to be disapproved actID: ${act._id}`
+    );
   } finally {
     session.endSession();
   }
@@ -582,9 +589,11 @@ router.get("/:id", async function(req, res, next) {
       }
     }
 
+    logger.info(`${user.email} successfully got act ${act._id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${user.email} failed to get act ${req.params.id}`);
   }
 });
 
@@ -603,9 +612,11 @@ router.put("/:id/enable/:state", async function(req, res, next) {
     await Act.findByIdAndUpdate(req.params.id, {
       "enabled.state": req.params.state
     });
+    logger.info(`${req.user.id} successfully altered ${req.params.id} state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to altered ${req.params.id} state`);
   }
 });
 
@@ -886,9 +897,11 @@ router.post("/:type", async function(req, res, next) {
     // user = user.toObject();
     // delete user.password;
     // res.redirect('/acts?success=Success');
+    logger.info(`${req.user.id} successfully created ${act._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to create ${req.body}`);
   }
 });
 // finally {
@@ -902,7 +915,7 @@ router.put("/:id", async function(req, res, next) {
   try {
     // console.log(req.body);
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     //If this is not the admin
@@ -913,27 +926,27 @@ router.put("/:id", async function(req, res, next) {
         "act_provider.id": req.user.id
       });
       //If not, return error
-      if (!this_act) throw new Error(res.__('lack_auth'));
+      if (!this_act) throw new Error(res.__("lack_auth"));
 
       //If the act is deleted, return error
-      if (this_act.deleted) throw new Error(res.__('act_does_not_exist'));
+      if (this_act.deleted) throw new Error(res.__("act_does_not_exist"));
     }
 
     //Make sure all details were sent
     if (!req.body.name || !req.body.description || !req.body.reward_points)
-      throw new Error(res.__('incomplete_request'));
+      throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
     const description = sanitize(req.body.description);
     const reward_points = sanitize(req.body.reward_points);
 
     if (!name || !description || !reward_points)
-      throw new Error(res.__('incomplete_request'));
+      throw new Error(res.__("incomplete_request"));
 
     let act = await Act.findById(req.params.id);
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     if (!req.roles.administrator) act.enabled.state = false;
     act.name = name;
@@ -944,16 +957,17 @@ router.put("/:id", async function(req, res, next) {
     if (act.__t == "Event") {
       //Make sure all fields were sent
       if (!req.body.start_time || !req.body.end_time)
-        throw new Error(res.__('incomplete_request'));
+        throw new Error(res.__("incomplete_request"));
 
       const start_time = sanitize(req.body.start_time);
       const end_time = sanitize(req.body.end_time);
 
-      if (!start_time || !end_time) throw new Error(res.__('incomplete_request'));
+      if (!start_time || !end_time)
+        throw new Error(res.__("incomplete_request"));
 
       //Make sure start time is before end time
       if (moment(req.body.end_time).isBefore(req.body.start_time))
-        throw new Error(res.__('start_before_end'));
+        throw new Error(res.__("start_before_end"));
 
       //Attach new values to it
       act.start_time = start_time;
@@ -991,10 +1005,12 @@ router.put("/:id", async function(req, res, next) {
 
     act = await Act.findById(act._id);
 
+    logger.info(`${req.user.id} successfully edited ${act._id}`);
     res.json(act);
     // res.json(await Act.findById(req.params.id));
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to edit ${req.params.id}`);
   }
 });
 
@@ -1002,7 +1018,7 @@ router.put("/:id", async function(req, res, next) {
 router.put("/:id/state", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const act = await Act.findById(req.params.id);
@@ -1010,12 +1026,12 @@ router.put("/:id/state", async function(req, res, next) {
     //Only an admin or the act poster who uploaded this act can change its state
     if (!req.roles.administrator) {
       if (act.act_provider.id != req.user.id)
-        throw new Error(res.__('lack_auth'));
+        throw new Error(res.__("lack_auth"));
     }
 
     //If act does not exist, error
     //If act is deleted, give error
-    if (!act || act.deleted) throw new Error(res.__('act_does_not_exist'));
+    if (!act || act.deleted) throw new Error(res.__("act_does_not_exist"));
 
     let new_state;
 
@@ -1024,14 +1040,16 @@ router.put("/:id/state", async function(req, res, next) {
 
     //Only the admin or act poster who uploaded this act can alter it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     act.state = new_state;
     await act.save();
 
+    logger.info(`${req.user.id} successfully changed ${act._id} availablity state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to change ${req.params.id} availability state`);
   }
 });
 
@@ -1039,24 +1057,26 @@ router.put("/:id/state", async function(req, res, next) {
 router.put("/:id/delete", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster) {
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
     }
 
     const act = await Act.findById(req.params.id);
 
     //Only the admin or act poster who uploaded this act can delete it
     if (!req.roles.administrator && req.user.id != act.act_provider.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     //Deleted acts can't be deleted again
-    if (act.deleted) throw new Error(res.__('act_does_not_exist'));
+    if (act.deleted) throw new Error(res.__("act_does_not_exist"));
 
     act.deleted = true;
     await act.save();
 
+    logger.info(`${req.user.id} successfully deleted ${act._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete act ${req.params.id}`);
   }
 });
 
@@ -1069,9 +1089,9 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     const user = await User.findOne({
       "acts.proof_of_completion.new_name": new_name
     });
-    if (!req.user) throw new Error(res.__('lack_auth'));
+    if (!req.user) throw new Error(res.__("lack_auth"));
     if (!req.roles.administrator && user._id != req.user.id)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     // await User.findOneAndUpdate(
     //   { "acts.proof_of_completion.new_name": new_name },
@@ -1118,11 +1138,13 @@ router.delete("/proof/:new_name", async function(req, res, next) {
 
     await Promise.all(promises);
     await session.commitTransaction();
+    logger.info(`${req.user.id} successfully deleted proof ${req.params.new_name} `);
     //Return success
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete proof ${req.params.new_name}`);
   } finally {
     session.endSession();
   }
@@ -1132,7 +1154,7 @@ router.delete("/proof/:new_name", async function(req, res, next) {
 router.delete("/:act_id/tag/:tag_id", async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.act_poster)
-      throw new Error(res.__('lack_auth'));
+      throw new Error(res.__("lack_auth"));
 
     //If this isn't the admin
     if (!req.roles.administrator) {
@@ -1142,18 +1164,20 @@ router.delete("/:act_id/tag/:tag_id", async function(req, res, next) {
         _id: req.params.act_id,
         "act_provider.id": req.user.id
       });
-      if (!this_act) throw new Error(res.__('lack_auth'));
+      if (!this_act) throw new Error(res.__("lack_auth"));
 
-      if (this_act.deleted) throw new Error(res.__('act_does_not_exist'));
+      if (this_act.deleted) throw new Error(res.__("act_does_not_exist"));
     }
 
     //Delete the tag from this act where _id is given
     await Act.findByIdAndUpdate(req.params.act_id, {
       $pull: { tags: { _id: req.params.tag_id } }
     });
+    logger.info(`${req.user.id} successfully deleted act ${req.params.act_id} tag ${req.params.tag_id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete act ${req.params.act_id} tag ${req.params.tag_id}`);
   }
 });
 

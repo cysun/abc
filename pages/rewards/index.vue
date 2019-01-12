@@ -449,6 +449,25 @@
                 </div>
               </form>
             </div>
+            <div class="single-gd tech-btm">
+              <h4>Best rewards of the month</h4>
+              <div
+                v-for="(top_act, index) in data.best_acts"
+                class="blog-grids card card-body"
+                style="margin-bottom: 10px"
+              >
+                <nuxt-link :to="'rewards/' + top_act._id">{{top_act.act[0].name}}</nuxt-link>
+                <p
+                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                >{{top_act.act[0].description}}</p>
+                <ul class="blog_list">
+                  <li>
+                    <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
+                    {{top_act.count}}
+                  </li>
+                </ul>
+              </div>
+            </div>
           </aside>
         </div>
       </div>

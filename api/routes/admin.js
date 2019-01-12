@@ -1,48 +1,47 @@
-const { Router } = require('express')
-const User = require('../../models/User');
-const globals = require('../../globals');
-const Act = require('../../models/Act');
-const Reward = require('../../models/Reward');
-const Event_Act = require('../../models/Event');
-var createError = require('http-errors');
-const multer = require('multer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const secret = require('../../secret');
-const mongoose = require('mongoose');
-const fs = require('fs');
+const { Router } = require("express");
+const User = require("../../models/User");
+const globals = require("../../globals");
+const Act = require("../../models/Act");
+const Reward = require("../../models/Reward");
+const Event_Act = require("../../models/Event");
+var createError = require("http-errors");
+const multer = require("multer");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const secret = require("../../secret");
+const mongoose = require("mongoose");
+const fs = require("fs");
 const sanitize = require("sanitize-html");
-const util = require('util');
+const util = require("util");
 const fs_delete_file = util.promisify(fs.unlink);
-const atob = require('atob');
+const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
-const mail = require('../../mail');
+const mail = require("../../mail");
+const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: 'tmp/'
+  dest: "tmp/"
 });
 
-const router = Router()
+const router = Router();
 
-router.get('/acts', async function (req, res, next) {
+router.get("/acts", async function(req, res, next) {
   try {
     //Only admin can get here
-    if (!req.roles.administrator)
-      throw new Error(res.__('lack_auth'));
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
     //Return acts with respect to search, sort, order
     let search = {};
     if (req.query.search)
-      search = { '$text': { '$search': sanitize(req.query.search) } };
+      search = { $text: { $search: sanitize(req.query.search) } };
 
     let page = parseInt(sanitize(req.query.page));
     let sort = sanitize(req.query.sort);
     let order = parseInt(sanitize(req.query.order));
 
     //Handle invalid page
-    if (!page || page < 1)
-      page = 1
+    if (!page || page < 1) page = 1;
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
@@ -56,55 +55,54 @@ router.get('/acts', async function (req, res, next) {
 
     let results;
     let count;
-    results = Act.find(
-      search,
-      {
-        name: true,
-        // description: true,
-        enabled: true,
-        creation_date: true,
-        state: true,
-        deleted: true,
-        act_provider: true
-      }
-    ).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    results = Act.find(search, {
+      name: true,
+      // description: true,
+      enabled: true,
+      creation_date: true,
+      state: true,
+      deleted: true,
+      act_provider: true
+    })
+      .sort({ [sort]: order })
+      .skip(offset)
+      .limit(10)
+      .lean();
 
     count = Act.find(search).countDocuments();
 
-    const promises = [results, count]
-    let returned_results, pages
-    await Promise.all(promises)
-      .then(function (values) {
-        returned_results = values[0];
-        count = values[1];
-        pages = Math.ceil(count / 10);
-      })
-    res.json({ data: returned_results, count: pages })
+    const promises = [results, count];
+    let returned_results, pages;
+    await Promise.all(promises).then(function(values) {
+      returned_results = values[0];
+      count = values[1];
+      pages = Math.ceil(count / 10);
+    });
+    logger.info(`${req.user.id} successfully got acts`);
+    res.json({ data: returned_results, count: pages });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get acts`);
   }
-  catch (err) {
-    console.log(err)
-    next(createError(400, err.message))
-  }
-})
+});
 
-router.get('/rewards', async function (req, res, next) {
+router.get("/rewards", async function(req, res, next) {
   try {
     //Only admin can get here
-    if (!req.roles.administrator)
-      throw new Error(res.__('lack_auth'));
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
     //Return acts with respect to search, sort, order
     let search = {};
     if (req.query.search)
-      search = { '$text': { '$search': sanitize(req.query.search) } };
+      search = { $text: { $search: sanitize(req.query.search) } };
 
     let page = parseInt(sanitize(req.query.page));
     let sort = sanitize(req.query.sort);
     let order = parseInt(sanitize(req.query.order));
 
     //Handle invalid page
-    if (!page || page < 1)
-      page = 1
+    if (!page || page < 1) page = 1;
 
     //Handle invalid act sort category
     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
@@ -118,44 +116,60 @@ router.get('/rewards', async function (req, res, next) {
 
     let results;
     let count;
-    results = Reward.find(
-      search,
-      {
-        name: true,
-        // description: true,
-        enabled: true,
-        creation_date: true,
-        state: true,
-        deleted: true,
-        reward_provider: true
-      }
-    ).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    results = Reward.find(search, {
+      name: true,
+      // description: true,
+      enabled: true,
+      creation_date: true,
+      state: true,
+      deleted: true,
+      reward_provider: true
+    })
+      .sort({ [sort]: order })
+      .skip(offset)
+      .limit(10)
+      .lean();
 
     count = Act.find(search).countDocuments();
 
-    const promises = [results, count]
-    let returned_results, pages
-    await Promise.all(promises)
-      .then(function (values) {
-        returned_results = values[0];
-        count = values[1];
-        pages = Math.ceil(count / 10);
-      })
-    res.json({ data: returned_results, count: pages })
+    const promises = [results, count];
+    let returned_results, pages;
+    await Promise.all(promises).then(function(values) {
+      returned_results = values[0];
+      count = values[1];
+      pages = Math.ceil(count / 10);
+    });
+
+    logger.info(`${req.user.id} successfully got rewards`);
+    res.json({ data: returned_results, count: pages });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get rewards`);
   }
-  catch (err) {
-    console.log(err)
-    next(createError(400, err.message))
-  }
-})
+});
 
 //Show admin dashboard
-router.get('/', async function (req, res, next) {
-  var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+router.get("/", async function(req, res, next) {
+  var options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  };
   //Get the last 10 registered users
-  let promised_users = User.find().sort({ creation_date: -1 }).limit(10).lean();
-  let promised_acts = Act.find().sort({ creation_date: -1 }).limit(10).lean();
-  let promised_rewards = Reward.find().sort({ creation_date: -1 }).limit(10).lean();
+  let promised_users = User.find()
+    .sort({ creation_date: -1 })
+    .limit(10)
+    .lean();
+  let promised_acts = Act.find()
+    .sort({ creation_date: -1 })
+    .limit(10)
+    .lean();
+  let promised_rewards = Reward.find()
+    .sort({ creation_date: -1 })
+    .limit(10)
+    .lean();
 
   //Get best act for this month
   //Get the highest completed act this month
@@ -183,8 +197,8 @@ router.get('/', async function (req, res, next) {
       //Get acts that have been completed this month
       $match: {
         completed_users: { $exists: true, $ne: [] },
-        'completed_users.time': { $gte: lower_date },
-        'completed_users.time': { $lt: upper_date }
+        "completed_users.time": { $gte: lower_date },
+        "completed_users.time": { $lt: upper_date }
       }
     },
     //Split based on the users who completed the acts
@@ -192,8 +206,8 @@ router.get('/', async function (req, res, next) {
     //Get only the users who completed each act in the specified period
     {
       $match: {
-        'completed_users.time': { $gte: lower_date },
-        'completed_users.time': { $lt: upper_date }
+        "completed_users.time": { $gte: lower_date },
+        "completed_users.time": { $lt: upper_date }
       }
     },
     //Count the users per act and get each act's details
@@ -215,15 +229,14 @@ router.get('/', async function (req, res, next) {
     { $sort: { count: -1 } },
     //Get only 1 acts
     { $limit: 1 }
-  ])
+  ]);
 
   //Get the count of completed users in between this period per act
   const promised_best_rewards_for_this_month = Reward.aggregate([
     {
       //Get acts that have been completed this month
       $match: {
-        users_who_claimed_this_reward:
-        {
+        users_who_claimed_this_reward: {
           $elemMatch: {
             state: "COMPLETED",
             time: { $gte: lower_date, $lt: upper_date }
@@ -236,8 +249,11 @@ router.get('/', async function (req, res, next) {
     //Get only the users who completed each act in the specified period
     {
       $match: {
-        'users_who_claimed_this_reward.state': "COMPLETED",
-        'users_who_claimed_this_reward.time': { $gte: lower_date, $lt: upper_date }
+        "users_who_claimed_this_reward.state": "COMPLETED",
+        "users_who_claimed_this_reward.time": {
+          $gte: lower_date,
+          $lt: upper_date
+        }
       }
     },
     //Count the users per act and get each act's details
@@ -259,41 +275,68 @@ router.get('/', async function (req, res, next) {
     { $sort: { count: -1 } },
     //Get only 1 rewards
     { $limit: 1 }
-  ])
+  ]);
 
   let total_users = User.find({}).countDocuments();
   let total_acts = Act.find({}).countDocuments();
   let total_rewards = Reward.find({}).countDocuments();
 
-  const promises = [promised_users, promised_acts, promised_rewards, promised_best_acts_for_this_month, promised_best_rewards_for_this_month, total_users, total_acts, total_rewards];
+  const promises = [
+    promised_users,
+    promised_acts,
+    promised_rewards,
+    promised_best_acts_for_this_month,
+    promised_best_rewards_for_this_month,
+    total_users,
+    total_acts,
+    total_rewards
+  ];
 
   let users, acts, rewards, best_act, best_reward;
 
-  await Promise.all(promises)
-    .then(function (values) {
-      users = values[0];
-      acts = values[1];
-      rewards = values[2];
-      best_act = values[3];
-      best_reward = values[4];
+  await Promise.all(promises).then(function(values) {
+    users = values[0];
+    acts = values[1];
+    rewards = values[2];
+    best_act = values[3];
+    best_reward = values[4];
 
-      total_users = values[5];
-      total_acts = values[6];
-      total_rewards = values[7];
-    });
+    total_users = values[5];
+    total_acts = values[6];
+    total_rewards = values[7];
+  });
 
   users.forEach(element => {
-    element.creation_date = element.creation_date.toLocaleDateString("en-US", options);
+    element.creation_date = element.creation_date.toLocaleDateString(
+      "en-US",
+      options
+    );
   });
   acts.forEach(element => {
-    element.creation_date = element.creation_date.toLocaleDateString("en-US", options);
+    element.creation_date = element.creation_date.toLocaleDateString(
+      "en-US",
+      options
+    );
   });
   rewards.forEach(element => {
     if (element.creation_date)
-      element.creation_date = element.creation_date.toLocaleDateString("en-US", options);
+      element.creation_date = element.creation_date.toLocaleDateString(
+        "en-US",
+        options
+      );
   });
-  res.json({ users, acts, rewards, user: req.user, best_act, best_reward, total_users, total_acts, total_rewards })
+  res.json({
+    users,
+    acts,
+    rewards,
+    user: req.user,
+    best_act,
+    best_reward,
+    total_users,
+    total_acts,
+    total_rewards
+  });
   // res.render('admin', { layout: 'admin_layout', title: "Admin dashboard", user: req.user, error: req.query.error, users: users });
 });
 
-module.exports = router
+module.exports = router;

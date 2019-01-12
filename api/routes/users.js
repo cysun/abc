@@ -9,6 +9,7 @@ const globals = require("../../globals");
 const fs = require("fs");
 const mail = require("../../send_mail");
 const sanitize = require("sanitize-html");
+const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -68,10 +69,11 @@ router.get("/", async function(req, res, next) {
       count = values[1];
       pages = Math.ceil(count / 10);
     });
+    logger.info(`${req.user.id} successfully got users `);
     res.json({ data: returned_results, count: pages });
   } catch (err) {
-    console.log(err);
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get users `);
   }
 });
 
@@ -109,10 +111,12 @@ router.get("/:id/edit", async function(req, res, next) {
         });
       }
     }
+    logger.info(`${req.user.id} successfully edited user ${user._id} `);
     res.json({ user, roles });
     // res.render('admin_edit', { layout: 'admin_layout', roles: roles, title: "Admin dashboard", user: req.user, error: req.query.error, this_user: user });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to edite user ${req.params.id} `);
   }
 });
 
@@ -129,10 +133,12 @@ router.get("/details", async function(req, res, next) {
         last_name: true,
         email: true
       });
+      logger.info(`${req.user.id} successfully got user details `);
       res.json({ user, roles: req.roles });
     }
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get user details `);
   }
 });
 
@@ -145,9 +151,11 @@ router.put("/:id", async function(req, res, next) {
     user.roles = req.body.roles;
     user.enabled = req.body.enabled;
     await user.save();
+    logger.info(`${req.user.id} successfully edited user ${user._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to edite user ${req.params.id}`);
   }
 });
 
