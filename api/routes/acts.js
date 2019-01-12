@@ -589,11 +589,11 @@ router.get("/:id", async function(req, res, next) {
       }
     }
 
-    logger.info(`${user.email} successfully got act ${act._id}`);
+    logger.info(`${req.user.id} successfully got act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${user.email} failed to get act ${req.params.id}`);
+    logger.error(`${req.user.id} failed to get act ${req.params.id}`);
   }
 });
 
