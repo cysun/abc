@@ -8,6 +8,9 @@
 # install dependencies
 $ npm install
 
+#Start Replica Set Database
+$ run-rs --version 4.0.0 --keep
+
 # serve with hot reload at localhost:3000
 $ npm run dev
 
