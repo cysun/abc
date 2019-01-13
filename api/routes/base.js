@@ -7,6 +7,7 @@ const Act = require("../../models/Act");
 const Subscriber = require("../../models/Subscriber");
 const jwt = require("jsonwebtoken");
 const globals = require("../../globals");
+const FileSchema = require("../../models/File");
 const mail = require("../../send_mail");
 const fs = require("fs");
 const secret = require("../../secret");
@@ -150,6 +151,18 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     }
 
     await user.save();
+
+    if (req.file) {
+      const file_details = {
+        uploader_id: user._id,
+        proof_name: user.profile_picture,
+        original_name: req.file.originalname,
+        size: req.file.size
+      };
+
+      await FileSchema.create(file_details);
+    }
+
     user = user.toObject();
     delete user.password;
     // res.redirect('/verify_account');

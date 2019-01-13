@@ -3,6 +3,7 @@ const User = require("../../models/User");
 const globals = require("../../globals");
 const Act = require("../../models/Act");
 const Tag = require("../../models/Tag");
+const FileSchema = require("../../models/File");
 const Event_Act = require("../../models/Event");
 var createError = require("http-errors");
 const multer = require("multer");
@@ -32,7 +33,7 @@ function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
 
-function uploadMultipleFiles(re, original_name, file_name, req) {
+function uploadMultipleFiles(re, original_name, file_name, size, req) {
   let unique_name, ext;
   return Act.getUniqueProofImageName()
     .then(function(unique_image_name) {
@@ -57,6 +58,7 @@ function uploadMultipleFiles(re, original_name, file_name, req) {
       if (!req.user.proof_of_completion) req.user.proof_of_completion = [];
       req.user.proof_of_completion.push({
         original_name: original_name,
+        size,
         new_name:
           process.env.website +
           process.env.display_act_picture_folder +
@@ -350,6 +352,7 @@ router.post("/:id/complete", upload.array("files"), async function(
           re,
           req.files[i].originalname,
           req.files[i].filename,
+          req.files[i].size,
           req
         )
       );
@@ -462,7 +465,26 @@ router.post("/:id/complete", upload.array("files"), async function(
       }
     );
 
-    promises.push(promised_act_change, promised_user_change);
+    const file_details = [];
+    for (let i = 0; i < req.user.proof_of_completion.length; i++) {
+      file_details.push({
+        uploader_id: this_user._id,
+        proof_name: req.user.proof_of_completion[i].new_name,
+        original_name: req.user.proof_of_completion[i].original_name,
+        size: req.user.proof_of_completion[i].size
+      });
+    }
+
+    const promised_fileschema_insert = FileSchema.collection.insertMany(
+      file_details,
+      { session }
+    );
+
+    promises.push(
+      promised_act_change,
+      promised_user_change,
+      promised_fileschema_insert
+    );
     await Promise.all(promises);
 
     // //Redirect to calling page with success message
@@ -476,7 +498,8 @@ router.post("/:id/complete", upload.array("files"), async function(
     const this_promises = [];
     if (req.files) {
       for (let i = 0; i < req.files.length; i++) {
-        this_promises.push(fs_delete_file("./tmp/" + req.files[i].filename));
+        if (fs.existsSync("./tmp/" + req.files[i].filename))
+          this_promises.push(fs_delete_file("./tmp/" + req.files[i].filename));
       }
       await Promise.all(this_promises);
     }
@@ -1045,11 +1068,15 @@ router.put("/:id/state", async function(req, res, next) {
     act.state = new_state;
     await act.save();
 
-    logger.info(`${req.user.id} successfully changed ${act._id} availablity state`);
+    logger.info(
+      `${req.user.id} successfully changed ${act._id} availablity state`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to change ${req.params.id} availability state`);
+    logger.error(
+      `${req.user.id} failed to change ${req.params.id} availability state`
+    );
   }
 });
 
@@ -1131,20 +1158,28 @@ router.delete("/proof/:new_name", async function(req, res, next) {
         ""
       );
     const promised_delete_file = fs_delete_file(previous_image);
+    const promised_fileschema_delete = FileSchema.findOneAndDelete({
+      proof_name: new_name
+    });
 
     promises.push(promised_delete_proof_from_act);
     promises.push(promised_delete_proof_from_user);
     promises.push(promised_delete_file);
+    promises.push(promised_fileschema_delete);
 
     await Promise.all(promises);
     await session.commitTransaction();
-    logger.info(`${req.user.id} successfully deleted proof ${req.params.new_name} `);
+    logger.info(
+      `${req.user.id} successfully deleted proof ${req.params.new_name} `
+    );
     //Return success
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to delete proof ${req.params.new_name}`);
+    logger.error(
+      `${req.user.id} failed to delete proof ${req.params.new_name}`
+    );
   } finally {
     session.endSession();
   }
@@ -1173,11 +1208,19 @@ router.delete("/:act_id/tag/:tag_id", async function(req, res, next) {
     await Act.findByIdAndUpdate(req.params.act_id, {
       $pull: { tags: { _id: req.params.tag_id } }
     });
-    logger.info(`${req.user.id} successfully deleted act ${req.params.act_id} tag ${req.params.tag_id}`);
+    logger.info(
+      `${req.user.id} successfully deleted act ${req.params.act_id} tag ${
+        req.params.tag_id
+      }`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to delete act ${req.params.act_id} tag ${req.params.tag_id}`);
+    logger.error(
+      `${req.user.id} failed to delete act ${req.params.act_id} tag ${
+        req.params.tag_id
+      }`
+    );
   }
 });
 

@@ -52,6 +52,7 @@
     "sharp": "^0.21.1",
     "source-map-support": "^0.4.15",
     "util.promisify": "^1.0.0",
+    "uuid": "^3.3.2",
     "vue-i18n": "^8.5.0",
     "winston": "^3.1.0",
     "yandex.translate": "^1.0.1"

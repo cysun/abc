@@ -12,6 +12,7 @@ const util = require("util");
 const fs_read_file = util.promisify(fs.readFile);
 const bcrypt = require("bcryptjs");
 const schema = new passwordValidator();
+const uuidv4 = require('uuid/v4');
 const sharp = require("sharp");
 schema
     .is()
@@ -442,34 +443,42 @@ actSchema.methods.getActs = async function (params) {
 //     return this.findOne({ email: email });
 // };
 
+//Don't delete this code
+// actSchema.statics.getUniqueImageName = async function (length_of_random_string = 32) {
+//     let result;
+//     let random_name;
+//     let value;
+//     do {
+//         random_name = randomstring.generate(length_of_random_string);
+//         value =
+//             process.env.website + process.env.display_act_picture_folder + random_name + ".png";
+//         result = await this.findOne({
+//             image: value
+//         });
+//     } while (result != null);
+//     return random_name;
+// };
 actSchema.statics.getUniqueImageName = async function (length_of_random_string = 32) {
-    let result;
-    let random_name;
-    let value;
-    do {
-        random_name = randomstring.generate(length_of_random_string);
-        value =
-            process.env.website + process.env.display_act_picture_folder + random_name + ".png";
-        result = await this.findOne({
-            image: value
-        });
-    } while (result != null);
-    return random_name;
+    return uuidv4();
 };
+//Don't delete this
+// actSchema.statics.getUniqueProofImageName = async function (length_of_random_string = 32) {
+//     let result;
+//     let random_name;
+//     let value;
+//     do {
+//         random_name = randomstring.generate(length_of_random_string);
+//         value =
+//             process.env.website + process.env.display_act_picture_folder + random_name;
+//         result = await this.findOne({
+//             'proof_of_completion.new_name': { "$regex": value, "$options": "i" }
+//         });
+//     } while (result != null);
+//     return random_name;
+// };
 
 actSchema.statics.getUniqueProofImageName = async function (length_of_random_string = 32) {
-    let result;
-    let random_name;
-    let value;
-    do {
-        random_name = randomstring.generate(length_of_random_string);
-        value =
-            process.env.website + process.env.display_act_picture_folder + random_name;
-        result = await this.findOne({
-            'proof_of_completion.new_name': { "$regex": value, "$options": "i" }
-        });
-    } while (result != null);
-    return random_name;
+    return uuidv4();
 };
 
 //Create user with input data

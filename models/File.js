@@ -8,25 +8,20 @@ let fileSchema = new mongoose.Schema({
     required: true,
     sparse: true
   },
-  act_proof_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
-  },
-  user_proof_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
+  proof_name: {
+    type: String,
+    unique: true
   },
   original_name: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   size: {
-    type: number,
+    type: Number,
     required: true
   },
   upload_time: {
-    time: Date,
+    type: Date,
     default: Date.now
   }
 });

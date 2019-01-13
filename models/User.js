@@ -13,6 +13,7 @@ const fs_read_file = util.promisify(fs.readFile);
 const bcrypt = require("bcryptjs");
 const schema = new passwordValidator();
 const Act = require('./Act');
+const uuidv4 = require('uuid/v4');
 const sharp = require("sharp");
 schema
     .is()
@@ -223,21 +224,26 @@ userSchema.statics.findByEmail = function (email) {
     return this.findOne({ email: email });
 };
 
+//Don't delete this
+// userSchema.statics.getUniqueName = async function (name, length_of_random_string = 32) {
+//     let result;
+//     let random_name;
+//     let value;
+//     do {
+//         random_name = randomstring.generate(length_of_random_string);
+//         if (name == "profile_picture")
+//             value =
+//                 process.env.website + process.env.display_picture_folder + random_name + ".png";
+//         else value = random_name;
+//         result = await this.findOne({
+//             [name]: value
+//         });
+//     } while (result != null);
+//     return random_name;
+// };
+
 userSchema.statics.getUniqueName = async function (name, length_of_random_string = 32) {
-    let result;
-    let random_name;
-    let value;
-    do {
-        random_name = randomstring.generate(length_of_random_string);
-        if (name == "profile_picture")
-            value =
-                process.env.website + process.env.display_picture_folder + random_name + ".png";
-        else value = random_name;
-        result = await this.findOne({
-            [name]: value
-        });
-    } while (result != null);
-    return random_name;
+    return uuidv4();
 };
 
 //Create user with input data
