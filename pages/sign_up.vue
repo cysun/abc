@@ -93,7 +93,7 @@ export default {
   },
   data() {
     return {
-      title: "Sign up",
+      title: "sign_up",
       first_name: "",
       last_name: "",
       email: "",

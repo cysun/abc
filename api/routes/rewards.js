@@ -81,7 +81,7 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
   req,
   res,
   next
-) {  
+) {
   //Check if the user has enough points to get this reward
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -130,20 +130,24 @@ router.put("/:reward_id/user/:user_id/request_reward", async function(
     await Promise.all([promised_rewards_change, promised_user_change]);
 
     await session.commitTransaction();
-    logger.info(`${req.user.id} successfully requested reward ${req.params.reward_id}`);
+    logger.info(
+      `${req.user.id} successfully requested reward ${req.params.reward_id}`
+    );
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to request reward ${req.params.reward_id}`);
+    logger.error(
+      `${req.user.id} failed to request reward ${req.params.reward_id}`
+    );
   } finally {
     session.endSession();
   }
 });
 
 router.put("/:reward_id/review", async function(req, res, next) {
-  try {    
+  try {
     //Add this user to the review array for this reward
     const user = req.user;
     user.reward_rating = req.body.reward_rating;
@@ -160,12 +164,16 @@ router.put("/:reward_id/review", async function(req, res, next) {
     // await mail.sendMail(reward.reward_provider.email, "There is a new review of your reward", `Your reward has a new review`);
     await mail.sendNewReviewNotice(reward.reward_provider.email);
 
-    logger.info(`${req.user.id} successfully reviewed reward ${req.params.reward_id}`);
+    logger.info(
+      `${req.user.id} successfully reviewed reward ${req.params.reward_id}`
+    );
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to review reward ${req.params.reward_id}`);
+    logger.error(
+      `${req.user.id} failed to review reward ${req.params.reward_id}`
+    );
   }
 });
 
@@ -173,7 +181,7 @@ router.put("/:reward_id/user/:user_id/collected", async function(
   req,
   res,
   next
-) {  
+) {
   const session = await mongoose.startSession();
   try {
     const promised_user = User.findById(req.params.user_id).lean();
@@ -249,13 +257,17 @@ router.put("/:reward_id/user/:user_id/collected", async function(
       promised_reward_provider_change
     ]);
     await session.commitTransaction();
-    logger.info(`${req.user.id} successfully collected reward ${req.params.reward_id}`);
+    logger.info(
+      `${req.user.id} successfully collected reward ${req.params.reward_id}`
+    );
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to collect reward ${req.params.reward_id}`);
+    logger.error(
+      `${req.user.id} failed to collect reward ${req.params.reward_id}`
+    );
   } finally {
     session.endSession();
   }
@@ -268,11 +280,15 @@ router.put("/:id/enable/:state", async function(req, res, next) {
     await Reward.findByIdAndUpdate(req.params.id, {
       enabled: req.params.state
     });
-    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
+    logger.info(
+      `${req.user.id} successfully changed reward ${req.params.id} state`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to change reward ${req.params.id} state`);
+    logger.error(
+      `${req.user.id} failed to change reward ${req.params.id} state`
+    );
   }
 });
 
@@ -377,6 +393,7 @@ router.get("/", async function(req, res, next) {
     } else if (type == "CLOSED") {
       //Get rewards that have at least one user who has collected it
       search["users_who_claimed_this_reward.state"] = "COMPLETED";
+      search["reward_provider.id"] = req.user.id;
     } else if (type == "MY_REWARDS") {
       //Return all my non deleted rewards even if disabled or unavailable
       delete search.enabled;
@@ -441,6 +458,7 @@ router.get("/", async function(req, res, next) {
         search_text,
         {
           $match: {
+            "reward_provider.id": mongoose.Types.ObjectId(req.user.id),
             users_who_claimed_this_reward: { $exists: true, $ne: [] }
           }
         },
@@ -688,7 +706,7 @@ router.get("/", async function(req, res, next) {
 
 //Show users relationships with rewards
 router.get("/:id/details", async function(req, res, next) {
-  try {    
+  try {
     let search = {};
     if (req.query.search)
       search = { $text: { $search: sanitize(req.query.search) } };
@@ -853,7 +871,9 @@ router.get("/:id/details", async function(req, res, next) {
         if (values[2][0]) sum = values[2][0].sum;
       }
     });
-    logger.info(`${req.user.id} successfully got reward ${req.params.id} relationships`);
+    logger.info(
+      `${req.user.id} successfully got reward ${req.params.id} relationships`
+    );
     res.json({
       data: returned_results,
       count: pages,
@@ -863,14 +883,16 @@ router.get("/:id/details", async function(req, res, next) {
     });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to get reward ${req.params.id} relationships`);
+    logger.error(
+      `${req.user.id} failed to get reward ${req.params.id} relationships`
+    );
   }
 });
 
 //Create Reward
 router.post("/", async function(req, res, next) {
   try {
-    if (!req.roles || !req.roles.act_poster) {
+    if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
     }
 
@@ -924,7 +946,7 @@ router.post("/", async function(req, res, next) {
 //Edit reward
 router.put("/:id", async function(req, res, next) {
   try {
-    if (!req.roles || !req.roles.act_poster) {
+    if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
     }
 
@@ -1003,18 +1025,22 @@ router.put("/:id/state", async function(req, res, next) {
     act.enabled = new_state;
     await act.save();
 
-    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
+    logger.info(
+      `${req.user.id} successfully changed reward ${req.params.id} state`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.info(`${req.user.id} failed to change reward ${req.params.id} state`);
+    logger.info(
+      `${req.user.id} failed to change reward ${req.params.id} state`
+    );
   }
 });
 
 //Change Reward state
 router.put("/:id/user_state", async function(req, res, next) {
   try {
-    if (!req.roles || !req.roles.act_poster) {
+    if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
     }
 
@@ -1031,18 +1057,22 @@ router.put("/:id/user_state", async function(req, res, next) {
     act.state = new_state;
     await act.save();
 
-    logger.info(`${req.user.id} successfully changed reward ${req.params.id} state`);
+    logger.info(
+      `${req.user.id} successfully changed reward ${req.params.id} state`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to change reward ${req.params.id} state`);
+    logger.error(
+      `${req.user.id} failed to change reward ${req.params.id} state`
+    );
   }
 });
 
 //Delete Reward
 router.put("/:id/delete", async function(req, res, next) {
   try {
-    if (!req.roles || !req.roles.act_poster) {
+    if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
     }
 

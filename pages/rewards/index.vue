@@ -11,7 +11,7 @@
             <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
           </div>
         </div>-->
-        <span class="badge badge-primary float-right">{{data.reward_points.points}} {{$t('reward points')}}</span>
+        <span class="badge badge-primary float-right">{{data.reward_points.points}} {{$t('reward_points')}}</span>
         <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
@@ -53,7 +53,7 @@
                 <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
                 <option value="REQUESTED" :selected="!query.type == 'REQUESTED'">{{$t('requested')}}</option>
                 <option value="COLLECTED" :selected="!query.type == 'COLLECTED'">{{$t('collected')}}</option>
-                <template v-if="data.roles && data.roles.act_poster">
+                <template v-if="data.roles && data.roles.reward_provider">
                 <option disabled>──────────</option>
                 <option
                   value="MY_REWARDS"
@@ -202,9 +202,13 @@
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.reward_provider.id == data.user.id || data.roles.manager">
+                <div class="row" v-if="act.reward_provider.id == data.user.id || (data.roles && data.roles.manager)">
                   <div class="col-md-7">
-                    <span v-if="act.reward_provider.id == data.user.id">
+                    <span
+                      v-if="data.roles && data.roles.manager && !data.roles.administrator"
+                      class="badge badge-info"
+                    >{{act.state ? $t('available') : $t('not_available')}}</span>
+                    <span v-if="act.reward_provider.id == data.user.id || data.roles.administrator">
                     <a
                       tabindex="0"
                       class="badge badge-info"
@@ -220,8 +224,8 @@
                       style="cursor: pointer"
                     >{{$t('not_available')}}</a>
                     </span>
-                    <!-- <span v-if="act.enabled" class="badge badge-info">{{$t('enabled')}}</span> -->
-                    <span v-if="data.roles.manager">
+                    <span v-if="!data.roles || !data.roles.manager" class="badge badge-info">{{ act.enabled ? $t('enabled'):  $t('disabled') }}</span>
+                    <span v-if="data.roles && data.roles.manager">
                     <a
                     tabindex="0"
                       class="badge badge-info"
@@ -239,7 +243,7 @@
                     >{{$t('disabled')}}</a>
                     </span>
                   </div>
-                  <div class="col-md-5">
+                  <div class="col-md-5" v-if="act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!act.delete">
                       <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button>
                       <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
@@ -250,7 +254,7 @@
                         v-if="!act.delete"
                         @click="delete_act(index)"
                         class="btn btn-danger"
-                      >' + {{$t('delete')}} + '</button>
+                      >{{$t('delete')}}</button>
                       <button
                         v-if="act.delete"
                         @click="delete_act(index)"
@@ -339,7 +343,7 @@
             </nav>
           </div>
           <aside class="col-lg-4 single-left">
-            <div class="single-gd" v-if="data.roles && data.roles.act_poster">
+            <div class="single-gd" v-if="data.roles && data.roles.reward_provider">
               <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
               <div
                 v-if="status_message"
@@ -555,7 +559,7 @@ export default {
   },
   data() {
     return {
-      title: "Rewards",
+      title: "rewards",
       error: "",
       status_message: "",
       status_state: "",

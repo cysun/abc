@@ -1111,13 +1111,14 @@ router.put("/:id/delete", async function(req, res, next) {
 router.delete("/proof/:new_name", async function(req, res, next) {
   const new_name = atob(req.params.new_name);
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     //Only admins and the person who uploaded the proof can delete it
     const user = await User.findOne({
       "acts.proof_of_completion.new_name": new_name
     });
     if (!req.user) throw new Error(res.__("lack_auth"));
-    if (!req.roles.administrator && user._id != req.user.id)
+    if (req.roles && !req.roles.administrator && user._id != req.user.id)
       throw new Error(res.__("lack_auth"));
 
     // await User.findOneAndUpdate(
@@ -1127,7 +1128,7 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     // res.json({message: "Success"});
 
     const promises = [];
-    session.startTransaction();
+    
     //Delete the proof from the act object
     //Remove from users who have completed this act
     //Remove from users under review and rejected users
@@ -1160,7 +1161,7 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     const promised_delete_file = fs_delete_file(previous_image);
     const promised_fileschema_delete = FileSchema.findOneAndDelete({
       proof_name: new_name
-    });
+    }, {session});
 
     promises.push(promised_delete_proof_from_act);
     promises.push(promised_delete_proof_from_user);

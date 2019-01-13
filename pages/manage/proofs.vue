@@ -8,7 +8,7 @@
           <thead>
             <th scope="col" data-type="string">{{$t('users_name')}}</th>
             <th scope="col" data-type="number">{{$t('act_name')}}</th>
-            <th scope="col" data-role="annotation">{{$t('reward')}}</th>
+            <th scope="col" data-role="annotation">{{$t('Reward_points')}}</th>
             <th scope="col" data-role="annotation">{{$t('proof')}}</th>
             <th scope="col" data-role="annotation">{{$t('approve')}}</th>
             <th scope="col" data-role="annotation">{{$t('reject')}}</th>
@@ -146,7 +146,7 @@ export default {
   },
   data() {
     return {
-      title: "Manage Proofs",
+      title: "manage_proofs",
       error: "",
       status_message: "",
       status_state: "",

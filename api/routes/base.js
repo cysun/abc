@@ -118,7 +118,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
 
     // await user.sendVerificationEmail();
     //If this is an admin and the enabled bit is sent
-    if (req.roles.administrator && req.body.enabled === "true") {
+    if (req.roles && req.roles.administrator && req.body.enabled === "true") {
       //Don't send verification mail
       //Enable the user
       user.enabled = true;
@@ -138,7 +138,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     }
 
     //If this is an admin
-    if (req.roles.administrator) {
+    if (req.roles && req.roles.administrator) {
       //Give roles
       const roles = [];
       if (req.body.act_poster === "true") roles.push({ name: "Act Poster" });
@@ -166,7 +166,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     user = user.toObject();
     delete user.password;
     // res.redirect('/verify_account');
-    logger.info(`${req.body.email} successfully added registered`);
+    logger.info(`${req.body.email} successfully registered`);
     res.json(user);
   } catch (err) {
     next(createError(400, err.message));

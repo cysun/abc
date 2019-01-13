@@ -85,7 +85,7 @@
               <nuxt-link class="nav-link" to="/sign_up">{{$t('sign_up')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="logged_in">
-              <a class="nav-link" @click="logout" href="#">{{$t('log_out')}}</a>
+              <a class="nav-link" @click="logout" href="/logout">{{$t('log_out')}}</a>
             </li>
           </ul>
         </div>

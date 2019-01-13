@@ -7,16 +7,13 @@
         <h2 class="heading mb-md-5 mb-4">{{$t('about_us')}}</h2>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 w3-agile-grid mb-lg-0 mb-5">
-            <p>
-              Cras blandit nibh ut pretium elementum. Duis bibendum convallis nun ca dictum. Quisquen ac ipsum porta, ultrices metus sit amet,
-              curs in nisl. Duis aliquet varius sem sit amet convallis nun ca dictum.
-            </p>
-            <p class="mt-2 mb-3">
+            <p>{{$t('about_us_text_3')}}</p>
+            <!-- <p class="mt-2 mb-3">
               Cras blandit nibh ut pretium elementum. Duis bibendum convallis nun ca dictum. Quisquen ac ipsum porta, ultrices metus sit amet,
               curs in nisl. Duis aliquet varius sem sit amet. convallis nun ca dictum amet. Quisquen ac ipsum porta, ultrices metus sit amet,
               curs in nisl. Duis aliquet varius sem sit amet.
             </p>
-            <a href="about.html">Read More</a>
+            <a href="about.html">Read More</a> -->
           </div>
           <div class="col-lg-3 w3-agile-grid col-md-4 pr-md-0">
             <h3 class="margin">15+ years experience</h3>

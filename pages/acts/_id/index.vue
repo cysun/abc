@@ -166,9 +166,13 @@
                 </div>
                 <div
                   class="row"
-                  v-if="data.act.act_provider.id == data.user.id || data.roles.manager"
+                  v-if="data.act.act_provider.id == data.user.id || (data.roles && data.roles.manager)"
                 >
                   <div class="col-md-7">
+                    <span
+                      v-if="data.roles && data.roles.manager && !data.roles.administrator"
+                      class="badge badge-info"
+                    >{{data.act.state ? $t('available') : $t('not_available')}}</span>
                     <span v-if="data.act.act_provider.id == data.user.id">
                       <a
                         tabindex="0"
@@ -186,18 +190,18 @@
                       >{{$t('not_available')}}</a>
                     </span>
                     <a
-                      v-if="data.roles.manager"
+                      v-if="data.roles && data.roles.manager"
                       tabindex="0"
                       class="badge badge-info"
                       @click="change_act_state_by_manager(index)"
                       style="cursor: pointer"
                     >{{data.act.enabled.state ? $t('enabled') : $t('disabled')}}</a>
                     <span
-                      v-if="!data.roles.manager"
+                      v-if="data.roles && !data.roles.manager"
                       class="badge badge-info"
                     >{{data.act.enabled.state ? $t('enabled') : $t('disabled')}}</span>
                   </div>
-                  <div class="col-md-5">
+                  <div class="col-md-5" v-if="data.act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!data.delete">
                       <button
                         v-if="!data.edit"

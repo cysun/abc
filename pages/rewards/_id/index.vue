@@ -189,9 +189,13 @@
                   >
                 </div>
                 <br>
-                <div class="row" v-if="data.act.reward_provider.id == data.user.id || data.roles.manager">
+                <div class="row" v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.manager)">
                   <div class="col-md-7">
-                    <span v-if="data.act.reward_provider.id == data.user.id">
+                    <span
+                      v-if="data.roles && data.roles.manager && !data.roles.administrator"
+                      class="badge badge-info"
+                    >{{data.act.state ? $t('available') : $t('not_available')}}</span>
+                    <span v-if="data.act.reward_provider.id == data.user.id || data.roles.administrator">
                     <a
                       href="#"
                       class="badge badge-info"
@@ -205,22 +209,23 @@
                       style="cursor: pointer"
                     >{{$t('not_available')}}</span>
                     </span>
+                    <span v-if="!data.roles || !data.roles.manager" class="badge badge-info">{{ data.act.enabled ? $t('enabled'):  $t('disabled') }}</span>
                     <a
                     tabindex="0"
-                    v-if="data.roles.manager"
+                    v-if="data.roles && data.roles.manager"
                       class="badge badge-info"
                       @click="change_act_state_by_manager()"
                       style="cursor: pointer"
                     >{{data.act.enabled ? "Enabled" : "Disabled"}}</a>
                   </div>
-                  <div class="col-md-5">
+                  <div class="col-md-5" v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!data.delete">
                       <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">{{$t('edit')}}</button>
                       <button v-if="data.edit" @click="save_act" class="btn btn-primary">{{$t('save')}}</button>
                       <button v-if="data.edit" @click="edit_act" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!data.edit">
-                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">' + {{$t('delete')}} + '</button>
+                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">{{$t('delete')}}</button>
                       <button v-if="data.delete" @click="delete_act" class="btn btn-primary">{{$t('cancel')}}</button>
                       <button
                         v-if="data.delete"
