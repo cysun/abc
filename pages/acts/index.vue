@@ -1038,6 +1038,28 @@ export default {
             } else {
               //If in available
               //Add this new act to top of page
+              //If this is an event
+              //Format the start and end time first
+
+              if (vue_context.upload_type == "event") {
+                res.data.formated_start_time = moment(res.data.start_time).format(
+                  "MMMM Do YYYY, h:mm:ss a"
+                );
+                ("MMMM Do YYYY, h:mm:ss a");
+                res.data.formated_end_time = moment(res.data.end_time).format(
+                  "MMMM Do YYYY, h:mm:ss a"
+                );
+                ("MMMM Do YYYY, h:mm:ss a");
+                res.data.start_time = res.data.start_time.substring(
+                  0,
+                  res.data.start_time.length - 8
+                );
+                res.data.end_time = res.data.end_time.substring(
+                  0,
+                  res.data.end_time.length - 8
+                );
+              }
+
               vue_context.data.acts.splice(0, 0, res.data);
             }
           }
