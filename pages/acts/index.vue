@@ -50,7 +50,10 @@
               
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
                 <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
-                <option value="UNDER_REVIEW" :selected="!query.type == 'UNDER_REVIEW'">{{$t('under_review')}}</option>
+                <option
+                  value="UNDER_REVIEW"
+                  :selected="!query.type == 'UNDER_REVIEW'"
+                >{{$t('under_review')}}</option>
                 <option value="COMPLETED" :selected="!query.type == 'COMPLETED'">{{$t('completed')}}</option>
                 <option value="REJECTED" :selected="!query.type == 'REJECTED'">{{$t('rejected')}}</option>
                 <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
@@ -185,7 +188,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="row" v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.manager)">
+                <div
+                  class="row"
+                  v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.manager)"
+                >
                   <div class="col-md-7">
                     <span
                       v-if="data.roles && data.roles.manager && !data.roles.administrator"
@@ -219,11 +225,26 @@
                       class="badge badge-info"
                     >{{act.enabled.state ? $t('enabled') : $t('disabled')}}</span>
                   </div>
-                  <div class="col-md-5" v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
+                  <div
+                    class="col-md-5"
+                    v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
+                  >
                     <span v-if="!act.delete">
-                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button>
-                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
-                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>
+                      <button
+                        v-if="!act.edit"
+                        @click="edit_act(index)"
+                        class="btn btn-primary"
+                      >{{$t('edit')}}</button>
+                      <button
+                        v-if="act.edit"
+                        @click="save_act(index)"
+                        class="btn btn-primary"
+                      >{{$t('save')}}</button>
+                      <button
+                        v-if="act.edit"
+                        @click="edit_act(index)"
+                        class="btn btn-danger"
+                      >{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!act.edit">
                       <button
@@ -258,7 +279,11 @@
                     <i>|</i>
                   </li>
                   <li>
-                    <span :title="$t('popularity')" class="fa fa-angle-double-down" aria-hidden="true"></span>
+                    <span
+                      :title="$t('popularity')"
+                      class="fa fa-angle-double-down"
+                      aria-hidden="true"
+                    ></span>
                     {{act.total_number_of_clicks}}
                     <i>|</i>
                   </li>
@@ -977,7 +1002,7 @@ export default {
         .then(function(res) {
           iziToast.success({
             title: "Success",
-            message: res.data.message,
+            message: "Your act has been successfully created",
             position: "topRight"
           });
           vue_context.add_act.name = "";
@@ -985,10 +1010,40 @@ export default {
           vue_context.add_act.reward_points = 0;
           vue_context.add_act.tags = "";
 
-          document.getElementById("end_time").value = "";
-          document.getElementById("start_time").value = "";
+          if (vue_context.upload_type == "event") {
+            document.getElementById("end_time").value = "";
+            document.getElementById("start_time").value = "";
+          }
+
+          console.log(vue_context.query.type);
+          //If not admin
+          if (!vue_context.data.roles.administrator) {
+            //If not in My acts
+            if (vue_context.query.type != "MY_ACTS") {
+              //Navigate to my acts
+              vue_context.query.type = "MY_ACTS";
+              vue_context.$router.push(`/acts?type=MY_ACTS`);
+            } else {
+              //If already in my acts
+              //Add this new act to top of page
+              vue_context.data.acts.splice(0, 0, res.data);
+            }
+          } else {
+            //If admin,
+            //If not in available
+            if (vue_context.query.type != "AVAILABLE") {
+              //Navigate to available
+              vue_context.query.type = "AVAILABLE";
+              vue_context.$router.push(`/acts?type=AVAILABLE`);
+            } else {
+              //If in available
+              //Add this new act to top of page
+              vue_context.data.acts.splice(0, 0, res.data);
+            }
+          }
         })
         .catch(function(err) {
+          console.log(err);
           iziToast.error({
             title: "Error",
             message: err.response.data.message,

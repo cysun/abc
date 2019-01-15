@@ -1022,7 +1022,7 @@ router.post("/:type", async function(req, res, next) {
     // delete user.password;
     // res.redirect('/acts?success=Success');
     logger.info(`${req.user.id} successfully created ${act._id}`);
-    res.json({ message: "Success" });
+    res.json(act);
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to create ${req.body}`);
