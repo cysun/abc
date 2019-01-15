@@ -2,13 +2,14 @@ const nodemailer = require("nodemailer");
 const Email = require("email-templates");
 const secret = require("./secret");
 const logger = require("./logger").winston;
+require("dotenv").load();
 let error_occured = false;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: secret.email_address,
-    pass: secret.email_password
+    user: process.env.email_address,
+    pass: process.env.email_password
   }
 });
 
@@ -148,7 +149,7 @@ async function notifyManagersOfProof(user_email, user_count) {
         to: user_email
       },
       locals: {
-        url: secret.website,
+        url: process.env.website,
         user_count
       }
     });
@@ -171,7 +172,7 @@ async function notifyRewardProvidersOfRequestOrClaim(user_email) {
         to: user_email
       },
       locals: {
-        url: secret.website
+        url: process.env.website
       }
     });
     logger.info(

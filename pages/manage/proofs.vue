@@ -138,7 +138,7 @@ export default {
         let user = element;
         if (!user.popover_html) user.popover_html = "";
         element.proof_of_completion.forEach(element => {
-          user.popover_html += `<div><a href='${element.new_name}'>${element.original_name}</a></div>`;
+          user.popover_html += `<div><a href='/api/acts/manage_proof/${element._id}'>${element.original_name}</a></div>`;
         });
       });
     });

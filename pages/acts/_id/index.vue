@@ -133,7 +133,7 @@
                     tabindex="0"
                     v-if="data.proofs.acts[0].state !== 'COMPLETED'"
                     data-toggle="popover"
-                    :title="'<a href=\'' + 'http://localhost:3000/api/acts/proof/' + proof._id + '\'>' + $t('view') + '</a>'"
+                    :title="'<a href=\'/api/acts/proof/' + proof._id + '\'>' + $t('view') + '</a>'"
                     :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof._id + '\'>' + $t('delete') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
@@ -418,11 +418,11 @@ export default {
         .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
         .then(function(res) {
           //Redirect to verification page
-          if (vue_context.data.proofs.acts[0].proof_of_completion)
-            vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
-              res.data
-            );
-          else
+          // if (vue_context.data.proofs.acts[0].proof_of_completion)
+          //   vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
+          //     res.data
+          //   );
+          // else
             vue_context.$set(
               vue_context.data.proofs.acts[0],
               "proof_of_completion",

@@ -1,8 +1,9 @@
 const lineByLine = require("n-readlines");
 const fs = require("fs");
 const secret = require("../secret");
+require("dotenv").load();
 const YandexTranslator = require("yandex.translate");
-const translator = new YandexTranslator(secret.yandex_key);
+const translator = new YandexTranslator(process.env.yandex_key);
 
 /**
  * Function that creates translations of english statements from the lang_en.ini file to other languages

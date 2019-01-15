@@ -489,7 +489,16 @@ router.post("/:id/complete", upload.array("files"), async function(
 
     //Return only the new uploads
     await session.commitTransaction();
-    res.json(req.user.proof_of_completion);
+    //Get all proofs for this act
+    const act_proofs = await User.findOne(
+      {
+        _id: req.user.id,
+        "acts.id": req.params.id
+      },
+      { "acts.$.proof_of_completion": true, _id: false }
+    );
+    // console.log(act_proofs.acts[0].proof_of_completion);
+    res.json(act_proofs.acts[0].proof_of_completion);
   } catch (err) {
     //Delete uploaded files
     const this_promises = [];
@@ -531,7 +540,7 @@ router.get("/calendar", async function(req, res, next) {
 //Get individual act proof
 router.get("/proof/:id", async function(req, res, next) {
   try {
-    //Check to make sure this is the person who uploaded the proof or a manager
+    //Check to make sure this is the person who uploaded the proof
     const act_proof = await User.aggregate([
       {
         $match: {
@@ -558,7 +567,7 @@ router.get("/proof/:id", async function(req, res, next) {
       }
     ]);
     //If not, error
-    if (act_proof[0]._id != req.user.id && (req.roles && !req.roles.manager))
+    if (act_proof[0]._id != req.user.id)
       throw new Error("You do not have authorization");
     const new_name = act_proof[0].acts.proof_of_completion.new_name;
     const original_name = act_proof[0].acts.proof_of_completion.original_name;
@@ -566,7 +575,56 @@ router.get("/proof/:id", async function(req, res, next) {
     //Else,
     //return proof
     // res.json(file_location);
-    res.download(`${__dirname}/../../static/${file_location}`, original_name);
+    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
+    res.redirect(new_name);
+    // res.json({message: new_name});
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
+  }
+});
+
+//Get individual act proof by manager
+router.get("/manage_proof/:id", async function(req, res, next) {
+  try {
+    //Check to make sure this is a manager
+    if (!req.roles || !req.roles.manager)
+      throw new Error("You do not have authorization");
+    const act_proof = await Act.aggregate([
+      {
+        $match: {
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$users_under_review" },
+      {
+        $match: {
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$users_under_review.proof_of_completion" },
+      {
+        $match: {
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      {
+        $project: {
+          "users_under_review.proof_of_completion.new_name": true,
+          "users_under_review.proof_of_completion.original_name": true
+        }
+      }
+    ]);
+    //If not, error
+
+    const new_name = act_proof[0].users_under_review.proof_of_completion.new_name;
+    const original_name = act_proof[0].users_under_review.proof_of_completion.original_name;
+    const file_location = new_name.replace(`${process.env.website}`, "");
+    //Else,
+    //return proof
+    // res.json(file_location);
+    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
+    res.redirect(new_name);
     // res.json({message: new_name});
   } catch (err) {
     next(createError(400, err.message));
