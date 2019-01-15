@@ -47,6 +47,7 @@
     "randomstring": "^1.1.5",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "run-rs": "^0.4.0",
     "sanitize-html": "^1.20.0",
     "scroll-to-element": "^2.0.2",
     "sharp": "^0.21.1",
