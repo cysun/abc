@@ -133,8 +133,8 @@
                     tabindex="0"
                     v-if="data.proofs.acts[0].state !== 'COMPLETED'"
                     data-toggle="popover"
-                    :title="'<a href=\'' + proof.new_name + '\'>' + $t('view') + '</a>'"
-                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof.new_name + '\'>' + $t('delete') + '</a>'"
+                    :title="'<a href=\'' + 'http://localhost:3000/api/acts/proof/' + proof._id + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof._id + '\'>' + $t('delete') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
                     style="cursor: pointer"
@@ -556,11 +556,11 @@ export default {
 
       //Remove the proof from the screen
       this.data.proofs.acts[0].proof_of_completion.splice(index, 1);
-      const encoded_id = btoa(id);
+      // const encoded_id = btoa(id);
 
       //Send request to remove the proof from the database
       await axios
-        .delete(`/api/acts/proof/${encoded_id}`, {
+        .delete(`/api/acts/proof/${id}`, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }

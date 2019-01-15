@@ -220,9 +220,10 @@ router.put("/verify/:verification_token", async function(req, res, next) {
       about_to_be_deleted_users.forEach(user => {
         if (user.profile_picture) {
           const image =
-            process.env.profile_picture_folder +
+            "static/" +
+            process.env.files_folder +
             user.profile_picture.replace(
-              process.env.website + process.env.display_picture_folder,
+              process.env.website + process.env.files_folder,
               ""
             );
           promises.push(fs_delete_file(image));

@@ -50,7 +50,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
       //Move the file to the acts proof folder with the new name and extension
       fs_rename_file(
         `./tmp/${file_name}`,
-        `${process.env.act_picture_folder}${unique_name}${ext}`
+        `static/${process.env.files_folder}${unique_name}${ext}`
       );
     })
     .then(function() {
@@ -60,10 +60,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
         original_name: original_name,
         size,
         new_name:
-          process.env.website +
-          process.env.display_act_picture_folder +
-          unique_name +
-          ext
+          process.env.website + process.env.files_folder + unique_name + ext
       });
     });
 }
@@ -529,6 +526,52 @@ router.get("/calendar", async function(req, res, next) {
   });
 
   res.json(events);
+});
+
+//Get individual act proof
+router.get("/proof/:id", async function(req, res, next) {
+  try {
+    //Check to make sure this is the person who uploaded the proof or a manager
+    const act_proof = await User.aggregate([
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$acts" },
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$acts.proof_of_completion" },
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      {
+        $project: {
+          "acts.proof_of_completion.new_name": true,
+          "acts.proof_of_completion.original_name": true
+        }
+      }
+    ]);
+    //If not, error
+    if (act_proof[0]._id != req.user.id && (req.roles && !req.roles.manager))
+      throw new Error("You do not have authorization");
+    const new_name = act_proof[0].acts.proof_of_completion.new_name;
+    const original_name = act_proof[0].acts.proof_of_completion.original_name;
+    const file_location = new_name.replace(`${process.env.website}`, "");
+    //Else,
+    //return proof
+    // res.json(file_location);
+    res.download(`${__dirname}/../../static/${file_location}`, original_name);
+    // res.json({message: new_name});
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
+  }
 });
 
 //Get individual act
@@ -1108,18 +1151,45 @@ router.put("/:id/delete", async function(req, res, next) {
 });
 
 //Delete act proof
-router.delete("/proof/:new_name", async function(req, res, next) {
-  const new_name = atob(req.params.new_name);
+router.delete("/proof/:id", async function(req, res, next) {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     //Only admins and the person who uploaded the proof can delete it
     const user = await User.findOne({
-      "acts.proof_of_completion.new_name": new_name
+      "acts.proof_of_completion._id": req.params.id
     });
     if (!req.user) throw new Error(res.__("lack_auth"));
     if (req.roles && !req.roles.administrator && user._id != req.user.id)
       throw new Error(res.__("lack_auth"));
+
+    const act_proof = await User.aggregate([
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$acts" },
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      { $unwind: "$acts.proof_of_completion" },
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      {
+        $project: {
+          "acts.proof_of_completion.new_name": true,
+          "acts.proof_of_completion.original_name": true
+        }
+      }
+    ]);
+
+    const new_name = act_proof[0].acts.proof_of_completion.new_name;
 
     // await User.findOneAndUpdate(
     //   { "acts.proof_of_completion.new_name": new_name },
@@ -1128,7 +1198,7 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     // res.json({message: "Success"});
 
     const promises = [];
-    
+
     //Delete the proof from the act object
     //Remove from users who have completed this act
     //Remove from users under review and rejected users
@@ -1153,15 +1223,16 @@ router.delete("/proof/:new_name", async function(req, res, next) {
     );
     //Delete the proof file
     const previous_image =
-      process.env.act_picture_folder +
-      new_name.replace(
-        process.env.website + process.env.display_act_picture_folder,
-        ""
-      );
+      "static/" +
+      process.env.files_folder +
+      new_name.replace(process.env.website + process.env.files_folder, "");
     const promised_delete_file = fs_delete_file(previous_image);
-    const promised_fileschema_delete = FileSchema.findOneAndDelete({
-      proof_name: new_name
-    }, {session});
+    const promised_fileschema_delete = FileSchema.findOneAndDelete(
+      {
+        proof_name: new_name
+      },
+      { session }
+    );
 
     promises.push(promised_delete_proof_from_act);
     promises.push(promised_delete_proof_from_user);
@@ -1170,17 +1241,13 @@ router.delete("/proof/:new_name", async function(req, res, next) {
 
     await Promise.all(promises);
     await session.commitTransaction();
-    logger.info(
-      `${req.user.id} successfully deleted proof ${req.params.new_name} `
-    );
+    logger.info(`${req.user.id} successfully deleted proof ${req.params.id}`);
     //Return success
     res.json({ message: "Success" });
   } catch (err) {
     await session.abortTransaction();
     next(createError(400, err.message));
-    logger.error(
-      `${req.user.id} failed to delete proof ${req.params.new_name}`
-    );
+    logger.error(`${req.user.id} failed to delete proof ${req.params.id}`);
   } finally {
     session.endSession();
   }
