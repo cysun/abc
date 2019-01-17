@@ -331,14 +331,24 @@ let actSchema = new mongoose.Schema({
   }
 });
 
+// actSchema.index(
+//   {
+//     name: "text",
+//     description: "text"
+//   },
+//   {
+//     name: "Acts index",
+//     weights: { name: 10, description: 1 }
+//   }
+// );
+
 actSchema.index(
   {
-    name: "text",
-    description: "text"
+    name: "text"
   },
   {
-    name: "Acts index",
-    weights: { name: 10, description: 1 }
+    name: "Acts full text index",
+    weights: { name: 1 }
   }
 );
 

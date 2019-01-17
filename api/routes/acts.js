@@ -50,7 +50,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
       //Move the file to the acts proof folder with the new name and extension
       fs_rename_file(
         `./tmp/${file_name}`,
-        `static/${process.env.files_folder}${unique_name}${ext}`
+        `${process.env.files_folder}/${unique_name}${ext}`
       );
     })
     .then(function() {
@@ -59,8 +59,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
       req.user.proof_of_completion.push({
         original_name: original_name,
         size,
-        new_name:
-          process.env.website + process.env.files_folder + unique_name + ext
+        new_name: unique_name + ext
       });
     });
 }
@@ -574,9 +573,10 @@ router.get("/proof/:id", async function(req, res, next) {
     const file_location = new_name.replace(`${process.env.website}`, "");
     //Else,
     //return proof
+    res.sendFile(`${process.env.files_folder}/${new_name}`);
     // res.json(file_location);
     // res.download(`${__dirname}/../../static/${file_location}`, original_name);
-    res.redirect(new_name);
+    // res.redirect(new_name);
     // res.json({message: new_name});
   } catch (err) {
     next(createError(400, err.message));
@@ -593,19 +593,25 @@ router.get("/manage_proof/:id", async function(req, res, next) {
     const act_proof = await Act.aggregate([
       {
         $match: {
-          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(
+            req.params.id
+          )
         }
       },
       { $unwind: "$users_under_review" },
       {
         $match: {
-          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(
+            req.params.id
+          )
         }
       },
       { $unwind: "$users_under_review.proof_of_completion" },
       {
         $match: {
-          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+          "users_under_review.proof_of_completion._id": mongoose.Types.ObjectId(
+            req.params.id
+          )
         }
       },
       {
@@ -617,14 +623,17 @@ router.get("/manage_proof/:id", async function(req, res, next) {
     ]);
     //If not, error
 
-    const new_name = act_proof[0].users_under_review.proof_of_completion.new_name;
-    const original_name = act_proof[0].users_under_review.proof_of_completion.original_name;
+    const new_name =
+      act_proof[0].users_under_review.proof_of_completion.new_name;
+    const original_name =
+      act_proof[0].users_under_review.proof_of_completion.original_name;
     const file_location = new_name.replace(`${process.env.website}`, "");
     //Else,
     //return proof
+    res.sendFile(`${process.env.files_folder}/${new_name}`);
     // res.json(file_location);
     // res.download(`${__dirname}/../../static/${file_location}`, original_name);
-    res.redirect(new_name);
+    // res.redirect(new_name);
     // res.json({message: new_name});
   } catch (err) {
     next(createError(400, err.message));
@@ -1280,10 +1289,7 @@ router.delete("/proof/:id", async function(req, res, next) {
       { session }
     );
     //Delete the proof file
-    const previous_image =
-      "static/" +
-      process.env.files_folder +
-      new_name.replace(process.env.website + process.env.files_folder, "");
+    const previous_image = `${process.env.files_folder}/${new_name}`
     const promised_delete_file = fs_delete_file(previous_image);
     const promised_fileschema_delete = FileSchema.findOneAndDelete(
       {

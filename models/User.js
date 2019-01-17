@@ -15,6 +15,7 @@ const schema = new passwordValidator();
 const Act = require("./Act");
 const uuidv4 = require("uuid/v4");
 const sharp = require("sharp");
+const path = require("path");
 schema
   .is()
   .min(8)
@@ -307,7 +308,7 @@ userSchema.statics.initialize = async function(data) {
       })
       .then(async function() {
         await sharp(buffer).toFile(
-          "static/" + process.env.files_folder + file_name + ".png"
+          `${process.env.files_folder}/${file_name}.png`
         );
       })
       .catch(function(error) {
@@ -315,8 +316,7 @@ userSchema.statics.initialize = async function(data) {
       })
       .then(function() {
         //Attach profile picture to user
-        user.profile_picture =
-          process.env.website + process.env.files_folder + file_name + ".png";
+        user.profile_picture = file_name + ".png";
       });
     promises.push(draw_file);
   }

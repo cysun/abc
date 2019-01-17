@@ -7,7 +7,7 @@ require("dotenv").load();
 
 async function insertIntoDatabase() {
   mongoose.connect(
-    process.env.REPLICA_SET,
+    process.env.DBURL,
     {
       useCreateIndex: true,
       useNewUrlParser: true,

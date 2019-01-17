@@ -219,15 +219,12 @@ router.put("/verify/:verification_token", async function(req, res, next) {
       const promises = [];
       about_to_be_deleted_users.forEach(user => {
         if (user.profile_picture) {
-          const image =
-            "static/" +
-            process.env.files_folder +
-            user.profile_picture.replace(
-              process.env.website + process.env.files_folder,
-              ""
-            );
+          const image = `${process.env.files_folder}/${user.profile_picture}`;
           promises.push(fs_delete_file(image));
-          // fs.unlink(image);
+          //Remove from filesschema as well
+          promises.push(
+            FileSchema.deleteOne({ proof_name: user.profile_picture })
+          );
         }
       });
       if (promises.length > 0) await Promise.all(promises);

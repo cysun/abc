@@ -28,10 +28,18 @@
               </nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link to="/acts" class="nav-link" :class="{active: page == 'acts'}">{{$t('acts')}}</nuxt-link>
+              <nuxt-link
+                to="/acts"
+                class="nav-link"
+                :class="{active: page == 'acts'}"
+              >{{$t('acts')}}</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
-              <nuxt-link class="nav-link" :class="{active: page == 'rewards'}" to="/rewards">{{$t('rewards')}}</nuxt-link>
+              <nuxt-link
+                class="nav-link"
+                :class="{active: page == 'rewards'}"
+                to="/rewards"
+              >{{$t('rewards')}}</nuxt-link>
             </li>
             <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">
               <a
@@ -60,6 +68,12 @@
                   class="dropdown-item"
                   :class="{active: page == 'manage_rewards'}"
                 >{{$t('rewards')}}</nuxt-link>
+                <nuxt-link
+                  v-if="roles && roles.administrator"
+                  to="/manage/users"
+                  class="dropdown-item"
+                  :class="{active: page == 'manage_users'}"
+                >Users</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">
@@ -73,13 +87,25 @@
               <a class="nav-link" href="/admin">{{$t('admin')}}</a>
             </li>
             <li class="nav-item mr-lg-3">
-              <nuxt-link class="nav-link" :class="{active: page == 'about'}" to="/about">{{$t('about')}}</nuxt-link>
+              <nuxt-link
+                class="nav-link"
+                :class="{active: page == 'about'}"
+                to="/about"
+              >{{$t('about')}}</nuxt-link>
             </li>
             <li class="nav-item mr-lg-3">
-              <nuxt-link class="nav-link" :class="{active: page == 'contact'}" to="/contact">{{$t('contact')}}</nuxt-link>
+              <nuxt-link
+                class="nav-link"
+                :class="{active: page == 'contact'}"
+                to="/contact"
+              >{{$t('contact')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="!logged_in">
-              <nuxt-link to="/login" class="nav-link" :class="{active: page == 'login'}">{{$t('login')}}</nuxt-link>
+              <nuxt-link
+                to="/login"
+                class="nav-link"
+                :class="{active: page == 'login'}"
+              >{{$t('login')}}</nuxt-link>
             </li>
             <li class="nav-item" v-if="!logged_in" :class="{active: page == 'sign_up'}">
               <nuxt-link class="nav-link" to="/sign_up">{{$t('sign_up')}}</nuxt-link>
