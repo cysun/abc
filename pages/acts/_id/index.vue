@@ -302,7 +302,7 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
 import moment from "moment";
-let iziToast;
+let izitoast;
 
 let vue_context;
 
@@ -315,7 +315,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
     });
@@ -494,7 +494,7 @@ export default {
         .then(function(res) {
           //If successful
           //Show success message
-          iziToast.success({
+          izitoast.success({
             title: "Success",
             message: "The act was successfully deleted",
             position: "topRight"
@@ -505,7 +505,7 @@ export default {
         .catch(function(err) {
           //If error, place act back
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the act could not be deleted",
             position: "topRight"
@@ -531,7 +531,7 @@ export default {
           //If error, place tag back
           vue_context.data.act.tags.splice(tag_index, 0, saved_tag);
           //Show error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the tag could not be deleted",
             position: "topRight"
@@ -573,7 +573,7 @@ export default {
             vue_context.data.proofs.acts[0].previous_proof[index]
           );
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the proof could not be deleted",
             position: "topRight"
@@ -610,7 +610,7 @@ export default {
             vue_context.data.act.previous_data.enabled
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward state could not be altered",
             position: "topRight"
@@ -647,7 +647,7 @@ export default {
             vue_context.data.act.previous_state
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the act state could not be altered",
             position: "topRight"
@@ -784,7 +784,7 @@ export default {
             //Tell the user that the act could not be edited
             let type_of_act = "act";
             if (vue_context.data.act.__t == "Event") type_of_act = "event";
-            iziToast.error({
+            izitoast.error({
               title: "Error",
               message: err.response.data.message,
               position: "topRight"

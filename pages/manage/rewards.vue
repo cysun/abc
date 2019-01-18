@@ -125,7 +125,7 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
 import moment from "moment";
-let iziToast;
+let izitoast;
 
 let vue_context;
 
@@ -138,7 +138,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();
@@ -308,7 +308,7 @@ export default {
         .then(function(res) {
           // //If successful
           // //Show success message
-          // iziToast.success({
+          // izitoast.success({
           //   title: "Success",
           //   message: "The act was successfully deleted",
           //   position: "topRight"
@@ -338,7 +338,7 @@ export default {
           }
 
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the change could not be saved",
             position: "topRight"
@@ -436,7 +436,7 @@ export default {
           //   vue_context.data.acts[index].previous_data.state
           // );
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the act could not be deleted",
             position: "topRight"
@@ -475,7 +475,7 @@ export default {
             vue_context.data.acts[index].previous_data.state
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the act state could not be altered",
             position: "topRight"
@@ -483,7 +483,7 @@ export default {
         });
     },
     async save_act(index) {
-      // iziToast.show({
+      // izitoast.show({
       //   title: "Hey",
       //   color: 'red',
       //   message: "What would you like to add?",
@@ -491,7 +491,7 @@ export default {
       //   icon: 'fa fa-heart'
       // });
 
-      // iziToast.error({
+      // izitoast.error({
       //   title: "Error",
       //   message: "Illegal operation",
       //   position: 'topRight'
@@ -624,7 +624,7 @@ export default {
           let type_of_act = "act";
           if (vue_context.data.acts[index].__t == "Event")
             type_of_act = "event";
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: `Sorry, the ${type_of_act} could not be edited`,
             position: "topRight"

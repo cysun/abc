@@ -296,7 +296,7 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
 import moment from "moment";
-let iziToast;
+let izitoast;
 
 let vue_context;
 
@@ -309,7 +309,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
     $('#smileys input').on('click', function() {
 	$('#result').html($(this).val());
 });
@@ -454,7 +454,7 @@ export default {
       //If error, revert to "ON GOING";
       vue_context.data.rewards.rewards[0].state = "ON GOING";
       //Display notification of error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"
@@ -496,7 +496,7 @@ export default {
       //Revert state
       vue_context.data.rewards = null
       //Display notification of error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"
@@ -578,7 +578,7 @@ export default {
       //If reward or reward provider rating is 0, error
       if (this.reward_rating == 0 || this.reward_provider_rating == 0)
       {
-        iziToast.error({
+        izitoast.error({
             title: "Error",
             message: "You must rate the reward and reward provider",
             position: "topRight"
@@ -607,7 +607,7 @@ export default {
         .then(function(res) {
           //If successful
           //Show success message
-          iziToast.success({
+          izitoast.success({
             title: "Thank you",
             message: "Your review has been received",
             position: "topRight"
@@ -618,7 +618,7 @@ export default {
       //Place the form back
       vue_context.data.review = null;
       //Give error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, your review could not be sent",
             position: "topRight"
@@ -665,7 +665,7 @@ export default {
         .then(function(res) {
           //If successful
           //Show success message
-          iziToast.success({
+          izitoast.success({
             title: "Success",
             message: "The reward was successfully deleted",
             position: "topRight"
@@ -676,7 +676,7 @@ export default {
         .catch(function(err) {
           //If error, place act back
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward could not be deleted",
             position: "topRight"
@@ -724,7 +724,7 @@ export default {
           //   vue_context.data.acts[index].previous_data.state
           // );
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the proof could not be deleted",
             position: "topRight"
@@ -774,7 +774,7 @@ export default {
             vue_context.data.act.previous_data.enabled
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward state could not be altered",
             position: "topRight"
@@ -812,7 +812,7 @@ export default {
             vue_context.data.act.previous_data.state
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"
@@ -820,7 +820,7 @@ export default {
         });
     },
     async save_act() {
-      // iziToast.show({
+      // izitoast.show({
       //   title: "Hey",
       //   color: 'red',
       //   message: "What would you like to add?",
@@ -828,7 +828,7 @@ export default {
       //   icon: 'fa fa-heart'
       // });
 
-      // iziToast.error({
+      // izitoast.error({
       //   title: "Error",
       //   message: "Illegal operation",
       //   position: 'topRight'
@@ -971,7 +971,7 @@ export default {
           // let type_of_act = "act";
           // if (vue_context.data.act.__t == "Event")
           //   type_of_act = "event";
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: `Sorry, the reward could not be edited`,
             position: "topRight"

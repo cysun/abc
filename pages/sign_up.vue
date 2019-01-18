@@ -74,7 +74,7 @@ import axios from "~/plugins/axios";
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 
-let vue_context, iziToast;
+let vue_context, izitoast;
 export default {
   components: {
     MyBanner,
@@ -84,7 +84,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
   },
   async asyncData(context) {
     if (context.app.$cookies.get("token")) {
@@ -111,7 +111,7 @@ export default {
       //Check if there an empty input field
       //If so, display error
       if (!this.first_name || !this.last_name || !this.email || !this.password)
-      iziToast.error({
+      izitoast.error({
             title: "Error",
             message: "All fields must be present",
             position: "topRight"
@@ -141,7 +141,7 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) 
             {
-              iziToast.error({
+              izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"

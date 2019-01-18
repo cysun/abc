@@ -146,7 +146,7 @@ import axios from "~/plugins/axios";
 import MySidebar from "~/components/Admin_Sidebar.vue";
 import MyHeader from "~/components/Admin_Header.vue";
 import MyFooter from "~/components/Admin_Footer.vue";
-let vue_context, iziToast;
+let vue_context, izitoast;
 
 export default {
   layout: "admin",
@@ -159,7 +159,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     var toggle = true;
 
@@ -188,7 +188,7 @@ export default {
       //Check if there an empty input field
       //If so, display error
       if (!this.first_name || !this.last_name || !this.email || !this.password)
-        iziToast.error({
+        izitoast.error({
           title: "Error",
           message: "All fields must be present",
           position: "topRight"
@@ -214,7 +214,7 @@ export default {
           .post("/api/register", formData)
           .then(function(res) {
             vue_context.$nuxt.$loading.finish();
-            iziToast.success({
+            izitoast.success({
               title: "Success",
               message: "User successfully created",
               position: "topRight"
@@ -229,7 +229,7 @@ export default {
           .catch(function(err) {
             vue_context.$nuxt.$loading.finish();
             if (err.response) {
-              iziToast.error({
+              izitoast.error({
                 title: "Error",
                 message: err.response.data.message,
                 position: "topRight"

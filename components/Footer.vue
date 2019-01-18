@@ -118,7 +118,7 @@
 import axios from "~/plugins/axios";
 import moment from "moment";
 let vue_context;
-let iziToast;
+let izitoast;
 export default {
   created: function() {
     vue_context = this;
@@ -136,7 +136,7 @@ export default {
       .catch(function(err) {});
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
   },
   data() {
     return {
@@ -149,7 +149,7 @@ export default {
       //Make sure an email address was entered
       //If not, error and return
       if (!this.subscriber) {
-        iziToast.error({
+        izitoast.error({
           title: "Error",
           message: "An email address must be entered",
           position: "topRight"
@@ -168,7 +168,7 @@ export default {
             //Clear form
             vue_context.subscriber = "";
             //Give success message
-            iziToast.success({
+            izitoast.success({
               title: "Success",
               message: res.data.message,
               position: "topRight"
@@ -177,7 +177,7 @@ export default {
           .catch(function(err) {
             //If error
             //Display error
-            iziToast.error({
+            izitoast.error({
               title: "Error",
               message: err.response.data.message,
               position: "topRight"
