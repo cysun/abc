@@ -92,7 +92,7 @@ import moment from "moment";
 import MySidebar from "~/components/Admin_Sidebar.vue";
 import MyHeader from "~/components/Admin_Header.vue";
 import MyFooter from "~/components/Admin_Footer.vue";
-let vue_context, iziToast;
+let vue_context, izitoast;
 
 export default {
   layout: "admin",
@@ -105,7 +105,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     $(".form_datetime").datetimepicker({
       weekStart: 1,
@@ -178,7 +178,7 @@ export default {
           //If error, revert state of act
           this.data.act.state = act_state;
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the state could not be altered",
             position: "topRight"
@@ -210,7 +210,7 @@ export default {
           //If error, revert state of act
           this.data.act.enabled.state = !this.data.act.enabled.state;
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the state could not be altered",
             position: "topRight"
@@ -237,7 +237,7 @@ export default {
           //If error, place tag back
           vue_context.data.act.tags.splice(tag_index, 0, saved_tag);
           //Show error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"
@@ -270,14 +270,14 @@ export default {
         })
         .then(function(res) {
           vue_context.new_tags = "";
-          iziToast.success({
+          izitoast.success({
             title: "Success",
             message: `Changes were saved successfully`,
             position: "topRight"
           });
         })
         .catch(function(err) {
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"

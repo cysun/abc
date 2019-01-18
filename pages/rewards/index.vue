@@ -485,7 +485,7 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
 import moment from "moment";
-let iziToast;
+let izitoast;
 
 let vue_context;
 
@@ -498,7 +498,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
     });
@@ -702,7 +702,7 @@ export default {
           //   vue_context.data.acts[index].previous_data.state
           // );
           //Tell the user that the act could not be deleted
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward could not be deleted",
             position: "topRight"
@@ -741,7 +741,7 @@ export default {
             vue_context.data.acts[index].previous_data.state
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward state could not be altered",
             position: "topRight"
@@ -780,7 +780,7 @@ export default {
             vue_context.data.acts[index].previous_data.enabled
           );
           //Tell the user that the act could not be altered
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "Sorry, the reward state could not be altered",
             position: "topRight"
@@ -862,7 +862,7 @@ export default {
             vue_context.data.acts[index].previous_data.enabled
           );
 
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: `Sorry, the reward could not be edited`,
             position: "topRight"

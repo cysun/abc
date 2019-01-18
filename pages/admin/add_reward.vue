@@ -63,7 +63,7 @@ import axios from "~/plugins/axios";
 import MySidebar from "~/components/Admin_Sidebar.vue";
 import MyHeader from "~/components/Admin_Header.vue";
 import MyFooter from "~/components/Admin_Footer.vue";
-let vue_context, iziToast;
+let vue_context, izitoast;
 
 export default {
   layout: "admin",
@@ -76,7 +76,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     var toggle = true;
 
@@ -118,7 +118,7 @@ export default {
           }
         })
         .then(function(res) {
-          iziToast.success({
+          izitoast.success({
             title: "Success",
             message: res.data.message,
             position: "topRight"
@@ -130,7 +130,7 @@ export default {
 
         })
         .catch(function(err) {
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: err.response.data.message,
             position: "topRight"

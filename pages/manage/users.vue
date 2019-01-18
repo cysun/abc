@@ -133,7 +133,7 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import scrollToElement from "scroll-to-element";
 import moment from "moment";
-let iziToast;
+let izitoast;
 
 let vue_context;
 
@@ -146,7 +146,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     // this.$nextTick(() => {
     //   this.$nuxt.$loading.start();

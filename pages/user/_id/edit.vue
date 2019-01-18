@@ -133,7 +133,7 @@ import axios from "~/plugins/axios";
 import MySidebar from "~/components/Admin_Sidebar.vue";
 import MyHeader from "~/components/Admin_Header.vue";
 import MyFooter from "~/components/Admin_Footer.vue";
-let vue_context, iziToast;
+let vue_context, izitoast;
 
 export default {
   layout: "admin",
@@ -146,7 +146,7 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    iziToast = require("iziToast");
+    izitoast = require("izitoast");
 
     var toggle = true;
 
@@ -201,7 +201,7 @@ export default {
         })
         .then(function(res) {
           //If success, display success message
-          iziToast.success({
+          izitoast.success({
             title: "Success",
             message: "User has been edited successfully",
             position: "topRight"
@@ -209,7 +209,7 @@ export default {
         })
         .catch(function(err) {
           //If error, display error
-          iziToast.error({
+          izitoast.error({
             title: "Error",
             message: "The request could not be granted",
             position: "topRight"
