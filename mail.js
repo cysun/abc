@@ -4,11 +4,10 @@ async function sendMail(email, subject, message) {
     let error_occured = false;
 
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.email_address,
-            pass: process.env.email_password
-        }
+        host: 'localhost',
+        port: 25,
+        secure: false,
+        ignoreTLS: true
     });
 
     const mailOptions = {
