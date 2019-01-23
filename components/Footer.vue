@@ -8,7 +8,7 @@
           <div class="row mt-4">
             <div class="col-md-6">
               <h3 class="text-capitalize mb-3">{{$t('connect_with_us')}}</h3>
-              <p>
+              <!-- <p>
                 <span class="fab fa-twitter"></span> twitter/@my_website
               </p>
               <p>
@@ -16,13 +16,13 @@
               </p>
               <p>
                 <span class="fab fa-youtube mb-4"></span> youtube/@my_website
-              </p>
+              </p> -->
               <a href="#" class="facebook mr-2">
                 <span class="fab mr-1 fa-facebook-f"></span> Facebook
               </a>
-              <a href="#" class="twitter">
+              <!-- <a href="#" class="twitter">
                 <span class="fab mr-1 fa-twitter"></span> Twitter
-              </a>
+              </a> -->
             </div>
             <div class="col-md-6 mt-md-0 mt-5">
               <h3 class="text-capitalize mb-3">{{$t('head_quarters')}}</h3>
@@ -34,17 +34,17 @@
                   California 90032
                 </p>
                 <p>
-                  <i class="fas mr-1 fa-clock"></i> {{$t('time')}}: 10 a.m to 6 p.m
+                  <i class="fas mr-1 fa-clock"></i> {{$t('time')}}: By appointment
                 </p>
-                <p>
+                <!-- <p>
                   <i class="fas mr-1 fa-phone"></i> +12 445 8976 2334
                 </p>
                 <p>
                   <i class="fas mr-1 fa-fax"></i> +11 887 8976 2334
-                </p>
+                </p> -->
                 <p>
                   <i class="fas mr-1 fa-envelope-open"></i>
-                  <a href="mailto:info@example.com">info@example.com</a>
+                  <a href="mailto:abc.project.finance1@gmail.com">abc.project.finance1@gmail.com</a>
                 </p>
               </address>
             </div>
@@ -89,7 +89,7 @@
             </div>
             <div class="col-md-8 col-sm-9 col-8 blog-grid-right">
               <h5>
-                <nuxt-link :to="'/acts/' + act._id">{{act.description}}</nuxt-link>
+                <nuxt-link :to="'/acts/' + act._id">{{act.name}}</nuxt-link>
               </h5>
               <div class="sub-meta">
                 <span>

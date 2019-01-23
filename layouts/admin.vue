@@ -12,7 +12,8 @@ export default {
         { src: "/js/admin/bootstrap.js" },
         // { src: "js/admin/scripts.js" },
         { src: "/js/admin/jquery.nicescroll.js" },
-        { src: "/js/admin/skycons.js" }
+        { src: "/js/admin/skycons.js" },
+        { src: '/js/summernote.js' }
         // {
         //   src:
         //     "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"
@@ -41,6 +42,11 @@ export default {
         },
         {
           href: "//fonts.googleapis.com/css?family=Work+Sans:400,500,600",
+          rel: "stylesheet"
+        },
+        {
+          href:
+            "/css/summernote.css",
           rel: "stylesheet"
         }
       ]

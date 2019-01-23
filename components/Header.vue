@@ -3,7 +3,9 @@
     <div class="container">
       <nav class="navbar navbar-expand-lg navbar-light">
         <nuxt-link to="/" class="navbar-brand">
-          <span class="fab fa-asymmetrik"></span> ABC
+          <!-- <span class="fab fa-asymmetrik"></span> ABC -->
+          <img src="~assets/img/abc.png" style="width:70px">
+          ABC
         </nuxt-link>
         <div class="dropdown">
           <button
@@ -27,19 +29,67 @@
                 <span class="sr-only">(current)</span>
               </nuxt-link>
             </li>
-            <li class="nav-item mr-lg-3" v-if="logged_in">
+            <li class="nav-item mr-lg-3" v-if="logged_in && ((roles && !roles.act_poster) || !roles)">
               <nuxt-link
                 to="/acts"
                 class="nav-link"
                 :class="{active: page == 'acts'}"
               >{{$t('acts')}}</nuxt-link>
             </li>
-            <li class="nav-item mr-lg-3" v-if="logged_in">
+            <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.act_poster">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                :class="{active: page == 'acts' || page == 'add_act' || page == 'edit_act' }"
+              >Acts</a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <nuxt-link
+                  to="/acts"
+                  class="dropdown-item"
+                  :class="{active: page == 'acts'}"
+                >View Acts</nuxt-link>
+                <nuxt-link
+                  to="/acts/add_act"
+                  class="dropdown-item"
+                  :class="{active: page == 'add_act'}"
+                >Add Act</nuxt-link>
+              </div>
+            </li>
+            <li class="nav-item mr-lg-3" v-if="logged_in && ((roles && !roles.reward_provider) || !roles)">
               <nuxt-link
                 class="nav-link"
                 :class="{active: page == 'rewards'}"
                 to="/rewards"
               >{{$t('rewards')}}</nuxt-link>
+            </li>
+            <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.reward_provider">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                :class="{active: page == 'rewards' || page == 'add_rewards' || page == 'edit_reward' }"
+              >Rewards</a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <nuxt-link
+                  to="/rewards"
+                  class="dropdown-item"
+                  :class="{active: page == 'rewards'}"
+                >View Rewards</nuxt-link>
+                <nuxt-link
+                  to="/rewards/add_reward"
+                  class="dropdown-item"
+                  :class="{active: page == 'add_reward'}"
+                >Add Reward</nuxt-link>
+              </div>
             </li>
             <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">
               <a
@@ -68,12 +118,12 @@
                   class="dropdown-item"
                   :class="{active: page == 'manage_rewards'}"
                 >{{$t('rewards')}}</nuxt-link>
-                <nuxt-link
+                <!-- <nuxt-link
                   v-if="roles && roles.administrator"
                   to="/manage/users"
                   class="dropdown-item"
                   :class="{active: page == 'manage_users'}"
-                >Users</nuxt-link>
+                >Users</nuxt-link> -->
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">

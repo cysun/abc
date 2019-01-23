@@ -19,18 +19,18 @@
                 <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
                 <option value="creation_date" :selected="query.sort == 'creation_date'">{{$t('date')}}</option>
                 <option
-                  value="total_number_of_completions"
-                  :selected="query.sort == 'total_number_of_completions'"
+                  value="total_number_of_users_who_got_this_reward"
+                  :selected="query.sort == 'total_number_of_users_who_got_this_reward'"
                 >{{$t('favorites')}}</option>
                 <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                 <option
-                  value="total_number_of_clicks"
-                  :selected="query.sort == 'total_number_of_clicks'"
+                  value="total_number_of_users_who_clicked_on_this_reward"
+                  :selected="query.sort == 'total_number_of_users_who_clicked_on_this_reward'"
                 >{{$t('popularity')}}</option>
                 <option
-                  value="reward_points"
-                  :selected="query.sort == 'reward_points'"
-                >{{$t('Reward_points')}}</option>
+                  value="value"
+                  :selected="query.sort == 'value'"
+                >Value</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">
@@ -43,12 +43,12 @@
                 <option value="ALL" :selected="!query.type == 'ALL'">{{$t('all')}}</option>
                 <option value="ENABLED" :selected="!query.type == 'ENABLED'">{{$t('enabled')}}</option>
                 <option value="DISABLED" :selected="!query.type == 'DISABLED'">{{$t('disabled')}}</option>
-                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
+                <!-- <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >{{$t('my_acts')}}</option>
+                >{{$t('my_acts')}}</option> -->
               </select>
             </span>
             <button
@@ -84,7 +84,7 @@
               >{{act.enabled ? $t('disable') : $t('enable') }}</button>
             </td>
             <td>
-              <nuxt-link :to="'/acts/' + act._id">
+              <nuxt-link :to="'/rewards/' + act._id">
                 <button class="btn btn-primary">{{$t('details')}}</button>
               </nuxt-link>
             </td>
@@ -264,7 +264,7 @@ export default {
     const refresh_token = this.$cookies.get("refresh_token");
     await axios
       .get(
-        `/api/acts?type=${to.query.type}&sort=${to.query.sort}&order=${
+        `/api/rewards?type=${to.query.type}&sort=${to.query.sort}&order=${
           to.query.order
         }&search=${to.query.search}&page=${to.query.page}`,
         {
@@ -364,7 +364,7 @@ export default {
       // window.scrollTo(0, top);
 
       this.$router.push(
-        `/manage/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
+        `/manage/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
         }&search=${vue_context.query.search}&page=${index}
         `
@@ -386,11 +386,11 @@ export default {
       // var element = this.$refs["acts_come_here"];
 
       // scrollToElement(element);
-      this.$router.push(`/manage/acts?type=${this.query.type}`);
+      this.$router.push(`/manage/rewards?type=${this.query.type}`);
     },
     type_changed() {
       // console.log(this.query.type);
-      this.$router.push(`/manage/acts?type=${this.query.type}`);
+      this.$router.push(`/manage/rewards?type=${this.query.type}`);
     },
     upload_type_changed() {
       // console.log(this.upload_type);
@@ -713,7 +713,7 @@ export default {
       // vue_context.$nuxt.$loading.finish();
 
       this.$router.push(
-        `/manage/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
+        `/manage/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
         }&search=${vue_context.query.search}
         `

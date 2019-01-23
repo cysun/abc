@@ -9,19 +9,26 @@ const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secret = require("../../secret");
+const FileSchema = require("../../models/File");
 const mongoose = require("mongoose");
-const fs = require("fs");
-const sanitize = require("sanitize-html");
 const util = require("util");
+const fs = require("fs");
+const fs_read_file = util.promisify(fs.readFile);
+const sanitize = require("sanitize-html");
+const cheerio = require("cheerio");
+const base64Img = require("base64-img-promise");
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
+const sharp = require("sharp");
+const uuidv4 = require("uuid/v4");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/"
+  dest: "tmp/",
+  limits: { fieldSize: 25 * 1024 * 1024 * 1024 }
 });
 
 const router = Router();
@@ -34,12 +41,14 @@ router.get("/:id", async function(req, res, next) {
 
   const promised_act = Reward.findById(
     req.params.id,
-    "reward_provider description enabled name value amount state total_number_of_users_who_clicked_on_this_reward total_number_of_users_who_got_this_reward"
+    "reward_provider description image enabled name value amount state total_number_of_users_who_clicked_on_this_reward total_number_of_users_who_got_this_reward"
   ).lean();
+  //Get user points as well
   const promised_user = User.findOne(
     { _id: req.user.id, "rewards.id": req.params.id },
-    { "rewards.$": 1 }
+    { "rewards.$": 1}
   );
+  const promised_user_points = User.findById(req.user.id, {_id: false, points: true});
   //Add this user to the reward click counter
   const promised_click_counter = Reward.findByIdAndUpdate(req.params.id, {
     $push: { users_who_clicked_on_this_reward: req.user },
@@ -57,14 +66,15 @@ router.get("/:id", async function(req, res, next) {
     promised_act,
     promised_user,
     promised_click_counter,
-    promised_rating
+    promised_rating,
+    promised_user_points
   ];
-  let act, user_act, review;
+  let act, user_act, review, points;
   await Promise.all(promises).then(function(values) {
     act = values[0];
     user_act = values[1];
     review = values[3];
-    // console.log(user_act)
+    points = values[4];
   });
   logger.info(`${req.user.id} successfully got rewards`);
   res.json({
@@ -72,7 +82,8 @@ router.get("/:id", async function(req, res, next) {
     user: req.user,
     rewards: user_act,
     review,
-    roles: req.roles
+    roles: req.roles,
+    points
   });
 });
 
@@ -162,7 +173,7 @@ router.put("/:reward_id/review", async function(req, res, next) {
     );
     //Send email to review provider about new review
     // await mail.sendMail(reward.reward_provider.email, "There is a new review of your reward", `Your reward has a new review`);
-    await mail.sendNewReviewNotice(reward.reward_provider.email);
+    await mail.sendNewReviewNotice(reward.reward_provider.email, req.params.reward_id);
 
     logger.info(
       `${req.user.id} successfully reviewed reward ${req.params.reward_id}`
@@ -183,6 +194,7 @@ router.put("/:reward_id/user/:user_id/collected", async function(
   next
 ) {
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const promised_user = User.findById(req.params.user_id).lean();
     const promised_reward = Reward.findById(req.params.reward_id).lean();
@@ -215,7 +227,7 @@ router.put("/:reward_id/user/:user_id/collected", async function(
     delete user._id;
     reward_changes["$push"] = { users_who_claimed_this_reward: user };
 
-    session.startTransaction();
+    
 
     const promised_rewards_change = Reward.findByIdAndUpdate(
       req.params.reward_id,
@@ -864,8 +876,12 @@ router.get("/:id/details", async function(req, res, next) {
         sum = 0;
         if (values[2][0]) sum = values[2][0].sum;
       } else {
+        if (values[0][0])
         returned_results = values[0][0].reviews;
+        else returned_results = [];
+        if (values[1][0])
         count = values[1][0].count;
+        else count = 0;
         pages = Math.ceil(count / 10);
         sum = 0;
         if (values[2][0]) sum = values[2][0].sum;
@@ -890,7 +906,7 @@ router.get("/:id/details", async function(req, res, next) {
 });
 
 //Create Reward
-router.post("/", async function(req, res, next) {
+router.post("/", upload.single("file"), async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
@@ -900,6 +916,7 @@ router.post("/", async function(req, res, next) {
 
     user.id = user._id;
     delete user._id;
+
     const reward = new Reward({
       name: req.body.name,
       description: req.body.description,
@@ -908,7 +925,109 @@ router.post("/", async function(req, res, next) {
       reward_provider: user
     });
 
+    let error_drawing_file = false;
+    if (req.file) {
+      let buffer;
+      const file_name = uuidv4();
+      const picture = "./tmp/" + req.file.filename;
+      await fs_read_file(picture)
+        .then(function(data) {
+          buffer = data;
+        })
+        .then(async function() {
+          await sharp(buffer)
+            .resize(1600, 800)
+            .toFile(`${process.env.files_folder}/${file_name}.png`);
+        })
+        .catch(function(error) {
+          error_drawing_file = true;
+        })
+        .then(function() {
+          //Attach profile picture to user
+          reward.image = `${file_name}.png`;
+        });
+    }
+
+    if (error_drawing_file) throw new Error("Invalid image");
+
+    if (req.file) {
+      const file_object = {
+        uploader_id: mongoose.Types.ObjectId(req.user.id),
+        proof_name: reward.image,
+        original_name: req.file.originalname,
+        size: req.file.size
+      };
+
+      // console.log(file_object);
+
+      await FileSchema.create(file_object);
+    }
+
     if (req.roles.administrator) reward.enabled = true;
+
+    //Process description
+    //Check if there are images in the description
+    const re = /(?:\.([^.]+))?$/;
+    const $ = cheerio.load(req.body.description);
+    if ($("img").length > 0) {
+      let ext;
+      const image_promises = [];
+      const image_names = [];
+      const file_details = [];
+      //Look for all images in the description
+      const images = $("img").nextAll();
+      console.log(images.length);
+      //Get unique names
+      console.log(3);
+      for (let i = 0; i < images.length; i++) {
+        if (!images[i].prev.attribs["src"]) continue;
+        ext = re.exec(images[i].prev.attribs["data-filename"])[1];
+        if (ext == undefined) ext = "";
+        else ext = `.${ext}`;
+        image_names.push(uuidv4());
+        //Convert them to files
+        image_promises.push(
+          base64Img.img(
+            images[i].prev.attribs.src,
+            process.env.files_folder,
+            image_names[i]
+          )
+        );
+        image_names[i] = image_names[i] + ext;
+        // .then(function(filepath) {});
+      }
+      console.log(5);
+      await Promise.all(image_promises);
+      console.log(6);
+      //Get their image links
+      for (let i = 0; i < images.length; i++) {
+        if (!images[i].prev.attribs["src"]) continue;
+        console.log(7);
+        //Replace the src of the images in the description with the new links
+        $("img").nextAll()[i].prev.attribs["src"] =
+          "/api/rewards/images/" + image_names[i];
+        file_details.push({
+          uploader_id: mongoose.Types.ObjectId(req.user.id),
+          proof_name: image_names[i],
+          upload_time: new Date(),
+          original_name: images[i].prev.attribs["data-filename"],
+          size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
+            .size
+        });
+        console.log($("img").nextAll()[i].prev.attribs["src"]);
+      }
+      // console.log($.html())
+      console.log(6);
+      let new_description = $.html();
+      new_description = new_description.split("<body>")[1];
+      new_description = new_description.split("</body>")[0];
+      // description = new_description;
+      reward.description = new_description;
+      console.log(new_description);
+      //Insert these new files into the file schema
+      if (file_details.length > 0)
+        await FileSchema.collection.insertMany(file_details);
+    }
 
     await reward.save();
 
@@ -934,7 +1053,9 @@ router.post("/", async function(req, res, next) {
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to create reward ${reward}`);
+    logger.error(`${req.user.id} failed to create reward`);
+  } finally {
+    if (req.file) fs.unlinkSync("./tmp/" + req.file.filename);
   }
 });
 // finally {
@@ -942,6 +1063,30 @@ router.post("/", async function(req, res, next) {
 //   if (req.file)
 //     fs.unlinkSync(req.body.profile_picture);
 // }
+
+//Get act image
+router.get("/:id/image", async function(req, res, next) {
+  try {
+    const act_image = await Reward.findById(req.params.id, {
+      _id: false,
+      image: true
+    });
+    res.sendFile(`${process.env.files_folder}/${act_image.image}`);
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error("Failed to get reward image");
+  }
+});
+
+//Get act image
+router.get("/images/:id", async function(req, res, next) {
+  try {
+    res.sendFile(`${process.env.files_folder}/${req.params.id}`);
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error("Failed to get act image");
+  }
+});
 
 //Edit reward
 router.put("/:id", async function(req, res, next) {

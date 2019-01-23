@@ -45,6 +45,9 @@ let rewardSchema = new mongoose.Schema({
         required: true,
         default: 1
     },
+    image: {
+        type: String
+      },
     deleted: {
         type: Boolean,
         required: true,
@@ -184,14 +187,24 @@ let rewardSchema = new mongoose.Schema({
     }]
 });
 
+// rewardSchema.index(
+//     {
+//         'name': 'text',
+//         'description': 'text'
+//     },
+//     {
+//         name: 'Rewards index',
+//         weights: { 'name': 2, 'description': 1 }
+//     }
+// )
+
 rewardSchema.index(
     {
-        'name': 'text',
-        'description': 'text'
+        'name': 'text'
     },
     {
-        name: 'Rewards index',
-        weights: { 'name': 2, 'description': 1 }
+        name: 'Rewards full text index',
+        weights: { 'name': 1 }
     }
 )
 

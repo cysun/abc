@@ -9,11 +9,13 @@
         <div class="row inner-sec-wthree-agileits">
           <div class="col-lg-12 blog-sp">
             <article style="margin-bottom: 10px" class="blog-x row">
-              <!-- <div class="blog-img w3-agile-grid">
-                <a>
-                  <img src alt class="img-fluid">
-                </a>
-              </div>-->
+              <div v-if="data.act.image" class="blog-img w3-agile-grid">
+                  <img
+                    :src="`/api/acts/${$route.params.id}/image`"
+                    alt
+                    class="img-fluid"
+                  >
+              </div>
               <div class="blog_info">
                 <h5>
                   <div class="row">
@@ -38,7 +40,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!data.edit">{{data.act.description}}</p>
+                <p v-if="!data.edit" v-html="data.act.description"></p>
                 <textarea
                   id="act_description"
                   v-if="data.edit"
@@ -141,7 +143,7 @@
                   >{{proof.original_name}}</a>
                   <a
                     v-if="data.proofs.acts[0].state == 'COMPLETED'"
-                    :href="proof.new_name"
+                    :href="`/api/acts/proof/${proof._id}`"
                   >{{proof.original_name}}</a>
                 </div>
                 <br>
@@ -203,11 +205,11 @@
                   </div>
                   <div class="col-md-5" v-if="data.act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!data.delete">
-                      <button
+                      <!-- <button
                         v-if="!data.edit"
                         @click="edit_act"
                         class="btn btn-primary"
-                      >{{$t('edit')}}</button>
+                      >{{$t('edit')}}</button> -->
                       <button
                         v-if="data.edit"
                         @click="save_act"
@@ -252,17 +254,22 @@
                     <i>|</i>
                   </li>
                   <li>
+                    <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
+                    <span v-if="!data.edit">{{data.act.amount}}</span>
+                    <i>|</i>
+                  </li>
+                  <li>
                     <span
                       :title="$t('popularity')"
                       class="fa fa-angle-double-down"
                       aria-hidden="true"
                     ></span>
-                    {{data.act.total_number_of_clicks}}
+                    <span>{{data.act.total_number_of_clicks}}</span>
                     <i>|</i>
                   </li>
                   <li>
                     <span :title="$t('favorites')" class="fa fa-user" aria-hidden="true"></span>
-                    {{data.act.total_number_of_completions}}
+                    <span>{{data.act.total_number_of_completions}}</span>
                   </li>
                 </ul>
                 <div v-if="!data.edit">

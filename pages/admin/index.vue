@@ -81,7 +81,7 @@
                           <td>{{user.first_name}}</td>
                           <td>{{user.last_name}}</td>
                           <td>
-                            <span class="label label-danger">{{user.enabled}}</span>
+                            <span class="label" :class="user.enabled ? 'label-success' : 'label-danger'">{{user.enabled}}</span>
                           </td>
                           <td>
                             <span class="badge badge-info">{{user.creation_date}}</span>
@@ -109,7 +109,7 @@
                           <th>{{$t('act_name')}}</th>
                           <th>{{$t('verified')}}</th>
                           <th>{{$t('creation_date')}}</th>
-                          <th>{{$t('actions')}}</th>
+                          <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
                       <tbody>
@@ -118,16 +118,16 @@
                           <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
                           <td>{{act.name}}</td>
                           <td>
-                            <span class="label label-danger">{{act.enabled.state}}</span>
+                            <span class="label" :class="act.enabled.state ? 'label-success' : 'label-danger'">{{act.enabled.state}}</span>
                           </td>
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
-                          <td>
+                          <!-- <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
                               <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
-                          </td>
+                          </td> -->
                         </tr>
                       </tbody>
                     </table>
@@ -148,7 +148,7 @@
                         <th>{{$t('reward_name')}}</th>
                         <th>{{$t('verified')}}</th>
                         <th>{{$t('creation_date')}}</th>
-                        <th>{{$t('actions')}}</th>
+                        <!-- <th>{{$t('actions')}}</th> -->
                       </tr>
                     </thead>
                     <tbody>
@@ -157,16 +157,16 @@
                         <td>{{reward.reward_provider.first_name}} {{reward.reward_provider.last_name}}</td>
                         <td>{{reward.name}}</td>
                         <td>
-                          <span class="label label-danger">{{reward.enabled}}</span>
+                          <span class="label" :class="reward.enabled ? 'label-success' : 'label-danger'">{{reward.enabled}}</span>
                         </td>
                         <td>
                           <span class="badge badge-info">{{reward.creation_date}}</span>
                         </td>
-                        <td>
+                        <!-- <td>
                           <nuxt-link :to="'/admin/rewards/' + reward._id + '/edit'">
                             <button class="btn btn-primary">{{$t('edit')}}</button>
                           </nuxt-link>
-                        </td>
+                        </td> -->
                       </tr>
                     </tbody>
                   </table>
@@ -182,9 +182,7 @@
                     <div class="col-md-6 popular-bran-left">
                       <h3>{{$t('best_act_of_the_month')}}</h3>
                       <h4>{{data.best_act[0].act[0].name}}</h4>
-                      <p
-                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                      >{{data.best_act[0].act[0].description}}</p>
+                      <p class="truncate_text_3_lines" v-html="data.best_act[0].act[0].description"></p>
                     </div>
                     <div class="col-md-6 popular-bran-right">
                       <h3>{{data.best_act[0].count}}</h3>
@@ -195,9 +193,8 @@
                     <div class="col-md-6 popular-follo-left">
                       <h4 style="color: #FFBD33">{{$t('best_reward_of_this_month')}}</h4>
                       <p style="color: #DBFF33">{{data.best_reward[0].reward[0].name}}</p>
-                      <p
-                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                      >{{data.best_reward[0].reward[0].description}}</p>
+                      <p class="truncate_text_3_lines" v-html="data.best_reward[0].reward[0].description"
+                      ></p>
                     </div>
                     <div class="col-md-6 popular-follo-right">
                       <h4>{{$t('amount_collected')}}</h4>

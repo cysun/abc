@@ -5,15 +5,20 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
+        <span class="badge badge-primary float-right">{{data.points.points}} {{$t('reward_points')}}</span>
+        <div style="clear: both"></div>
+        <br>
         <!-- <h2 class="heading mb-lg-5 mb-4">title</h2> -->
         <div class="row inner-sec-wthree-agileits">
           <div class="col-lg-12 blog-sp">
             <article style="margin-bottom: 10px" class="blog-x row">
-              <!-- <div class="blog-img w3-agile-grid">
-                <a>
-                  <img src alt class="img-fluid">
-                </a>
-              </div>-->
+              <div v-if="data.act.image" class="blog-img w3-agile-grid">
+                  <img
+                    :src="`/api/rewards/${$route.params.id}/image`"
+                    alt
+                    class="img-fluid"
+                  >
+              </div>
               <div class="blog_info">
                 <h5>
                   <div class="row">
@@ -38,7 +43,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!data.edit">{{data.act.description}}</p>
+                <p v-if="!data.edit" v-html="data.act.description"></p>
                 <textarea
                   id="act_description"
                   v-if="data.edit"
@@ -197,7 +202,8 @@
                     >{{data.act.state ? $t('available') : $t('not_available')}}</span>
                     <span v-if="data.act.reward_provider.id == data.user.id || data.roles.administrator">
                     <a
-                      href="#"
+                      tabindex="0"
+                      style="cursor: pointer"
                       class="badge badge-info"
                       @click="change_act_state(index)"
                       v-if="data.act.state == 'AVAILABLE'"
@@ -220,7 +226,7 @@
                   </div>
                   <div class="col-md-5" v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!data.delete">
-                      <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">{{$t('edit')}}</button>
+                      <!-- <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">{{$t('edit')}}</button> -->
                       <button v-if="data.edit" @click="save_act" class="btn btn-primary">{{$t('save')}}</button>
                       <button v-if="data.edit" @click="edit_act" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
@@ -487,6 +493,9 @@ export default {
           // vue_context.data = res.data;
           //If works,
           //Display permanent notice of reward requested
+
+          //Reduce reward amount by value of reward
+          vue_context.data.points.points = vue_context.data.points.points - vue_context.data.act.value
         })
         .catch(function(err) {
           // if (err.response.status == 400) {

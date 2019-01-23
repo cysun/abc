@@ -46,12 +46,12 @@
                 <option value="OPEN" :selected="!query.type == 'OPEN'">{{$t('open_transactions')}}</option>
                 <option value="CLOSED" :selected="!query.type == 'CLOSED'">{{$t('closed_transactions')}}</option>
                 <option value="REVIEWS" :selected="!query.type == 'REVIEWS'">{{$t('user_reviews')}}</option>
-                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
+                <!-- <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >{{$t('my_acts')}}</option>
+                >{{$t('my_acts')}}</option> -->
               </select>
             </span>
             <button
@@ -83,7 +83,7 @@
 
             <tr v-for="(user, index) in data.data">
               <td>{{user.first_name}} {{user.last_name}}</td>
-              <td>{{user.rewards[0].time}}</td>
+              <td v-if="user.rewards">{{user.rewards[0].time}}</td>
               <td v-if="data.query.type == 'OPEN'">
                 <button @click="confirmCollection(index)" class="btn btn-primary">{{$t('confirm_collection')}}</button>
               </td>
@@ -94,9 +94,9 @@
             <div class="media mb-3" v-for="(user, index) in data.data">
               <div class="media-body">
                 <h5 class="mt-0">{{user.first_name}} {{user.last_name}}</h5>
-                <p>{{$t('reward_rating')}}< {{user.reward_rating}}</p>
+                <p>{{$t('reward_rating')}} : {{user.reward_rating}}</p>
                 <p v-if="user.reward_comments">{{user.reward_comments}}</p>
-                <p>{{$t('reward_provider_rating')}}< {{user.reward_provider_rating}}</p>
+                <p>{{$t('reward_provider_rating')}} : {{user.reward_provider_rating}}</p>
                 <p v-if="user.reward_provider_comments">{{user.reward_provider_comments}}</p>
               </div>
             </div>
@@ -203,6 +203,7 @@ export default {
         // console.log(res);
         data = res.data;
         //Loop through data and format date
+        if (context.query.type != "REVIEWS")
         data.data.forEach(element => {
           element.rewards[0].time = moment(element.rewards[0].time).format(
             "MMMM Do YYYY, h:mm a"
@@ -280,6 +281,7 @@ export default {
       .then(function(res) {
         data = res.data;
         //Loop through data and format date
+        if (to.query.type != "REVIEWS")
         data.data.forEach(element => {
           element.rewards[0].time = moment(element.rewards[0].time).format(
             "MMMM Do YYYY, h:mm a"

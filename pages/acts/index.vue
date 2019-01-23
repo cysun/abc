@@ -83,11 +83,11 @@
               class="blog-x row"
               v-for="(act, index) in data.acts"
             >
-              <!-- <div class="blog-img w3-agile-grid">
-                <a>
-                  <img src alt class="img-fluid">
-                </a>
-              </div>-->
+              <div class="blog-img w3-agile-grid">
+                <nuxt-link :to="`/acts/${act._id}`" v-if="act.image">
+                  <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
+                </nuxt-link>
+              </div>
               <div class="blog_info">
                 <h5>
                   <nuxt-link v-if="!act.edit" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
@@ -107,7 +107,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!act.edit" class="truncate_text_3_lines">{{act.description}}</p>
+                <p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p>
                 <textarea
                   :id="'act_description' + index"
                   v-if="act.edit"
@@ -230,11 +230,12 @@
                     v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
                   >
                     <span v-if="!act.delete">
-                      <button
-                        v-if="!act.edit"
-                        @click="edit_act(index)"
-                        class="btn btn-primary"
-                      >{{$t('edit')}}</button>
+                      <!-- <nuxt-link :to="`/acts/${act._id}/edit`">
+                        <button
+                          v-if="!act.edit"
+                          class="btn btn-primary"
+                        >{{$t('edit')}}</button>
+                      </nuxt-link> -->
                       <button
                         v-if="act.edit"
                         @click="save_act(index)"
@@ -279,17 +280,22 @@
                     <i>|</i>
                   </li>
                   <li>
+                    <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
+                    <span v-if="!act.edit">{{act.amount}}</span>
+                    <i>|</i>
+                  </li>
+                  <li>
                     <span
                       :title="$t('popularity')"
                       class="fa fa-angle-double-down"
                       aria-hidden="true"
                     ></span>
-                    {{act.total_number_of_clicks}}
+                    <span>{{act.total_number_of_clicks}}</span>
                     <i>|</i>
                   </li>
                   <li>
                     <span :title="$t('favorites')" class="fa fa-user" aria-hidden="true"></span>
-                    {{act.total_number_of_completions}}
+                    <span>{{act.total_number_of_completions}}</span>
                   </li>
                 </ul>
                 <div v-if="!act.edit">
@@ -344,118 +350,6 @@
             </nav>
           </div>
           <aside class="col-lg-4 single-left">
-            <div class="single-gd" v-if="data.roles && data.roles.act_poster">
-              <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
-              <div
-                v-if="status_message"
-                class="alert"
-                :class="{'alert-danger': status_state == 'Error', 'alert-success': status_state == 'Success'}"
-              >
-                <strong>{{status_state}}:</strong>
-                {{status_message}}
-              </div>
-              <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">{{$t('add_act')}}</option>
-                <option value="event">{{$t('add_event')}}</option>
-              </select>
-              <br>
-              <!-- <h4>Add Act</h4> -->
-              <form @submit.prevent="addAct">
-                <input
-                  class="form-control"
-                  v-model="add_act.name"
-                  type="text"
-                  name="name"
-                  :placeholder="$t('name')"
-                  required
-                >
-                <textarea
-                  rows="10"
-                  class="form-control"
-                  name="description"
-                  :placeholder="$t('description')"
-                  required
-                  v-model="add_act.description"
-                ></textarea>
-                <div v-if="upload_type == 'event'" class="control-group">
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      :placeholder="$t('start_time')"
-                      readonly
-                      type="text"
-                      class="form-control"
-                      value
-                      id="start_time"
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      id="end_time"
-                      readonly
-                      :placeholder="$t('end_time')"
-                      type="text"
-                      class="form-control"
-                      value
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <script>
-                    $(".form_datetime").datetimepicker({
-                      weekStart: 1,
-                      todayBtn: 1,
-                      autoclose: 1,
-                      todayHighlight: 1,
-                      startView: 2,
-                      forceParse: 0,
-                      showMeridian: 1
-                    });
-                  </script>
-                </div>
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  :placeholder="$t('Reward_points')"
-                  required
-                  v-model="add_act.reward_points"
-                >
-                <input
-                  class="form-control"
-                  type="text"
-                  name="tags"
-                  :placeholder="$t('tags_placeholder')"
-                  v-model="add_act.tags"
-                >
-                <!-- <label for="file">Image should be 1600 X 800</label>
-                <input class="form-control" id="file" type="file" name="file">-->
-                <div class="button">
-                  <input class="form-control" type="submit" :value="$t('submit')">
-                </div>
-              </form>
-            </div>
             <div class="single-gd tech-btm">
               <h4>{{$t('top_acts_of_the_month')}}</h4>
               <div
@@ -464,9 +358,7 @@
                 style="margin-bottom: 10px"
               >
                 <nuxt-link :to="'acts/' + top_act._id">{{top_act.act[0].name}}</nuxt-link>
-                <p
-                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                >{{top_act.act[0].description}}</p>
+                <p v-html="top_act.act[0].description" class="truncate_text_3_lines"></p>
                 <ul class="blog_list">
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>

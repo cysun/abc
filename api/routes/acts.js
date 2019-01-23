@@ -12,8 +12,13 @@ const jwt = require("jsonwebtoken");
 const secret = require("../../secret");
 const mongoose = require("mongoose");
 const fs = require("fs");
+const uuidv4 = require("uuid/v4");
+const base64Img = require("base64-img-promise");
+const sharp = require("sharp");
 const sanitize = require("sanitize-html");
 const util = require("util");
+const cheerio = require("cheerio");
+const fs_read_file = util.promisify(fs.readFile);
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
@@ -24,7 +29,8 @@ const moment = require("moment");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/"
+  dest: "tmp/",
+  limits: { fieldSize: 25 * 1024 * 1024 * 1024 }
 });
 
 const router = Router();
@@ -67,6 +73,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
 //Approve user act proof
 router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     let promises = [];
     // const user = await User.findById(req.params.user_id)
@@ -83,6 +90,12 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
       act = values[1];
     });
 
+    //Make act unavailable if amount is <= 1
+    if (act.amount <= 1)
+      await Act.findByIdAndUpdate(req.params.act_id, {
+        state: "NOT_AVAILABLE"
+      });
+
     const user_who_completed_this_act = Object.assign({}, user);
     user_who_completed_this_act.id = user_who_completed_this_act._id;
     delete user_who_completed_this_act._id;
@@ -97,8 +110,6 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
       time_of_review: Date.now(),
       result: true
     };
-
-    session.startTransaction();
 
     const promised_act_change = Act.findByIdAndUpdate(
       req.params.act_id,
@@ -116,7 +127,8 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
           rejected_users: { id: req.params.user_id }
         },
         //Increment total number of completions
-        $inc: { total_number_of_completions: 1 }
+        //Decrease number of users who can complete it
+        $inc: { total_number_of_completions: 1, amount: -1 }
       },
       { session }
     );
@@ -313,6 +325,7 @@ router.post("/:id/complete", upload.array("files"), async function(
 ) {
   // const image = './tmp/' + req.file.filename
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     //Non logged in users can't access this endpoint
     if (!req.user) throw new Error(res.__("lack_auth"));
@@ -362,8 +375,6 @@ router.post("/:id/complete", upload.array("files"), async function(
     const user = req.user;
     user.state = "UNDER_REVIEW";
 
-    session.startTransaction();
-
     //Get the last user act
     const promised_act_change = Act.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
@@ -383,8 +394,9 @@ router.post("/:id/complete", upload.array("files"), async function(
       .then(async function(act) {
         //Check if it's under review
         if (
-          !act[0] ||
-          act[0].users_who_completed_this_act.state != "UNDER_REVIEW"
+          !act[0]
+          // ||
+          // act[0].users_who_completed_this_act.state != "UNDER_REVIEW"
         ) {
           //If not
           //Create a new user act
@@ -398,9 +410,58 @@ router.post("/:id/complete", upload.array("files"), async function(
             },
             { session }
           );
+        } else if (
+          act[0] &&
+          act[0].users_who_completed_this_act.state == "REJECTED"
+        ) {
+          //If it was rejected
+          //Get previous proofs
+          let prev_proofs = await User.findOne(
+            { "acts.id": req.params.id },
+            { "acts.$": true, _id: false }
+          ).lean();
+          prev_proofs = prev_proofs.acts[0];
+          delete prev_proofs._id;
+          prev_proofs.id = req.user.id;
+          //Add this new proof to it
+          prev_proofs.proof_of_completion = prev_proofs.proof_of_completion.concat(
+            user.proof_of_completion
+          );
+          //Make state under review
+          prev_proofs.state = "UNDER_REVIEW";
+          prev_proofs.first_name = user.first_name;
+          prev_proofs.last_name = user.last_name;
+          prev_proofs.review_of_proof = user.review_of_proof;
+          //Place a new user with these details in Users who have completed array
+          await Act.findByIdAndUpdate(
+            req.params.id,
+            {
+              $push: {
+                users_who_completed_this_act: prev_proofs
+              }
+            },
+            { session }
+          );
+          //Add this user to users under review array
+          await Act.findByIdAndUpdate(
+            req.params.id,
+            {
+              $push: {
+                users_under_review: prev_proofs
+              },
+              //Remove this user from the users who were rejected
+              $pull: {
+                rejected_users: { id: mongoose.Types.ObjectId(req.user.id) }
+              }
+            },
+            { session }
+          );
         }
         //If it's under review
-        else {
+        else if (
+          act[0] &&
+          act[0].users_who_completed_this_act.state == "UNDER_REVIEW"
+        ) {
           await Act.findOneAndUpdate(
             {
               "users_who_completed_this_act.id":
@@ -515,13 +576,41 @@ router.post("/:id/complete", upload.array("files"), async function(
   }
 });
 
+//Get act image
+router.get("/:id/image", async function(req, res, next) {
+  try {
+    const act_image = await Act.findById(req.params.id, {
+      _id: false,
+      image: true
+    });
+    console.log(act_image);
+    res.sendFile(`${process.env.files_folder}/${act_image.image}`);
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error("Failed to get act image");
+  }
+});
+
+//Get act image
+router.get("/images/:id", async function(req, res, next) {
+  try {
+    res.sendFile(`${process.env.files_folder}/${req.params.id}`);
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error("Failed to get act image");
+  }
+});
+
 //Get events
 router.get("/calendar", async function(req, res, next) {
   //Get all events in the range
   const events = await Event_Act.find(
     {
       start_time: { $gte: req.query.start },
-      end_time: { $lte: req.query.end }
+      end_time: { $lte: req.query.end },
+      deleted: false,
+      state: "AVAILABLE",
+      "enabled.state": true
     },
     { name: 1, start_time: 1, end_time: 1 }
   ).lean();
@@ -641,6 +730,26 @@ router.get("/manage_proof/:id", async function(req, res, next) {
   }
 });
 
+router.delete("/:id/image", async function(req, res, next) {
+  try {
+    const promises = [];
+    const act = await Act.findById(req.params.id, { image: true, _id: false });
+    //Delete image from file system
+    promises.push(fs_delete_file(`${process.env.files_folder}/${act.image}`));
+    //Delete image from act and file tables
+    promises.push(
+      Act.findByIdAndUpdate(req.params.id, { $unset: { image: "" } })
+    );
+    promises.push(FileSchema.findOneAndDelete({ proof_name: act.image }));
+    await Promise.all(promises);
+    //Return success message
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete act ${req.params.id} image`);
+  }
+});
+
 //Get individual act
 router.get("/:id", async function(req, res, next) {
   //Get act from Act table
@@ -653,7 +762,7 @@ router.get("/:id", async function(req, res, next) {
 
     const promised_act = Act.findById(
       req.params.id,
-      "act_provider deleted start_time end_time description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
+      "act_provider deleted start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
     ).lean();
     const promised_user = User.findOne(
       { _id: req.user.id, "acts.id": req.params.id },
@@ -979,14 +1088,17 @@ router.get("/", async function(req, res, next) {
 });
 
 //Create act
-router.post("/:type", async function(req, res, next) {
+router.post("/:type", upload.single("file"), async function(req, res, next) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     if (!req.roles || !req.roles.act_poster) {
       throw new Error(res.__("lack_auth"));
     }
-    // if (req.file)
-    //     req.body.picture = './tmp/' + req.file.filename
+    if (req.file) req.body.picture = "./tmp/" + req.file.filename;
     req.body.provider = req.user;
+    const this_user = await User.findById(req.user.id, {email: true});
+    req.body.provider.email = this_user.email;
     let act;
     if (req.params.type == "act") act = await Act.initialize(req.body);
     //Handling events
@@ -1001,6 +1113,19 @@ router.post("/:type", async function(req, res, next) {
       act = await Event_Act.initialize(req.body);
       act.start_time = req.body.start_time;
       act.end_time = req.body.end_time;
+    }
+
+    if (req.file) {
+      const file_object = {
+        uploader_id: mongoose.Types.ObjectId(req.user.id),
+        proof_name: act.image,
+        original_name: req.file.originalname,
+        size: req.file.size
+      };
+
+      // console.log(file_object);
+
+      await FileSchema.create(file_object);
     }
 
     //Check if there is a tag
@@ -1030,21 +1155,23 @@ router.post("/:type", async function(req, res, next) {
     // user = user.toObject();
     // delete user.password;
     // res.redirect('/acts?success=Success');
+    await session.commitTransaction();
     logger.info(`${req.user.id} successfully created ${act._id}`);
     res.json(act);
   } catch (err) {
+    await session.abortTransaction();
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to create ${req.body}`);
+    logger.error(`${req.user.id} failed to create act`);
+  } finally {
+    //Delete uploaded file
+    session.endSession();
+    // console.log(req.body.picture);
+    if (req.file) fs.unlinkSync(req.body.picture);
   }
 });
-// finally {
-//   //Delete uploaded file
-//   if (req.file)
-//     fs.unlinkSync(req.body.profile_picture);
-// }
 
 //Edit act
-router.put("/:id", async function(req, res, next) {
+router.put("/:id", upload.single("file"), async function(req, res, next) {
   try {
     // console.log(req.body);
     if (!req.roles || !req.roles.act_poster) {
@@ -1070,7 +1197,7 @@ router.put("/:id", async function(req, res, next) {
       throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
-    const description = sanitize(req.body.description);
+    let description = req.body.description;
     const reward_points = sanitize(req.body.reward_points);
 
     if (!name || !description || !reward_points)
@@ -1083,8 +1210,170 @@ router.put("/:id", async function(req, res, next) {
 
     if (!req.roles.administrator) act.enabled.state = false;
     act.name = name;
-    act.description = description;
+    // act.description = description;
     act.reward_points = reward_points;
+
+    if (req.file) {
+      //Process image
+      const image = "./tmp/" + req.file.filename;
+      let error_drawing_file = false;
+      let buffer;
+      const file_name = uuidv4();
+      await fs_read_file(image)
+        .then(function(data) {
+          buffer = data;
+        })
+        .then(async function() {
+          await sharp(buffer)
+            .resize(1600, 800)
+            .toFile(`${process.env.files_folder}/${file_name}.png`);
+        })
+        .then(async function() {
+          //If processing succeeds
+          //Delete act former image if exists
+          if (act.image)
+            fs.unlinkSync(`${process.env.files_folder}/${act.image}`);
+          //Attach this image to act
+          act.image = `${file_name}.png`;
+          //Add this image to file schema
+          await FileSchema.create({
+            uploader_id: mongoose.Types.ObjectId(req.user.id),
+            proof_name: `${file_name}.png`,
+            original_name: req.file.filename,
+            size: req.file.size
+          }).catch(function(error) {
+            error_drawing_file = true;
+          });
+        });
+
+      //If processing fails
+      //Give error
+      if (error_drawing_file) throw new Error("Invalid image");
+    }
+
+    //add extra fields
+    //add description
+
+    const re = /(?:\.([^.]+))?$/;
+    // let $ = cheerio.load(act.description);
+    // //Check if there are images in the description in the database
+    // if ($("img").length > 0) {
+    //   //Compare with new description to figure out old images to delete
+    //   const old_image_srcs = [];
+    //   const new_image_srcs = [];
+    //   const old_description_images = $("img").nextAll();
+    //   //Put database description image srcs in an array
+    //   for (let i = 0; i < old_description_images.length; i++) {
+    //     old_image_srcs.push(old_description_images[i].prev.attribs["src"]);
+    //   }
+    //   //Check the new description for image srcs
+    //   const new_description1 = cheerio.load(description);
+    //   // console.log(new_description1("img").nextAll())
+    //   if (new_description1("img").length > 0) {
+    //     const new_description_images = new_description1("img").nextAll();
+    //     //For each new description src, check if it starts with '/'
+    //     for (let i = 0; i < new_description_images.length; i++) {
+    //       //If so, put in another array
+    //       // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
+    //       if (new_description_images[i].prev.attribs["src"].charAt(0) == "/")
+    //         new_image_srcs.push(new_description_images[i].prev.attribs["src"]);
+    //     }
+    //     //Check if old description src exists in new description src (Do it backwards)
+    //     for (let i = old_image_srcs.length - 1; i > 0; i++) {
+    //       if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
+    //         //If so, remove from old array
+    //         old_image_srcs.splice(i, 1);
+    //       }
+    //     }
+    //   }
+    //   // console.log(old_image_srcs);
+    //   // console.log(new_image_srcs);
+    //   //After everything is done,
+    //   const promised_delete_files = [];
+    //   for (let i = 0; i < old_image_srcs.length; i++) {
+    //     //Get image link in old description src array
+    //     old_image_srcs[i] = old_image_srcs[i].replace(`/api/acts/images/`, "");
+    //     //Unlink all those images
+    //     // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
+    //     promised_delete_files.push(
+    //       fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
+    //     );
+    //     //Also delete from fileschema
+    //     promised_delete_files.push(
+    //       FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
+    //     );
+    //   }
+    //   await Promise.all(promised_delete_files);
+    // }
+
+    //Add new images
+    //Check if there are images in the new description
+    //If image tag start with '/'
+    //Skip
+    //Else, decode, store, change src to link
+    const $ = cheerio.load(description);
+    if ($("img").length > 0) {
+      let ext;
+      const image_promises = [];
+      const image_names = [];
+      const file_details = [];
+      //Look for all images in the description
+      const images = $("img").nextAll();
+      //Get unique names
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].prev.attribs["src"].charAt(0) != "/") {
+          ext = re.exec(images[i].prev.attribs["data-filename"])[1];
+          if (ext == undefined) ext = "";
+          else ext = `.${ext}`;
+          image_names.push(uuidv4());
+          //Convert them to files
+          image_promises.push(
+            base64Img.img(
+              images[i].prev.attribs.src,
+              process.env.files_folder,
+              image_names[i]
+            )
+          );
+          image_names[i] = image_names[i] + ext;
+          // .then(function(filepath) {});
+        } else {
+          image_names.push("");
+          image_names[i] = images[i].prev.attribs["src"];
+        }
+      }
+      await Promise.all(image_promises);
+      //Get their image links
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].prev.attribs["src"].charAt(0) != "/") {
+          //Replace the src of the images in the description with the new links
+          $("img").nextAll()[i].prev.attribs["src"] =
+            "/api/acts/images/" + image_names[i];
+          file_details.push({
+            uploader_id: mongoose.Types.ObjectId(req.user.id),
+            proof_name: image_names[i],
+            upload_time: new Date(),
+            original_name: images[i].prev.attribs["data-filename"],
+            size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
+              .size
+          });
+        }
+      }
+      // console.log($.html())
+      let new_description = $.html();
+      new_description = new_description.split("<body>")[1];
+      new_description = new_description.split("</body>")[0];
+      description = new_description;
+      //Insert these new files into the file schema
+      if (file_details.length > 0)
+        await FileSchema.collection.insertMany(file_details);
+
+      console.log(description);
+    }
+
+    //Add other details
+    act.description = description;
+    act.amount = req.body.amount;
+    act.expiration_date = req.body.expiration_date;
 
     //If this is an event
     if (act.__t == "Event") {
@@ -1289,7 +1578,7 @@ router.delete("/proof/:id", async function(req, res, next) {
       { session }
     );
     //Delete the proof file
-    const previous_image = `${process.env.files_folder}/${new_name}`
+    const previous_image = `${process.env.files_folder}/${new_name}`;
     const promised_delete_file = fs_delete_file(previous_image);
     const promised_fileschema_delete = FileSchema.findOneAndDelete(
       {

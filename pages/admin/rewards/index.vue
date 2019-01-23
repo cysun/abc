@@ -32,18 +32,18 @@
                             :selected="query.sort == 'creation_date'"
                           >{{$t('date')}}</option>
                           <option
-                            value="total_number_of_completions"
-                            :selected="query.sort == 'total_number_of_completions'"
+                            value="total_number_of_users_who_got_this_reward"
+                            :selected="query.sort == 'total_number_of_users_who_got_this_reward'"
                           >{{$t('favorites')}}</option>
                           <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
                           <option
-                            value="total_number_of_clicks"
-                            :selected="query.sort == 'total_number_of_clicks'"
+                            value="total_number_of_users_who_clicked_on_this_rewards"
+                            :selected="query.sort == 'total_number_of_users_who_clicked_on_this_rewards'"
                           >{{$t('popularity')}}</option>
                           <option
-                            value="reward_points"
-                            :selected="query.sort == 'reward_points'"
-                          >{{$t('Reward_points')}}</option>
+                            value="value"
+                            :selected="query.sort == 'value'"
+                          >{{$t('value')}}</option>
                         </select>
                         
                         <select class="form-control" name="order" v-model="query.order">
@@ -74,7 +74,7 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
-                          <th>{{$t('actions')}}</th>
+                          <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
                       <tbody>
@@ -98,11 +98,11 @@
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
-                          <td>
+                          <!-- <td>
                             <nuxt-link :to="'/admin/rewards/' + act._id + '/edit'">
                               <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
-                          </td>
+                          </td> -->
                         </tr>
                       </tbody>
                     </table>
@@ -255,7 +255,7 @@ export default {
     let data;
     await axios
       .get(
-        `/api/rewards?sort=${to.query.sort}&order=${to.query.order}&search=${
+        `/api/admin/rewards?sort=${to.query.sort}&order=${to.query.order}&search=${
           to.query.search
         }&page=${to.query.page}`,
         {
@@ -327,7 +327,7 @@ export default {
       scrollToElement(element);
 
       this.$router.push(
-        `/admin/acts?sort=${this.query.sort}&order=${this.query.order}&search=${
+        `/admin/rewards?sort=${this.query.sort}&order=${this.query.order}&search=${
           vue_context.query.search
         }&page=${index}
         `

@@ -16,14 +16,8 @@
                   <input type="hidden" name="id" value="this_user._id">
                   <label for="name">{{$t('name')}}</label>
                   <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
-                  <label for="description">{{$t('description')}}</label>
-                  <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    :placeholder="$t('description')"
-                    v-model="description"
-                  >
+                  <label for="summernote">Description</label>
+                  <textarea id="summernote" name="editordata"></textarea>
                   <label for="reward_points">{{$t('value')}}</label>
                   <input
                     type="text"
@@ -40,7 +34,21 @@
                     id="amount"
                     v-model="amount"
                   >
-                  <input type="submit" name="edit" :value="$t('add_reward')">
+                  <label for="file">Image should be 1600 X 800</label>
+                  <input
+                    class="form-control"
+                    @change="fileChanged"
+                    id="file"
+                    type="file"
+                    name="file"
+                  >
+                  <br>
+                  <input
+                    type="submit"
+                    :class="{'disabled': disable_submit_button}"
+                    name="edit"
+                    :value="submit_text"
+                  >
                 </form>
                 <!-- <h5><a href="/">Go Back to Home</a></h5> -->
               </div>
@@ -55,7 +63,6 @@
       <my-sidebar/>
       <div class="clearfix"></div>
     </div>
-    
   </div>
 </template>
 <script>
@@ -77,6 +84,32 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
+
+    $(document).ready(function() {
+      $("#summernote").summernote({
+        placeholder: "Description",
+        height: 300,
+        toolbar: [
+          // [groupName, [list of button]]
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
+        // callbacks: {
+        //   onImageUpload: function(files) {
+        //     // upload image to server and create imgNode...
+        //     // $("#summernote").summernote('insertNode', imgNode);
+        //     $('#summernote').summernote('insertText', "<p>Hello World</p>");
+        //     console.log(files);
+        //   }
+        // }
+      });
+    });
 
     var toggle = true;
 
@@ -102,15 +135,22 @@ export default {
       this.image = event.target.files[0];
     },
     async addAct() {
+      if (this.disable_submit_button) return;
+      this.disable_submit_button = true;
+      this.submit_text = "Submitting...";
+      this.$nuxt.$loading.start();
+
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
-      const params = new URLSearchParams();
+      const params = new FormData();
+      this.description = $("#summernote").summernote("code");
 
       params.append("name", this.name);
       params.append("description", this.description);
       params.append("value", this.value);
       params.append("amount", this.amount);
-      
+      if (this.image) params.append("file", this.image, this.image.name);
+
       await axios
         .post(`/api/rewards`, params, {
           headers: {
@@ -125,9 +165,10 @@ export default {
           });
           vue_context.name = "";
           vue_context.description = "";
-          vue_context.value = 0;
+          vue_context.value = "";
           vue_context.amount = "";
-
+          $("#summernote").summernote("code", "");
+          document.getElementById("file").value = null;
         })
         .catch(function(err) {
           izitoast.error({
@@ -136,6 +177,9 @@ export default {
             position: "topRight"
           });
         });
+      this.disable_submit_button = false;
+      this.submit_text = "Submit";
+      this.$nuxt.$loading.finish();
     }
   },
   data() {
@@ -144,7 +188,9 @@ export default {
       description: "",
       value: "",
       amount: "",
-      tags: ""
+      image: null,
+      submit_text: "Submit",
+      disable_submit_button: false
     };
   }
 };

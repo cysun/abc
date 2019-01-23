@@ -2,17 +2,21 @@
 const mongoose = require("mongoose");
 const globals = require("../globals");
 const fs = require("fs");
+const User = require('./User');
 const nodemailer = require("nodemailer");
 const sanitize = require("sanitize-html");
+const FileSchema = require("./File");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 const passwordValidator = require("password-validator");
 const randomstring = require("randomstring");
 const util = require("util");
+const cheerio = require("cheerio");
 const fs_read_file = util.promisify(fs.readFile);
 const bcrypt = require("bcryptjs");
 const schema = new passwordValidator();
 const uuidv4 = require("uuid/v4");
+const base64Img = require("base64-img-promise");
 const sharp = require("sharp");
 schema
   .is()
@@ -36,8 +40,8 @@ let actSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
-    sparse: true
+    required: true
+    // sparse: true
   },
   reward_points: {
     type: Number,
@@ -58,9 +62,14 @@ let actSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  amount: {
+    type: Number,
+    default: 0
+  },
+  expiration_date: Date,
   image: {
-    type: String,
-    default: "http://localhost:3000/images/banner1.jpg"
+    type: String
+    // default: "http://localhost:3000/images/banner1.jpg"
   },
   act_provider: {
     id: {
@@ -78,6 +87,10 @@ let actSchema = new mongoose.Schema({
       type: String,
       required: true,
       sparse: true
+    },
+    email: {
+      type: String,
+      required: true
     }
   },
   tags: [
@@ -509,20 +522,82 @@ actSchema.statics.initialize = async function(data) {
 
   // Sanitize all required fields
   let name = sanitize(data.name);
-  let description = sanitize(data.description);
+  let description = data.description;
   let reward_points = parseInt(sanitize(data.reward_points));
+
+  //Check if there are images in the description
+  const re = /(?:\.([^.]+))?$/;
+  const $ = cheerio.load(description);
+  if ($("img").length > 0) {
+    let ext;
+    const image_promises = [];
+    const image_names = [];
+    const file_details = [];
+    //Look for all images in the description
+    const images = $("img").nextAll();
+    console.log(images.length);
+    //Get unique names
+    for (let i = 0; i < images.length; i++) {
+      if (!images[i].prev.attribs["src"]) continue;
+      ext = re.exec(images[i].prev.attribs["data-filename"])[1];
+      if (ext == undefined) ext = "";
+      else ext = `.${ext}`;
+      image_names.push(uuidv4());
+      //Convert them to files
+      image_promises.push(
+        base64Img.img(
+          images[i].prev.attribs.src,
+          process.env.files_folder,
+          image_names[i]
+        )
+      );
+      image_names[i] = image_names[i] + ext;
+      // .then(function(filepath) {});
+    }
+    await Promise.all(image_promises);
+    //Get their image links
+    for (let i = 0; i < images.length; i++) {
+      if (!images[i].prev.attribs["src"]) continue;
+      //Replace the src of the images in the description with the new links
+      $("img").nextAll()[i].prev.attribs["src"] =
+        "/api/acts/images/" + image_names[i];
+      file_details.push({
+        uploader_id: mongoose.Types.ObjectId(data.provider.id),
+        proof_name: image_names[i],
+        upload_time: new Date(),
+        original_name: images[i].prev.attribs["data-filename"],
+        size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`).size
+      });
+      console.log($("img").nextAll()[i].prev.attribs["src"]);
+    }
+    // console.log($.html())
+    let new_description = $.html();
+    new_description = new_description.split("<body>")[1];
+    new_description = new_description.split("</body>")[0];
+    description = new_description;
+    console.log(description);
+    //Insert these new files into the file schema
+    if (file_details.length > 0)
+      await FileSchema.collection.insertMany(file_details);
+  }
+
+  // console.log($("img").nextAll()[0].prev.attribs["data-filename"]);
+  // $("img").nextAll()[0].prev.attribs["src"] = "";
+  // throw new Error($("img"));
 
   //Make sure all required fields were sent,
   //If not, return error
   if (!name || !description || !reward_points)
     throw new Error("Incomplete request");
 
+  if (data.expiration_date) act.expiration_date = data.expiration_date;
   //If picture was uploaded, make sure it's a valid image
   let file_name = null;
   let error_drawing_file = false;
-  if (data.profile_picture) {
+  if (data.picture) {
     let buffer;
     await this.getUniqueImageName()
+
       .then(function(random_file_name) {
         //Check for a unique file name
         file_name = random_file_name;
@@ -533,29 +608,32 @@ actSchema.statics.initialize = async function(data) {
         });
       })
       .then(async function() {
-        await sharp(buffer).toFile(
-          "static/" + process.env.files_folder + file_name + ".png"
-        );
+        await sharp(buffer)
+          .resize(1600, 800)
+          .toFile(`${process.env.files_folder}/${file_name}.png`);
       })
       .catch(function(error) {
         error_drawing_file = true;
       })
       .then(function() {
         //Attach profile picture to user
-        act.image =
-          process.env.website + process.env.files_folder + file_name + ".png";
+        act.image = `${file_name}.png`;
       });
   }
 
   if (error_drawing_file) throw new Error("Invalid image");
 
+  
+
   act.name = name;
   act.description = description;
   act.reward_points = reward_points;
+  act.amount = data.amount;
   act.act_provider = {
     id: data.provider.id,
     first_name: data.provider.first_name,
-    last_name: data.provider.last_name
+    last_name: data.provider.last_name,
+    email: data.provider.email
   };
   return act;
 };

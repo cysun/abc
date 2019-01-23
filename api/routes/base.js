@@ -4,6 +4,7 @@ var createError = require("http-errors");
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const Act = require("../../models/Act");
+const Reward = require("../../models/Reward");
 const Subscriber = require("../../models/Subscriber");
 const jwt = require("jsonwebtoken");
 const globals = require("../../globals");
@@ -46,12 +47,42 @@ router.get("/latest_acts", async function(req, res, next) {
       state: "AVAILABLE",
       deleted: false
     },
-    { description: true, creation_date: true }
+    { description: true, creation_date: true, name: true }
   )
     .sort({ creation_date: -1 })
     .limit(3);
 
   res.json(latest_acts);
+});
+
+//Contact
+router.post("/contact", async function(req, res, next) {
+  try {
+    await mail.contactUs(req.body);
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(
+      `A message sent from the contact us form failed to be delivered`
+    );
+  }
+});
+
+//Get details
+router.get("/details", async function(req, res, next) {
+  const promises = [];
+  promises.push(Act.find({}).countDocuments());
+  promises.push(User.find({}).countDocuments());
+  promises.push(Reward.find({}).countDocuments());
+
+  let acts, lives, rewards;
+  await Promise.all(promises).then(function(values) {
+    acts = values[0];
+    lives = values[1];
+    rewards = values[2];
+  });
+
+  res.json({ acts, lives, rewards });
 });
 
 //Login User

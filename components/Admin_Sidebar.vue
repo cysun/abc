@@ -13,6 +13,12 @@
     <div class="menu">
       <ul id="menu">
         <li id="menu-home">
+          <a href="/">
+            <i class="fa fa-home"></i>
+            <span>{{$t('home')}}</span>
+          </a>
+        </li>
+        <li id="menu-home">
           <nuxt-link to="/admin">
             <i class="fa fa-area-chart"></i>
             <span>{{$t('dashboard')}}</span>
@@ -48,6 +54,9 @@
             </li>
             <li>
               <nuxt-link to="/admin/acts">{{$t('view_acts')}}</nuxt-link>
+            </li>
+            <li>
+              <nuxt-link to="/admin/events">View Events</nuxt-link>
             </li>
           </ul>
         </li>

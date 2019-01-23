@@ -42,6 +42,28 @@ async function sendVerificationMail(user_email, verification_code) {
   }
 }
 
+async function contactUs(data) {
+  try {
+    await email.send({
+      template: "contact",
+      message: {
+        to: process.env.email_address
+      },
+      locals: {
+        data
+      }
+    });
+    logger.info(
+      `Contact us email successfully sent to ${process.env.email_address}`
+    );
+  } catch (err) {
+    logger.error(
+      `Contact us email failed while sending to ${process.env.email_address}`
+    );
+    throw new Error("Something went wrong. Please try again later");
+  }
+}
+
 async function sendProofApprovalMail(user_email, act_id) {
   try {
     await email.send({
@@ -81,17 +103,34 @@ async function sendProofRejectionMail(user_email, act_id, reason) {
   }
 }
 
-async function sendNewReviewNotice(user_email) {
+async function sendNewReviewNotice(user_email, reward_id) {
   try {
     await email.send({
       template: "new_review",
       message: {
         to: user_email
-      }
+      },
+      locals: { url: process.env.website, reward_id }
     });
     logger.info(`New review email successfully sent to ${user_email}`);
   } catch (err) {
     logger.error(`New review email failed while sending to ${user_email}`);
+    throw new Error("Something went wrong. Please try again later");
+  }
+}
+
+async function sendExpirationNotice(user_email, name, id) {
+  try {
+    await email.send({
+      template: "remind_act_poster",
+      message: {
+        to: user_email
+      },
+      locals: { url: process.env.website, name, id }
+    });
+    logger.info(`Reminder of act expiration email successfully sent to ${user_email}`);
+  } catch (err) {
+    logger.error(`Reminder of act expiration email failed while sending to ${user_email}`);
     throw new Error("Something went wrong. Please try again later");
   }
 }
@@ -187,7 +226,9 @@ async function notifyRewardProvidersOfRequestOrClaim(user_email) {
 }
 
 module.exports = {
+  contactUs,
   sendNewReviewNotice,
+  sendExpirationNotice,
   sendVerificationMail,
   notifyManagersOfProof,
   sendProofApprovalMail,

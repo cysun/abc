@@ -2,10 +2,11 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Reward = require("../models/Reward");
 const mail = require("../send_mail");
+require("dotenv").load();
 
 async function run() {
   mongoose.connect(
-    "mongodb://DESKTOP-P2ELC2L:27017,DESKTOP-P2ELC2L:27018,DESKTOP-P2ELC2L:27019/ABC",
+    process.env.DBURL,
     {
       useCreateIndex: true,
       useNewUrlParser: true,

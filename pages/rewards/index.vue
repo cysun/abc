@@ -89,11 +89,15 @@
               class="blog-x row"
               v-for="(act, index) in data.acts"
             >
-              <!-- <div class="blog-img w3-agile-grid">
-                <a>
-                  <img src alt class="img-fluid">
-                </a>
-              </div>-->
+              <div class="blog-img w3-agile-grid">
+                <nuxt-link :to="`/rewards/${act._id}`" v-if="act.image">
+                  <img
+                    :src="`/api/rewards/${act._id}/image`"
+                    alt
+                    class="img-fluid"
+                  >
+                </nuxt-link>
+              </div>
               <div class="blog_info">
                 <h5>
                   <a
@@ -123,7 +127,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!act.edit" class="truncate_text_3_lines">{{act.description}}</p>
+                <p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p>
                 <textarea
                   :id="'act_description' + index"
                   v-if="act.edit"
@@ -245,7 +249,7 @@
                   </div>
                   <div class="col-md-5" v-if="act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!act.delete">
-                      <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button>
+                      <!-- <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button> -->
                       <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
                       <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>
                     </span>
@@ -343,116 +347,6 @@
             </nav>
           </div>
           <aside class="col-lg-4 single-left">
-            <div class="single-gd" v-if="data.roles && data.roles.reward_provider">
-              <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
-              <div
-                v-if="status_message"
-                class="alert"
-                :class="{'alert-danger': status_state == 'Error', 'alert-success': status_state == 'Success'}"
-              >
-                <strong>{{status_state}}:</strong>
-                {{status_message}}
-              </div>
-              <!-- <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">{{$t('add_reward')}}</option>
-              </select>
-              <br>-->
-              <h4>{{$t('add_reward')}}</h4>
-              <form @submit.prevent="addAct">
-                <input
-                  class="form-control"
-                  v-model="add_act.name"
-                  type="text"
-                  name="name"
-                  :placeholder="$t('name')"
-                  required
-                >
-                <textarea
-                  rows="10"
-                  class="form-control"
-                  name="description"
-                  :placeholder="$t('description')"
-                  required
-                  v-model="add_act.description"
-                ></textarea>
-                <div v-if="upload_type == 'event'" class="control-group">
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      :placeholder="$t('start_time')"
-                      type="text"
-                      class="form-control"
-                      value
-                      id="start_time"
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <div
-                    class="controls input-append date form_datetime"
-                    data-date-format="yyyy-mm-ddThh:ii"
-                    data-link-field="dtp_input1"
-                  >
-                    <input
-                      size="16"
-                      id="end_time"
-                      :placeholder="$t('end_time')"
-                      type="text"
-                      class="form-control"
-                      value
-                    >
-                    <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
-                  <input type="hidden" id="dtp_input1" value>
-                  <script>
-                    $(".form_datetime").datetimepicker({
-                      weekStart: 1,
-                      todayBtn: 1,
-                      autoclose: 1,
-                      todayHighlight: 1,
-                      startView: 2,
-                      forceParse: 0,
-                      showMeridian: 1
-                    });
-                  </script>
-                </div>
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  :placeholder="$t('value')"
-                  required
-                  v-model="add_act.value"
-                >
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  :placeholder="$t('amount')"
-                  required
-                  v-model="add_act.amount"
-                >
-                <!-- <label for="file">Image should be 1600 X 800</label>
-                <input class="form-control" id="file" type="file" name="file">-->
-                <div class="button">
-                  <input class="form-control" type="submit" value="Submit">
-                </div>
-              </form>
-            </div>
             <div class="single-gd tech-btm">
               <h4>Best rewards of the month</h4>
               <div
@@ -461,9 +355,7 @@
                 style="margin-bottom: 10px"
               >
                 <nuxt-link :to="'rewards/' + top_act._id">{{top_act.act[0].name}}</nuxt-link>
-                <p
-                  style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                >{{top_act.act[0].description}}</p>
+                <p v-html="top_act.act[0].description" class="truncate_text_3_lines"></p>
                 <ul class="blog_list">
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>

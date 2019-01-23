@@ -28,6 +28,9 @@ const router = Router();
 
 router.get("/acts", async function(req, res, next) {
   try {
+    let type = Act;
+    if (req.query.type == 'event')
+    type = Event_Act;
     //Only admin can get here
     if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
@@ -55,7 +58,7 @@ router.get("/acts", async function(req, res, next) {
 
     let results;
     let count;
-    results = Act.find(search, {
+    results = type.find(search, {
       name: true,
       // description: true,
       enabled: true,
@@ -69,7 +72,7 @@ router.get("/acts", async function(req, res, next) {
       .limit(10)
       .lean();
 
-    count = Act.find(search).countDocuments();
+    count = type.find(search).countDocuments();
 
     const promises = [results, count];
     let returned_results, pages;

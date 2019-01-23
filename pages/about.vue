@@ -2,35 +2,12 @@
   <div>
     <my-header :logged_in="logged_in" :page="page" :roles="roles"/>
     <my-banner :title="title"/>
-    <section class="about py-5">
-      <div class="container py-md-3 agile-info">
-        <h2 class="heading mb-md-5 mb-4">{{$t('about_us')}}</h2>
-        <div class="row about-grids agile-info">
-          <div class="col-lg-6 w3-agile-grid mb-lg-0 mb-5">
-            <p>{{$t('about_us_text_3')}}</p>
-            <!-- <p class="mt-2 mb-3">
-              Cras blandit nibh ut pretium elementum. Duis bibendum convallis nun ca dictum. Quisquen ac ipsum porta, ultrices metus sit amet,
-              curs in nisl. Duis aliquet varius sem sit amet. convallis nun ca dictum amet. Quisquen ac ipsum porta, ultrices metus sit amet,
-              curs in nisl. Duis aliquet varius sem sit amet.
-            </p>
-            <a href="about.html">Read More</a> -->
-          </div>
-          <div class="col-lg-3 w3-agile-grid col-md-4 pr-md-0">
-            <h3 class="margin">15+ years experience</h3>
-            <h3 class="black">Valuable Services</h3>
-          </div>
-          <div class="col-lg-3 w3-agile-grid col-md-4 mt-md-0 mt-4">
-            <h3 class="margin green">Experienced Professionals</h3>
-            <h3 class="grey">Management Solutions</h3>
-          </div>
-        </div>
-      </div>
-    </section>
+    <about-sidebar/>
     <!-- //about -->
     <!-- team -->
     <section class="team py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-lg-5 mb-4">Our Professionals</h3>
+        <h3 class="heading mb-lg-5 mb-4">{{$t('our_professionals')}}</h3>
         <div class="row team-grids">
           <div class="col-md-3 col-sm-6 mb-md-0 mb-4 team-grid w3-agile-grid">
             <div class="team-members">
@@ -130,12 +107,14 @@
 <script>
 import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
+import AboutSidebar from "~/components/About_sidebar.vue";
 import jwt_decode from "jwt-decode";
 let vue_context;
 export default {
   components: {
     MyBanner,
-    MyHeader
+    MyHeader,
+    AboutSidebar
   },
   // async asyncData(context) {
   //   if (context.app.$cookies.get("token")) {
@@ -179,7 +158,7 @@ export default {
   },
   data() {
     return {
-      title: "About Us",
+      title: "about_us",
       first_name: "",
       last_name: "",
       email: "",

@@ -19,7 +19,9 @@ export default {
       script: [
         { src: '/js/bootstrap.js' },
         { src: '/js/move-top.js' },
-        { src: '/js/main.js' }
+        { src: '/js/main.js' },
+        // { src: '/js/bootstrap-datepicker.js' },
+        { src: '/js/summernote-bs4.js' }
         // {
         //   src:
         //     "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"
@@ -37,6 +39,16 @@ export default {
         {
           href:
             "/css/style.css",
+          rel: "stylesheet"
+        },
+        // {
+        //   href:
+        //     "/css/datepicker.css",
+        //   rel: "stylesheet"
+        // },
+        {
+          href:
+            "/css/summernote-bs4.css",
           rel: "stylesheet"
         }
       ]

@@ -74,7 +74,7 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
-                          <th>{{$t('actions')}}</th>
+                          <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
                       <tbody>
@@ -98,11 +98,11 @@
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
-                          <td>
+                          <!-- <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
                               <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
-                          </td>
+                          </td> -->
                         </tr>
                       </tbody>
                     </table>

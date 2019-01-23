@@ -43,12 +43,12 @@
                 <option value="ALL" :selected="!query.type == 'ALL'">{{$t('all')}}</option>
                 <option value="ENABLED" :selected="!query.type == 'ENABLED'">{{$t('enabled')}}</option>
                 <option value="DISABLED" :selected="!query.type == 'DISABLED'">{{$t('disabled')}}</option>
-                <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
+                <!-- <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
                 <option
                   v-if="data.roles && data.roles.act_poster"
                   value="MY_ACTS"
                   :selected="!query.type == 'MY_ACTS'"
-                >{{$t('my_acts')}}</option>
+                >{{$t('my_acts')}}</option> -->
               </select>
             </span>
             <button
