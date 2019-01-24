@@ -1,4 +1,5 @@
 import path from "path";
+// require("dotenv").load();
 module.exports = {
   /*
    ** Headers of the page
@@ -65,6 +66,9 @@ module.exports = {
    */
   build: {
     vendor: ["axios"]
+  },
+  env: {
+    email_address: process.env.email_address
   },
   serverMiddleware: [
     // API middleware
