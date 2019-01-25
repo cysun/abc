@@ -19,6 +19,9 @@ const transporter = nodemailer.createTransport({
 
 const email = new Email({
   send: true,
+  message: {
+    from: process.env.email_address
+  },
   preview: false,
   transport: transporter,
   views: {
