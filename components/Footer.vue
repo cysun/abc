@@ -44,7 +44,7 @@
                 </p> -->
                 <p>
                   <i class="fas mr-1 fa-envelope-open"></i>
-                  <a href="mailto:abc.project.finance1@gmail.com">abc.project.finance1@gmail.com</a>
+                  <a :href="`mailto:${email_address}`">{{email_address}}</a>
                 </p>
               </address>
             </div>
@@ -141,7 +141,8 @@ export default {
   data() {
     return {
       acts: [],
-      subscriber: ""
+      subscriber: "",
+      email_address: process.env.email_address
     };
   },
   methods: {

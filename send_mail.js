@@ -6,15 +6,22 @@ require("dotenv").load();
 let error_occured = false;
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.email_address,
-    pass: process.env.email_password
-  }
+  // service: "gmail",
+  // auth: {
+  //   user: process.env.email_address,
+  //   pass: process.env.email_password
+  // }
+  host: "localhost",
+  port: 25,
+  secure: false,
+  ignoreTLS: true
 });
 
 const email = new Email({
   send: true,
+  message: {
+    from: process.env.email_address
+  },
   preview: false,
   transport: transporter,
   views: {
@@ -37,6 +44,7 @@ async function sendVerificationMail(user_email, verification_code) {
     });
     logger.info(`Verification email successfully sent to ${user_email}`);
   } catch (err) {
+    // console.log(err);
     logger.error(`Verification email failed while sending to ${user_email}`);
     throw new Error("Something went wrong. Please try again later");
   }
@@ -128,9 +136,13 @@ async function sendExpirationNotice(user_email, name, id) {
       },
       locals: { url: process.env.website, name, id }
     });
-    logger.info(`Reminder of act expiration email successfully sent to ${user_email}`);
+    logger.info(
+      `Reminder of act expiration email successfully sent to ${user_email}`
+    );
   } catch (err) {
-    logger.error(`Reminder of act expiration email failed while sending to ${user_email}`);
+    logger.error(
+      `Reminder of act expiration email failed while sending to ${user_email}`
+    );
     throw new Error("Something went wrong. Please try again later");
   }
 }

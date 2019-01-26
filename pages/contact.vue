@@ -13,7 +13,7 @@
             <div class="col-9 p-0">
               <h4>{{$t('email')}}</h4>
               <p>
-                <a href="mailto:abc.project.finance1@gmail.com">abc.project.finance1@gmail.com</a>
+                <a :href="`mailto:${email_address}`">{{email_address}}</a>
               </p>
             </div>
           </div>
@@ -173,7 +173,8 @@ export default {
       email: "",
       password: "",
       image: null,
-      page: "contact"
+      page: "contact",
+      email_address: process.env.email_address
     };
   }
 };
