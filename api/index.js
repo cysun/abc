@@ -42,6 +42,7 @@ const remind_act_poster_of_expiration = require("../cron_jobs/remind_act_poster_
 logger.info("Before job instantiation");
 
 //Every day at midnight
+//"0 0 0 * * *"
 const job1 = new CronJob("0 0 0 * * *", async function() {
   await daily_email_to_managers_if_proofs_exist.run();
   logger.info("Daily email to managers if proof exists have been sent");
