@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 const User = require("../models/User");
 const mail = require("../send_mail");
 require("dotenv").load();
 
 async function run() {
-  mongoose.connect(
-    process.env.DBURL,
-    {
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      replicaSet: "rs"
-    }
-  );
+  // mongoose.connect(
+  //   process.env.DBURL,
+  //   {
+  //     useCreateIndex: true,
+  //     useNewUrlParser: true,
+  //     replicaSet: "rs"
+  //   }
+  // );
 
   //Count the number of users who have acts that are under review
   const user_count = await User.find({
@@ -38,7 +38,7 @@ async function run() {
     }
   }
 
-  await mongoose.disconnect();
+  // await mongoose.disconnect();
 }
 
 // run();
