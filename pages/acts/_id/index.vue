@@ -40,14 +40,14 @@
                   ></a>
                 </p>
 
-                <p v-if="!data.edit" v-html="data.act.description"></p>
-                <textarea
+                <div><p v-html="data.act.description"></p></div>
+                <!-- <textarea
                   id="act_description"
                   v-if="data.edit"
                   class="form-control"
                   rows="4"
                   :value="data.act.description"
-                ></textarea>
+                ></textarea> -->
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span

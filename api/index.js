@@ -8,11 +8,12 @@ const mongoose = require("mongoose");
 var createError = require("http-errors");
 var cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-var hbs = require('hbs');
+const CronJob = require("cron").CronJob;
+var hbs = require("hbs");
 var i18n = require("i18n");
 i18n.configure({
-  locales: ['en', 'es'],
-  directory: __dirname + '/locales'
+  locales: ["en", "es"],
+  directory: __dirname + "/locales"
 });
 
 // Create express instnace
@@ -23,15 +24,54 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(i18n.init);
 
-hbs.registerHelper('__', function () {
+hbs.registerHelper("__", function() {
   return i18n.__.apply(this, arguments);
 });
-hbs.registerHelper('__n', function () {
+hbs.registerHelper("__n", function() {
   return i18n.__n.apply(this, arguments);
 });
 
 const logger = require("../logger").winston;
 const requestLogger = require("../logger").morgan;
+
+const daily_email_to_managers_if_proofs_exist = require("../cron_jobs/daily_email_to_managers_if_proofs_exist");
+const daily_email_to_reward_provider_if_rewards_are_requested_or_claimed = require("../cron_jobs/daily_email_to_reward_provider_if_rewards_are_requested_or_claimed");
+const make_acts_unavailable_if_expiration_date_is_today = require("../cron_jobs/make_acts_unavailable_if_expiration_date_is_today");
+const remind_act_poster_of_expiration = require("../cron_jobs/remind_act_poster_of_expiration");
+
+logger.info("Before job instantiation");
+
+//Every day at midnight
+const job1 = new CronJob("0 0 0 * * *", async function() {
+  await daily_email_to_managers_if_proofs_exist.run();
+  logger.info("Daily email to managers if proof exists have been sent");
+});
+
+const job2 = new CronJob("0 0 0 * * *", async function() {
+  await daily_email_to_reward_provider_if_rewards_are_requested_or_claimed.run();
+  logger.info(
+    "Daily email to reward providers if rewards are requested or claimed have been sent"
+  );
+});
+
+const job3 = new CronJob("0 0 0 * * *", async function() {
+  await make_acts_unavailable_if_expiration_date_is_today.run();
+  logger.info("Acts that should expire today have been made unavailable");
+});
+
+const job4 = new CronJob("0 0 0 * * *", async function() {
+  await remind_act_poster_of_expiration.run();
+  logger.info(
+    "Act posters with acts which will expire in a week's time have been reminded via email"
+  );
+});
+
+logger.info("After job instantiation");
+
+job1.start();
+job2.start();
+job3.start();
+job4.start();
 
 async function getUserFromJWT(req, res, next) {
   const verifyOptions = Object.assign({}, secret.signOptions);
@@ -137,7 +177,7 @@ mongoose.connect(
   {
     useCreateIndex: true,
     useNewUrlParser: true,
-    replicaSet: 'rs'
+    replicaSet: "rs"
   }
 );
 

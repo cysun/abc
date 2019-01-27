@@ -4,8 +4,8 @@
       <nav class="navbar navbar-expand-lg navbar-light">
         <nuxt-link to="/" class="navbar-brand">
           <!-- <span class="fab fa-asymmetrik"></span> ABC -->
-          <img src="~assets/img/abc.png" style="width:70px">
-          ABC
+          <img src="~assets/img/abc.png" style="width:120px">
+          <!-- ABC -->
         </nuxt-link>
         <div class="dropdown">
           <button
