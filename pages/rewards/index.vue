@@ -127,7 +127,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p>
+                <div><p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p></div>
                 <textarea
                   :id="'act_description' + index"
                   v-if="act.edit"

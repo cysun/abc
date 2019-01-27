@@ -43,7 +43,7 @@
                   ></a>
                 </p>
 
-                <p v-if="!data.edit" v-html="data.act.description"></p>
+                <div><p v-if="!data.edit" v-html="data.act.description"></p></div>
                 <textarea
                   id="act_description"
                   v-if="data.edit"

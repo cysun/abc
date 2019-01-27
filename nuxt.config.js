@@ -1,5 +1,5 @@
 import path from "path";
-// require("dotenv").load();
+require("dotenv").load();
 module.exports = {
   /*
    ** Headers of the page
