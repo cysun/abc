@@ -249,6 +249,11 @@
                   </div>
                   <div class="col-md-5" v-if="act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
                     <span v-if="!act.delete">
+                      <nuxt-link :to="`/rewards/${act._id}/edit`">
+                        <button
+                          class="btn btn-primary"
+                        >{{$t('edit')}}</button>
+                      </nuxt-link>
                       <!-- <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button> -->
                       <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
                       <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>

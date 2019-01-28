@@ -975,20 +975,18 @@ router.post("/", upload.single("file"), async function(req, res, next) {
       const image_names = [];
       const file_details = [];
       //Look for all images in the description
-      const images = $("img").nextAll();
-      console.log(images.length);
+      const images = $("img");
       //Get unique names
-      console.log(3);
       for (let i = 0; i < images.length; i++) {
-        if (!images[i].prev.attribs["src"]) continue;
-        ext = re.exec(images[i].prev.attribs["data-filename"])[1];
+        if (!images[i].attribs["src"]) continue;
+        ext = re.exec(images[i].attribs["data-filename"])[1];
         if (ext == undefined) ext = "";
         else ext = `.${ext}`;
         image_names.push(uuidv4());
         //Convert them to files
         image_promises.push(
           base64Img.img(
-            images[i].prev.attribs.src,
+            images[i].attribs.src,
             process.env.files_folder,
             image_names[i]
           )
@@ -996,34 +994,28 @@ router.post("/", upload.single("file"), async function(req, res, next) {
         image_names[i] = image_names[i] + ext;
         // .then(function(filepath) {});
       }
-      console.log(5);
       await Promise.all(image_promises);
-      console.log(6);
       //Get their image links
       for (let i = 0; i < images.length; i++) {
-        if (!images[i].prev.attribs["src"]) continue;
-        console.log(7);
+        if (!images[i].attribs["src"]) continue;
         //Replace the src of the images in the description with the new links
-        $("img").nextAll()[i].prev.attribs["src"] =
+        $("img")[i].attribs["src"] =
           "/api/rewards/images/" + image_names[i];
         file_details.push({
           uploader_id: mongoose.Types.ObjectId(req.user.id),
           proof_name: image_names[i],
           upload_time: new Date(),
-          original_name: images[i].prev.attribs["data-filename"],
+          original_name: images[i].attribs["data-filename"],
           size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
             .size
         });
-        console.log($("img").nextAll()[i].prev.attribs["src"]);
+        console.log($("img")[i].attribs["src"]);
       }
-      // console.log($.html())
-      console.log(6);
       let new_description = $.html();
       new_description = new_description.split("<body>")[1];
       new_description = new_description.split("</body>")[0];
       // description = new_description;
       reward.description = new_description;
-      console.log(new_description);
       //Insert these new files into the file schema
       if (file_details.length > 0)
         await FileSchema.collection.insertMany(file_details);
@@ -1088,8 +1080,28 @@ router.get("/images/:id", async function(req, res, next) {
   }
 });
 
+router.delete("/:id/image", async function(req, res, next) {
+  try {
+    const promises = [];
+    const act = await Reward.findById(req.params.id, { image: true, _id: false });
+    //Delete image from file system
+    promises.push(fs_delete_file(`${process.env.files_folder}/${act.image}`));
+    //Delete image from act and file tables
+    promises.push(
+      Reward.findByIdAndUpdate(req.params.id, { $unset: { image: "" } })
+    );
+    promises.push(FileSchema.findOneAndDelete({ proof_name: act.image }));
+    await Promise.all(promises);
+    //Return success message
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to delete reward ${req.params.id} image`);
+  }
+});
+
 //Edit reward
-router.put("/:id", async function(req, res, next) {
+router.put("/:id", upload.single("file"), async function(req, res, next) {
   try {
     if (!req.roles || !req.roles.reward_provider) {
       throw new Error(res.__("lack_auth"));
@@ -1105,7 +1117,7 @@ router.put("/:id", async function(req, res, next) {
       throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
-    const description = sanitize(req.body.description);
+    const description = req.body.description;
     const value = sanitize(req.body.value);
     const amount = sanitize(req.body.amount);
 
@@ -1119,7 +1131,6 @@ router.put("/:id", async function(req, res, next) {
 
     act.enabled = false;
     act.name = name;
-    act.description = description;
     act.value = value;
     act.amount = amount;
 
@@ -1139,6 +1150,163 @@ router.put("/:id", async function(req, res, next) {
     //   act.start_time = start_time;
     //   act.end_time = end_time
     // }
+
+    const re = /(?:\.([^.]+))?$/;
+    let $ = cheerio.load(act.description);
+    //Check if there are images in the description in the database
+    if ($("img").length > 0) {
+      //Compare with new description to figure out old images to delete
+      const old_image_srcs = [];
+      const new_image_srcs = [];
+      const old_description_images = $("img");
+      //Put database description image srcs in an array
+      for (let i = 0; i < old_description_images.length; i++) {
+        old_image_srcs.push(old_description_images[i].attribs["src"]);
+      }
+      //Check the new description for image srcs
+      const new_description1 = cheerio.load(description);
+      // console.log(new_description1("img").nextAll())
+      if (new_description1("img").length > 0) {
+        const new_description_images = new_description1("img");
+        //For each new description src, check if it starts with '/'
+        for (let i = 0; i < new_description_images.length; i++) {
+          //If so, put in another array
+          // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
+          if (new_description_images[i].attribs["src"].charAt(0) == "/")
+            new_image_srcs.push(new_description_images[i].attribs["src"]);
+        }
+        //Check if old description src exists in new description src (Do it backwards)
+        for (let i = old_image_srcs.length - 1; i >= 0; i--) {
+          if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
+            //If so, remove from old array
+            old_image_srcs.splice(i, 1);
+          }
+        }
+      }
+      // console.log(old_image_srcs);
+      // console.log(new_image_srcs);
+      //After everything is done,
+      const promised_delete_files = [];
+      for (let i = 0; i < old_image_srcs.length; i++) {
+        //Get image link in old description src array
+        old_image_srcs[i] = old_image_srcs[i].replace(`/api/rewards/images/`, "");
+        //Unlink all those images
+        // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
+        promised_delete_files.push(
+          fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
+        );
+        //Also delete from fileschema
+        promised_delete_files.push(
+          FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
+        );
+      }
+      await Promise.all(promised_delete_files);
+    }
+
+    act.description = description;
+
+    //Add new images
+    //Check if there are images in the new description
+    //If image tag start with '/'
+    //Skip
+    //Else, decode, store, change src to link
+    $ = cheerio.load(description);
+    if ($("img").length > 0) {
+      let ext;
+      const image_promises = [];
+      const image_names = [];
+      const file_details = [];
+      //Look for all images in the description
+      const images = $("img");
+      //Get unique names
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].attribs["src"].charAt(0) != "/") {
+          ext = re.exec(images[i].attribs["data-filename"])[1];
+          if (ext == undefined) ext = "";
+          else ext = `.${ext}`;
+          image_names.push(uuidv4());
+          //Convert them to files
+          image_promises.push(
+            base64Img.img(
+              images[i].attribs.src,
+              process.env.files_folder,
+              image_names[i]
+            )
+          );
+          image_names[i] = image_names[i] + ext;
+          // .then(function(filepath) {});
+        } else {
+          image_names.push("");
+          image_names[i] = images[i].attribs["src"];
+        }
+      }
+      await Promise.all(image_promises);
+      //Get their image links
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].attribs["src"].charAt(0) != "/") {
+          //Replace the src of the images in the description with the new links
+          images[i].attribs["src"] =
+            "/api/rewards/images/" + image_names[i];
+          file_details.push({
+            uploader_id: mongoose.Types.ObjectId(req.user.id),
+            proof_name: image_names[i],
+            upload_time: new Date(),
+            original_name: images[i].attribs["data-filename"],
+            size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
+              .size
+          });
+        }
+      }
+      // console.log($.html())
+      let new_description = $.html();
+      new_description = new_description.split("<body>")[1];
+      new_description = new_description.split("</body>")[0];
+      // description = new_description;
+      //Insert these new files into the file schema
+      if (file_details.length > 0)
+        await FileSchema.collection.insertMany(file_details);
+
+      console.log(new_description);
+      act.description = new_description
+    }
+
+    if (req.file) {
+      //Process image
+      const image = "./tmp/" + req.file.filename;
+      let error_drawing_file = false;
+      let buffer;
+      const file_name = uuidv4();
+      await fs_read_file(image)
+        .then(function(data) {
+          buffer = data;
+        })
+        .then(async function() {
+          await sharp(buffer)
+            .resize(1600, 800)
+            .toFile(`${process.env.files_folder}/${file_name}.png`);
+        })
+        .then(async function() {
+          //If processing succeeds
+          //Delete act former image if exists
+          if (act.image)
+            fs.unlinkSync(`${process.env.files_folder}/${act.image}`);
+          //Attach this image to act
+          act.image = `${file_name}.png`;
+          //Add this image to file schema
+          await FileSchema.create({
+            uploader_id: mongoose.Types.ObjectId(req.user.id),
+            proof_name: `${file_name}.png`,
+            original_name: req.file.filename,
+            size: req.file.size
+          }).catch(function(error) {
+            error_drawing_file = true;
+          });
+        });
+
+      //If processing fails
+      //Give error
+      if (error_drawing_file) throw new Error("Invalid image");
+    }
 
     if (req.roles.administrator) act.enabled = true;
     await act.save();

@@ -534,19 +534,19 @@ actSchema.statics.initialize = async function(data) {
     const image_names = [];
     const file_details = [];
     //Look for all images in the description
-    const images = $("img").nextAll();
-    console.log(images.length);
+    const images = $("img");
+    // console.log(images.length);
     //Get unique names
     for (let i = 0; i < images.length; i++) {
-      if (!images[i].prev.attribs["src"]) continue;
-      ext = re.exec(images[i].prev.attribs["data-filename"])[1];
+      if (!images[i].attribs["src"]) continue;
+      ext = re.exec(images[i].attribs["data-filename"])[1];
       if (ext == undefined) ext = "";
       else ext = `.${ext}`;
       image_names.push(uuidv4());
       //Convert them to files
       image_promises.push(
         base64Img.img(
-          images[i].prev.attribs.src,
+          images[i].attribs.src,
           process.env.files_folder,
           image_names[i]
         )
@@ -557,18 +557,18 @@ actSchema.statics.initialize = async function(data) {
     await Promise.all(image_promises);
     //Get their image links
     for (let i = 0; i < images.length; i++) {
-      if (!images[i].prev.attribs["src"]) continue;
+      if (!images[i].attribs["src"]) continue;
       //Replace the src of the images in the description with the new links
-      $("img").nextAll()[i].prev.attribs["src"] =
+      $("img")[i].attribs["src"] =
         "/api/acts/images/" + image_names[i];
       file_details.push({
         uploader_id: mongoose.Types.ObjectId(data.provider.id),
         proof_name: image_names[i],
         upload_time: new Date(),
-        original_name: images[i].prev.attribs["data-filename"],
+        original_name: images[i].attribs["data-filename"],
         size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`).size
       });
-      console.log($("img").nextAll()[i].prev.attribs["src"]);
+      console.log($("img")[i].attribs["src"]);
     }
     // console.log($.html())
     let new_description = $.html();

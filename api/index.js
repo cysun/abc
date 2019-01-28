@@ -232,10 +232,10 @@ process.once("SIGUSR2", signal => {
   shutdown(signal, () => process.kill(process.pid, "SIGUSR2"));
 });
 
-//Uncomment this to debug
+//// Uncomment this to debug
 // app.listen(3000);
-//Run the below code
-//nodemon --inspect ./api/index.js
+//// Run the below code
+// nodemon --inspect ./api/index.js
 
 // Export the server middleware
 module.exports = {

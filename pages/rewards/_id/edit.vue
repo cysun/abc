@@ -10,7 +10,7 @@
           <div class="col-lg-12 blog-sp">
             <div class="single-gd" v-if="data.roles && data.roles.act_poster">
               <template v-if="data.act.image">
-                <img :src="`/api/acts/${data.act._id}/image`" class="img-fluid" alt>
+                <img :src="`/api/rewards/${data.act._id}/image`" class="img-fluid" alt>
                 <div class="text-center">
                   <button
                     @click="deleteImage"
@@ -41,7 +41,7 @@
                 ></textarea>-->
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
-                <div v-if="data.act.__t == 'Event'" class="control-group">
+                <div v-if="upload_type == 'event'" class="control-group">
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -53,7 +53,7 @@
                       readonly
                       type="text"
                       class="form-control"
-                      v-model="data.act.formated_start_time"
+                      value
                       id="start_time"
                     >
                     <span class="add-on">
@@ -76,7 +76,7 @@
                       :placeholder="$t('end_time')"
                       type="text"
                       class="form-control"
-                      v-model="data.act.formated_end_time"
+                      value
                     >
                     <span class="add-on">
                       <i class="icon-remove"></i>
@@ -86,29 +86,39 @@
                     </span>
                   </div>
                   <input type="hidden" id="dtp_input1" value>
-                  <script></script>
+                  <script>
+                    $(".form_datetime").datetimepicker({
+                      weekStart: 1,
+                      todayBtn: 1,
+                      autoclose: 1,
+                      todayHighlight: 1,
+                      startView: 2,
+                      forceParse: 0,
+                      showMeridian: 1
+                    });
+                  </script>
                 </div>
+                <label for="value">Value</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  name="value"
+                  placeholder="Value"
+                  required
+                  id="value"
+                  v-model="data.act.value"
+                >
                 <label for="amount">Amount</label>
                 <input
                   class="form-control"
                   type="number"
                   name="amount"
-                  placeholder="Amount of users who can execute this act"
-                  required
                   id="amount"
+                  :placeholder="$t('amount')"
+                  required
                   v-model="data.act.amount"
                 >
-                <label for="reward_points">Reward points</label>
-                <input
-                  class="form-control"
-                  type="number"
-                  name="reward_points"
-                  id="reward_points"
-                  :placeholder="$t('Reward_points')"
-                  required
-                  v-model="data.act.reward_points"
-                >
-                <label for="tags">Tags</label>
+                <!-- <label for="tags">Tags</label>
                 <input
                   class="form-control"
                   type="text"
@@ -116,10 +126,10 @@
                   id="tags"
                   :placeholder="$t('tags_placeholder')"
                   v-model="tags"
-                >
+                > -->
                 <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
-                <label for="expiration_date">Expiration date</label>
+                <!-- <label for="expiration_date">Expiration date</label>
                 <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                   <input
                     placeholder="Expiration date"
@@ -133,7 +143,7 @@
                   <span class="add-on">
                     <i class="icon-th"></i>
                   </span>
-                </div>
+                </div> -->
                 <!-- <input
                   class="form-control"
                   type="text"
@@ -174,22 +184,6 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    $(".form_datetime")
-      .datetimepicker({
-        weekStart: 1,
-        todayBtn: 1,
-        autoclose: 1,
-        todayHighlight: 1,
-        startView: 2,
-        forceParse: 0,
-        showMeridian: 1
-      })
-      .on("changeDate", function(ev) {
-        vue_context.data.act.start_time = document.getElementById('start_time').value;
-        vue_context.data.act.formated_start_time = document.getElementById('start_time').value;
-        vue_context.data.act.end_time = document.getElementById('end_time').value;
-        vue_context.data.act.formated_end_time = document.getElementById('end_time').value;
-      });
     const doc = document.createElement("span");
     doc.innerHTML = vue_context.data.act.description;
     izitoast = require("izitoast");
@@ -198,12 +192,12 @@ export default {
         placeholder: "Description",
         height: 300,
         callbacks: {
-          // onChange: function(contents, $editable) {
-          //   vue_context.$set(vue_context.data.act, 'description', contents)
-          //   vue_context.data.act.description = contents;
-          //   // console.log('onChange:', contents);
-          // }
-        }
+    // onChange: function(contents, $editable) {
+    //   vue_context.$set(vue_context.data.act, 'description', contents)
+    //   vue_context.data.act.description = contents;
+    //   // console.log('onChange:', contents);
+    // }
+  }
       });
       $("#summernote").summernote("insertNode", doc);
     });
@@ -222,7 +216,7 @@ export default {
     let data, tags;
     tags = "";
     await axios
-      .get(`/api/acts/${context.params.id}`, {
+      .get(`/api/rewards/${context.params.id}`, {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
@@ -238,10 +232,10 @@ export default {
           );
         if (data.act.__t == "Event") {
           data.act.formated_start_time = moment(data.act.start_time).format(
-            "YYYY-MM-DDTHH:mm"
+            "MMMM Do YYYY, h:mm:ss a"
           );
           data.act.formated_end_time = moment(data.act.end_time).format(
-            "YYYY-MM-DDTHH:mm"
+            "MMMM Do YYYY, h:mm:ss a"
           );
 
           data.act.start_time = data.act.start_time.substring(
@@ -260,22 +254,22 @@ export default {
           return;
         }
       });
-    if (!data.proofs) {
-      const acts = {
-        acts: [{ state: "" }]
-      };
-      data.proofs = acts;
-    } else if (data.proofs.acts[0].state) {
-      data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
-    }
+    // if (!data.proofs) {
+    //   const acts = {
+    //     acts: [{ state: "" }]
+    //   };
+    //   data.proofs = acts;
+    // } else if (data.proofs.acts[0].state) {
+    //   data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
+    // }
     return { data, tags };
   },
   data() {
     return {
-      title: "edit_act",
+      title: "edit_reward",
       error: "",
       disable_delete_button: false,
-      delete_act_image: "Delete Act Image",
+      delete_act_image: "Delete Reward Image",
       status_message: "",
       status_state: "",
       first_name: "",
@@ -383,14 +377,14 @@ export default {
       const refresh_token = this.$cookies.get("refresh_token");
 
       await axios
-        .delete(`/api/acts/${this.$route.params.id}/image`, {
+        .delete(`/api/rewards/${this.$route.params.id}/image`, {
           headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         })
         .then(function(res) {
           //If works
           //Remove image from screen
           vue_context.data.act.image = null;
-          //Give success message
+      //Give success message
           izitoast.success({
             title: "Success",
             message: "Image successfully deleted",
@@ -399,7 +393,7 @@ export default {
         })
         .catch(function(err) {
           //If error
-          //Give error
+      //Give error
           izitoast.error({
             title: "Error",
             message: "Image could not be deleted",
@@ -411,7 +405,9 @@ export default {
       //Return button to clickable state
       //Change button text to show normal state
       this.disable_delete_button = false;
-      this.delete_act_image = "Delete Act Image";
+      this.delete_act_image = "Delete Reward Image";
+      
+      
     },
     reset() {
       this.query.order = "";
@@ -433,13 +429,13 @@ export default {
 
       params.append("name", this.data.act.name);
       params.append("description", this.data.act.description);
-      params.append("reward_points", this.data.act.reward_points);
+      params.append("value", this.data.act.value);
       params.append("amount", this.data.act.amount);
       if (this.data.act.expiration_date)
         params.append("expiration_date", this.data.act.expiration_date);
       if (this.image) params.append("file", this.image, this.image.name);
       if (this.tags) params.append("tags", this.tags);
-      if (this.data.act.__t == "Event") {
+      if (this.upload_type == "event") {
         if (
           !document.getElementById("start_time").value ||
           !document.getElementById("end_time").value
@@ -464,7 +460,7 @@ export default {
         );
       }
       await axios
-        .put(`/api/acts/${vue_context.$route.params.id}`, params, {
+        .put(`/api/rewards/${vue_context.$route.params.id}`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -472,7 +468,7 @@ export default {
         .then(function(res) {
           izitoast.success({
             title: "Success",
-            message: "Your act has been successfully edited",
+            message: "Your reward has been successfully edited",
             position: "topRight"
           });
 
