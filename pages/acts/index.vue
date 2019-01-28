@@ -230,12 +230,12 @@
                     v-if="act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
                   >
                     <span v-if="!act.delete">
-                      <!-- <nuxt-link :to="`/acts/${act._id}/edit`">
+                      <nuxt-link :to="`/acts/${act._id}/edit`">
                         <button
                           v-if="!act.edit"
                           class="btn btn-primary"
                         >{{$t('edit')}}</button>
-                      </nuxt-link> -->
+                      </nuxt-link>
                       <button
                         v-if="act.edit"
                         @click="save_act(index)"
