@@ -207,8 +207,8 @@ router.put("/:reward_id/user/:user_id/collected", async function(
 
     const reward_changes = {};
 
-    //If amount is less than 1, give error
-    if (reward.amount < 1) throw new Error(res.__("reward_is_not_available"));
+    //If amount is equal to 0, give error
+    if (reward.amount == 0) throw new Error(res.__("reward_is_not_available"));
     //If amount is 1, make unavailable
     else if (reward.amount == 1) {
       reward_changes.state = "NOT_AVAILABLE";
@@ -775,6 +775,7 @@ router.get("/:id/details", async function(req, res, next) {
         {
           first_name: true,
           last_name: true,
+          email: true,
           "rewards.$": true
         }
       )

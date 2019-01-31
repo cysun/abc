@@ -148,6 +148,14 @@ export default {
       toggle = !toggle;
     });
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Edit reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Make changes to a reward' }
+      ]
+    }
+  },
   data() {
     return {
       new_tags: ""

@@ -90,8 +90,10 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
       act = values[1];
     });
 
-    //Make act unavailable if amount is <= 1
-    if (act.amount <= 1)
+    if (act.amount == 0) throw new Error("Act is not available");
+
+    //Make act unavailable if amount is == 1
+    if (act.amount == 1)
       await Act.findByIdAndUpdate(req.params.act_id, {
         state: "NOT_AVAILABLE"
       });
@@ -762,7 +764,7 @@ router.get("/:id", async function(req, res, next) {
 
     const promised_act = Act.findById(
       req.params.id,
-      "act_provider deleted start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
+      "act_provider deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
     ).lean();
     const promised_user = User.findOne(
       { _id: req.user.id, "acts.id": req.params.id },
@@ -1097,7 +1099,7 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
     }
     if (req.file) req.body.picture = "./tmp/" + req.file.filename;
     req.body.provider = req.user;
-    const this_user = await User.findById(req.user.id, {email: true});
+    const this_user = await User.findById(req.user.id, { email: true });
     req.body.provider.email = this_user.email;
     let act;
     if (req.params.type == "act") act = await Act.initialize(req.body);
@@ -1193,11 +1195,17 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
     }
 
     //Make sure all details were sent
-    if (!req.body.name || !req.body.description || !req.body.reward_points)
+    if (
+      !req.body.name ||
+      !req.body.description ||
+      !req.body.reward_points ||
+      !req.body.how_to_submit_evidences
+    )
       throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
     let description = req.body.description;
+    let how_to_submit_evidences = req.body.how_to_submit_evidences;
     const reward_points = sanitize(req.body.reward_points);
 
     if (!name || !description || !reward_points)
@@ -1346,8 +1354,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       for (let i = 0; i < images.length; i++) {
         if (images[i].attribs["src"].charAt(0) != "/") {
           //Replace the src of the images in the description with the new links
-          images[i].attribs["src"] =
-            "/api/acts/images/" + image_names[i];
+          images[i].attribs["src"] = "/api/acts/images/" + image_names[i];
           file_details.push({
             uploader_id: mongoose.Types.ObjectId(req.user.id),
             proof_name: image_names[i],
@@ -1370,8 +1377,125 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       console.log(description);
     }
 
+    //Do the same for how to submit evidences
+    $ = cheerio.load(act.how_to_submit_evidences);
+    //Check if there are images in the description in the database
+    if ($("img").length > 0) {
+      //Compare with new description to figure out old images to delete
+      const old_image_srcs = [];
+      const new_image_srcs = [];
+      const old_description_images = $("img");
+      //Put database description image srcs in an array
+      for (let i = 0; i < old_description_images.length; i++) {
+        old_image_srcs.push(old_description_images[i].attribs["src"]);
+      }
+      //Check the new description for image srcs
+      const new_description1 = cheerio.load(description);
+      // console.log(new_description1("img").nextAll())
+      if (new_description1("img").length > 0) {
+        const new_description_images = new_description1("img");
+        //For each new description src, check if it starts with '/'
+        for (let i = 0; i < new_description_images.length; i++) {
+          //If so, put in another array
+          // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
+          if (new_description_images[i].attribs["src"].charAt(0) == "/")
+            new_image_srcs.push(new_description_images[i].attribs["src"]);
+        }
+        //Check if old description src exists in new description src (Do it backwards)
+        for (let i = old_image_srcs.length - 1; i >= 0; i--) {
+          if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
+            //If so, remove from old array
+            old_image_srcs.splice(i, 1);
+          }
+        }
+      }
+      // console.log(old_image_srcs);
+      // console.log(new_image_srcs);
+      //After everything is done,
+      const promised_delete_files = [];
+      for (let i = 0; i < old_image_srcs.length; i++) {
+        //Get image link in old description src array
+        old_image_srcs[i] = old_image_srcs[i].replace(`/api/acts/images/`, "");
+        //Unlink all those images
+        // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
+        promised_delete_files.push(
+          fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
+        );
+        //Also delete from fileschema
+        promised_delete_files.push(
+          FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
+        );
+      }
+      await Promise.all(promised_delete_files);
+    }
+
+    //Add new images
+    //Check if there are images in the new description
+    //If image tag start with '/'
+    //Skip
+    //Else, decode, store, change src to link
+    $ = cheerio.load(how_to_submit_evidences);
+    if ($("img").length > 0) {
+      let ext;
+      const image_promises = [];
+      const image_names = [];
+      const file_details = [];
+      //Look for all images in the description
+      const images = $("img");
+      //Get unique names
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].attribs["src"].charAt(0) != "/") {
+          ext = re.exec(images[i].attribs["data-filename"])[1];
+          if (ext == undefined) ext = "";
+          else ext = `.${ext}`;
+          image_names.push(uuidv4());
+          //Convert them to files
+          image_promises.push(
+            base64Img.img(
+              images[i].attribs.src,
+              process.env.files_folder,
+              image_names[i]
+            )
+          );
+          image_names[i] = image_names[i] + ext;
+          // .then(function(filepath) {});
+        } else {
+          image_names.push("");
+          image_names[i] = images[i].attribs["src"];
+        }
+      }
+      await Promise.all(image_promises);
+      //Get their image links
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].attribs["src"].charAt(0) != "/") {
+          //Replace the src of the images in the description with the new links
+          images[i].attribs["src"] = "/api/acts/images/" + image_names[i];
+          file_details.push({
+            uploader_id: mongoose.Types.ObjectId(req.user.id),
+            proof_name: image_names[i],
+            upload_time: new Date(),
+            original_name: images[i].attribs["data-filename"],
+            size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
+              .size
+          });
+        }
+      }
+      // console.log($.html())
+      let new_description = $.html();
+      new_description = new_description.split("<body>")[1];
+      new_description = new_description.split("</body>")[0];
+      how_to_submit_evidences = new_description;
+      //Insert these new files into the file schema
+      if (file_details.length > 0)
+        await FileSchema.collection.insertMany(file_details);
+
+      console.log(description);
+    }
+
     //Add other details
     act.description = description;
+    act.how_to_submit_evidences = how_to_submit_evidences;
+    if (req.body.amount == "") req.body.amount = -1;
     act.amount = req.body.amount;
     act.expiration_date = req.body.expiration_date;
 
@@ -1414,7 +1538,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
         promises.push(Tag.create({ name: element }, function(err, res) {}));
         my_tags.push({
           name: element
-        })
+        });
         // promises.push(
         //   Act.findOneAndUpdate(
         //     {

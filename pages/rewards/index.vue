@@ -206,6 +206,8 @@
                     </div>
                   </div>
                 </div>
+                <div class="float-right"><nuxt-link :to="`/rewards/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
+                <div class="clearfix"></div>
                 <div class="row" v-if="act.reward_provider.id == data.user.id || (data.roles && data.roles.manager)">
                   <div class="col-md-7">
                     <span
@@ -294,7 +296,7 @@
                     >
                     <i>|</i>
                   </li>
-                  <li>
+                  <li v-if="act.amount > 0">
                     <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
                     <span v-if="!act.edit">{{act.amount}}</span>
                     <input
@@ -453,6 +455,14 @@ export default {
       });
    
     return { query: context.query, data };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : View rewards",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Search for specific rewards' }
+      ]
+    }
   },
   data() {
     return {

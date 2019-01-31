@@ -76,9 +76,13 @@ export default {
       logged_in: false,
       page: "verify_account"
     };
-  },
+  },  
   head() {
     return {
+      title: "Asset Building Clinic : You have been verified",
+      meta: [
+        { hid: 'description', name: 'description', content: 'You have been successfully verified. You will be logged in shortly' }
+      ],
       meta: [
         {
           "http-equiv": "refresh",

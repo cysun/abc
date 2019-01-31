@@ -48,6 +48,10 @@
                   rows="4"
                   :value="data.act.description"
                 ></textarea> -->
+                <div>
+                  <h3>How to submit evidences</h3>
+                  <p v-html="data.act.how_to_submit_evidences"></p>
+                  </div>
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span
@@ -258,7 +262,7 @@
                     >
                     <i>|</i>
                   </li>
-                  <li>
+                  <li v-if="data.act.amount > 0">
                     <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
                     <span v-if="!data.edit">{{data.act.amount}}</span>
                     <i>|</i>
@@ -386,6 +390,14 @@ export default {
       data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
     }
     return { data };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : View act",
+      meta: [
+        { hid: 'description', name: 'description', content: 'View more details about your act' }
+      ]
+    }
   },
   data() {
     return {

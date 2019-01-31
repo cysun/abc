@@ -58,6 +58,14 @@ export default {
       context.redirect("/");
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Login",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Login to access financially rewarding acts' }
+      ]
+    }
+  },
   data() {
     return {
       title: "Log in",

@@ -205,6 +205,14 @@ export default {
   created: function() {
     vue_context = this;
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : View rewards",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Search for specific rewards' }
+      ]
+    }
+  },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");

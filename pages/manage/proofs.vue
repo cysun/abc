@@ -144,6 +144,14 @@ export default {
     });
     return { query: context.query, data };
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Manage proofs",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Manage proofs on ABC' }
+      ]
+    }
+  },
   data() {
     return {
       title: "manage_proofs",

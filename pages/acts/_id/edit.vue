@@ -41,6 +41,10 @@
                 ></textarea>-->
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
+                <br>
+                <label for="summernote1">How to submit evidences</label>
+                <textarea id="summernote1" name="editordata"></textarea>
+                <br>
                 <div v-if="data.act.__t == 'Event'" class="control-group">
                   <div
                     class="controls input-append date form_datetime"
@@ -88,7 +92,7 @@
                   <input type="hidden" id="dtp_input1" value>
                   <script></script>
                 </div>
-                <label for="amount">Amount</label>
+                <label for="amount">Amount of users who can execute this act ( -1 is unlimited )</label>
                 <input
                   class="form-control"
                   type="number"
@@ -192,6 +196,8 @@ export default {
       });
     const doc = document.createElement("span");
     doc.innerHTML = vue_context.data.act.description;
+    const doc1 = document.createElement("span");
+    doc1.innerHTML = vue_context.data.act.how_to_submit_evidences;
     izitoast = require("izitoast");
     $(document).ready(function() {
       $("#summernote").summernote({
@@ -206,6 +212,11 @@ export default {
         }
       });
       $("#summernote").summernote("insertNode", doc);
+      $("#summernote1").summernote({
+        placeholder: "How to submit evidences",
+        height: 300,
+      });
+      $("#summernote1").summernote("insertNode", doc1);
     });
     $("#dp3")
       .datepicker({
@@ -270,6 +281,14 @@ export default {
     }
     return { data, tags };
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Edit act",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Make changes to your act' }
+      ]
+    }
+  },
   data() {
     return {
       title: "edit_act",
@@ -292,6 +311,7 @@ export default {
         name: "",
         amount: "",
         description: "",
+        how_to_submit_evidences: "",
         reward_points: "",
         start_time: "",
         end_time: "",
@@ -430,9 +450,11 @@ export default {
       const params = new FormData();
 
       this.data.act.description = $("#summernote").summernote("code");
+      this.data.act.how_to_submit_evidences = $("#summernote1").summernote("code");
 
       params.append("name", this.data.act.name);
       params.append("description", this.data.act.description);
+      params.append("how_to_submit_evidences", this.data.act.how_to_submit_evidences);
       params.append("reward_points", this.data.act.reward_points);
       params.append("amount", this.data.act.amount);
       if (this.data.act.expiration_date)

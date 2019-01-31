@@ -211,6 +211,14 @@ export default {
       toggle = !toggle;
     });
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Edit Act",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Make changes to an act' }
+      ]
+    }
+  },
   data() {
     return {
       new_tags: ""
