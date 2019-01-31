@@ -91,6 +91,14 @@ export default {
       context.redirect("/");
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Sign Up",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Sign up to access financially rewarding acts' }
+      ]
+    }
+  },
   data() {
     return {
       title: "sign_up",

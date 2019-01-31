@@ -239,6 +239,14 @@ export default {
       }
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Create User",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Create a new User' }
+      ]
+    }
+  },
   data() {
     return {
       first_name: "",

@@ -165,6 +165,14 @@ export default {
       //Give response message
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Contact Us",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Contact us if you have any ideas or concerns' }
+      ]
+    }
+  },
   data() {
     return {
       title: "contact_us",

@@ -64,6 +64,14 @@ export default {
     //   }
     // }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Verify your account",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Verify your account' }
+      ]
+    }
+  },
   data() {
     return {
       title: "Verify your account",

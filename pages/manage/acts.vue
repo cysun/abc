@@ -222,6 +222,14 @@ export default {
     
     return { query: context.query, data };
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Manage acts",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Manage acts on ABC' }
+      ]
+    }
+  },
   data() {
     return {
       title: "manage_acts",

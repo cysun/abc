@@ -233,6 +233,14 @@ export default {
     MyHeader,
     MyFooter
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : View Summary of ABC",
+      meta: [
+        { hid: 'description', name: 'description', content: 'View the summary of ABC' }
+      ]
+    }
+  },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");

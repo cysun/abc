@@ -202,6 +202,14 @@ export default {
     MyHeader,
     MyFooter
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : View events",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Search for specific events' }
+      ]
+    }
+  },
   created: function() {
     vue_context = this;
   },

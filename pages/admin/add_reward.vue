@@ -182,6 +182,14 @@ export default {
       this.$nuxt.$loading.finish();
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Create a reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Create a reward' }
+      ]
+    }
+  },
   data() {
     return {
       name: "",

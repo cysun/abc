@@ -3,6 +3,7 @@
     <my-header :logged_in="logged_in" :page="page" :roles="roles"/>
     <my-banner :title="title"/>
     <about-sidebar/>
+    <how-we-work/>
     <!-- //about -->
     <!-- team -->
     <section class="team py-5">
@@ -109,11 +110,13 @@ import MyBanner from "~/components/Banner.vue";
 import MyHeader from "~/components/Header.vue";
 import AboutSidebar from "~/components/About_sidebar.vue";
 import jwt_decode from "jwt-decode";
+import HowWeWork from "~/components/How_we_work.vue";
 let vue_context;
 export default {
   components: {
     MyBanner,
     MyHeader,
+    HowWeWork,
     AboutSidebar
   },
   // async asyncData(context) {
@@ -154,6 +157,14 @@ export default {
         });
         this.roles = roles;
       }
+    }
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : About Us",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Get information concerning our motives and plans' }
+      ]
     }
   },
   data() {

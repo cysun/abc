@@ -228,6 +228,14 @@ export default {
     
     return { query: context.query, data };
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Manage rewards",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Manage rewards on ABC' }
+      ]
+    }
+  },
   data() {
     return {
       title: "Manage Rewards",

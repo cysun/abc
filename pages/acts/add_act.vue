@@ -44,6 +44,9 @@
                 ></textarea>-->
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
+                <br>
+                <label for="summernote1">How to submit evidences</label>
+                <textarea id="summernote1" name="editordata"></textarea>
                 <div v-if="upload_type == 'event'" class="control-group">
                   <label for="start_time">Start time</label>
                   <div
@@ -103,7 +106,7 @@
                     });
                   </script>
                 </div>
-                <label for="amount">Amount of users who can execute this act</label>
+                <label for="amount">Amount of users who can execute this act ( -1 is unlimited )</label>
                 <input
                   class="form-control"
                   type="number"
@@ -218,6 +221,20 @@ export default {
         //   }
         // }
       });
+      $("#summernote1").summernote({
+        placeholder: "How to submit evidences",
+        height: 300,
+        toolbar: [
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
+      });
     });
     $("#dp3")
       .datepicker({
@@ -277,6 +294,14 @@ export default {
       });
     return { query: context.query, data };
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Create act",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Create an act' }
+      ]
+    }
+  },
   data() {
     return {
       title: "add_act",
@@ -297,8 +322,9 @@ export default {
       upload_type: "act",
       add_act: {
         name: "",
-        amount: "",
+        amount: -1,
         description: "",
+        how_to_submit_evidences: "",
         reward_points: "",
         start_time: "",
         end_time: "",
@@ -698,9 +724,12 @@ export default {
       const params = new FormData();
 
       this.add_act.description = $("#summernote").summernote("code");
+      this.add_act.how_to_submit_evidences = $("#summernote1").summernote("code");
+      
 
       params.append("name", this.add_act.name);
       params.append("description", this.add_act.description);
+      params.append("how_to_submit_evidences", this.add_act.how_to_submit_evidences);
       params.append("reward_points", this.add_act.reward_points);
       params.append("amount", this.add_act.amount);
       if (this.add_act.expiration_date)
@@ -746,6 +775,7 @@ export default {
           vue_context.add_act.name = "";
           vue_context.add_act.description = "";
           $("#summernote").summernote("code", "");
+          $("#summernote1").summernote("code", "");
           vue_context.add_act.amount = "";
           vue_context.add_act.reward_points = "";
           vue_context.add_act.tags = "";

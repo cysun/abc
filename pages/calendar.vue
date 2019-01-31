@@ -138,8 +138,20 @@ export default {
     //     console.log(res);
     //   });
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : View rewards",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Search for specific rewards' }
+      ]
+    }
+  },
   head() {
     return {
+      title: "Asset Building Clinic : View events on a calendar",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Look for events taking place on specific days on the calendar' }
+      ],
       script: [
         { src: "js/moment.min.js" }
         // {

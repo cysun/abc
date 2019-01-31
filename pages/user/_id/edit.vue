@@ -297,6 +297,10 @@ export default {
   },
   head() {
     return {
+      title: "Asset Building Clinic : Edit user",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Make changes to user details' }
+      ]
       // script: [
       //   { src: "js/admin/skycons.js" }
       //   // {

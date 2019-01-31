@@ -235,6 +235,14 @@ export default {
     vue_context.data = data;
     next();
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Manage Users",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Manage users on ABC' }
+      ]
+    }
+  },
   data() {
     return {
       title: "manage_users",

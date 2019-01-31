@@ -73,6 +73,7 @@
           <table class="table table-striped table-hover" v-if="query.type != 'REVIEWS'">
             <thead>
               <th scope="col" data-type="string">{{$t('users_name')}}</th>
+              <th scope="col" data-type="string">{{$t('email')}}</th>
               <th scope="col" data-type="number">Date reward was {{data.requested}}</th>
               <th
                 v-if="data.query.type == 'OPEN'"
@@ -83,6 +84,7 @@
 
             <tr v-for="(user, index) in data.data">
               <td>{{user.first_name}} {{user.last_name}}</td>
+              <td><a :href="`mailto:${user.email}`">{{user.email}}</a></td>
               <td v-if="user.rewards">{{user.rewards[0].time}}</td>
               <td v-if="data.query.type == 'OPEN'">
                 <button @click="confirmCollection(index)" class="btn btn-primary">{{$t('confirm_collection')}}</button>
@@ -229,6 +231,14 @@ export default {
     data.requested = "requested";
     if (data.query.type == "CLOSED") data.requested = "collected";
     return { query: context.query, data };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : View special details about your reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'View special details about your reward' }
+      ]
+    }
   },
   data() {
     return {

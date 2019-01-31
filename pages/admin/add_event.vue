@@ -286,6 +286,14 @@ export default {
       this.$nuxt.$loading.finish();
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Create event",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Create an event' }
+      ]
+    }
+  },
   data() {
     return {
       name: "",

@@ -92,6 +92,14 @@ export default {
       //Redirect to main page
     }
   },
+  head () {
+    return {
+      title: "Asset Building Clinic : Verify User",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Verify the identity of a user' }
+      ]
+    }
+  },
   data() {
     return {
       title: "Verify your account",

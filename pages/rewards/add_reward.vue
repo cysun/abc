@@ -113,7 +113,7 @@
                   required
                   v-model="add_act.value"
                 >
-                <label for="amount">Amount available</label>
+                <label for="amount">Amount available ( -1 is unlimited )</label>
                 <input
                   class="form-control"
                   type="number"
@@ -226,6 +226,14 @@ export default {
         }
       });
     return { query: context.query, data };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : Create Reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Create rewards' }
+      ]
+    }
   },
   data() {
     return {

@@ -108,7 +108,7 @@
                   id="value"
                   v-model="data.act.value"
                 >
-                <label for="amount">Amount</label>
+                <label for="amount">Amount available ( -1 is unlimited )</label>
                 <input
                   class="form-control"
                   type="number"
@@ -263,6 +263,14 @@ export default {
     //   data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
     // }
     return { data, tags };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : Edit your reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'Make changes to your reward' }
+      ]
+    }
   },
   data() {
     return {

@@ -263,7 +263,7 @@
                     >
                     <i>|</i>
                   </li>
-                  <li>
+                  <li v-if="data.act.amount > 0">
                     <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
                     <span v-if="!data.edit">{{data.act.amount}}</span>
                     <input
@@ -371,6 +371,14 @@ export default {
     data.rewards.rewards[0].state = data.rewards.rewards[0].state.replace("_", " ");
     // console.log(data);
     return { data };
+  },
+  head () {
+    return {
+      title: "Asset Building Clinic : View details about reward",
+      meta: [
+        { hid: 'description', name: 'description', content: 'View details about reward' }
+      ]
+    }
   },
   data() {
     return {
