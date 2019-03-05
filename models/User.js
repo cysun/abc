@@ -48,6 +48,11 @@ let userSchema = new mongoose.Schema({
     unique: true,
     sparse: true
   },
+  password_reset_token: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   first_name: {
     type: String,
     required: true,

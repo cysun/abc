@@ -16,20 +16,8 @@
                 required
               >
             </div>
-            <div class="styled-input">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                :placeholder="$t('password')"
-                v-model="password"
-                required
-                @keyup.enter="login"
-              >
-            </div>
             <div class="click mt-3">
-              <input type="submit" @click="login" id="login_button" :value="$t('LOGIN')">
-              <div style="margin-top: 2px"><nuxt-link style="color: beige" to="/forgot_password">Forgot password?</nuxt-link></div>
+              <input type="submit" @click="login" id="login_button" value="RESET PASSWORD">
             </div>
           </div>
         </div>
@@ -59,24 +47,28 @@ export default {
       context.redirect("/");
     }
   },
-  head () {
+  head() {
     return {
-      title: "Asset Building Clinic : Login",
+      title: "Asset Building Clinic : Forgot Password",
       meta: [
-        { hid: 'description', name: 'description', content: 'Login to access financially rewarding acts' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Enter your email to get password reset instructions"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
-      title: "Log in",
+      title: "Forgot Password",
       first_name: "",
       last_name: "",
       email: "",
       password: "",
       image: null,
       logged_in: false,
-      page: "login"
+      page: "forgot_password"
     };
   },
   methods: {
@@ -85,41 +77,41 @@ export default {
     },
     login() {
       //Check if there an empty input field
+
       //If so, display error
-      if (!this.email || !this.password)
+      if (!this.email)
         izitoast.error({
           title: "Error",
-          message: "All fields must be present",
+          message: "Email must be present",
           position: "topRight"
         });
       else {
         //If all fields are present
         this.$nuxt.$loading.start();
 
+        //Send email to server
         // application/x-www-form-urlencoded format
         const params = new URLSearchParams();
 
         params.append("email", this.email);
-        params.append("password", this.password);
 
         axios
-          .post("/api/login", params)
+          .post("/api/forgot_password", params)
           .then(function(res) {
             vue_context.$nuxt.$loading.finish();
-            //Save cookies
-            vue_context.$cookies.set("token", res.data.token, {
-              path: "/",
-              maxAge: 3600000
+            //If works, give message
+            izitoast.success({
+              title: "Success",
+              message:
+                "Password reset instructions have been sent to the email if an account exists with us.",
+              position: "topRight"
             });
-            vue_context.$cookies.set("refresh_token", res.data.refresh_token, {
-              path: "/",
-              maxAge: 31536000000
-            });
-            //Redirect to acts page
-            vue_context.$router.replace("/acts");
+            //Clear form
+            vue_context.email = "";
           })
           .catch(function(err) {
             vue_context.$nuxt.$loading.finish();
+            //If fails, give error message
             if (err.response) {
               izitoast.error({
                 title: "Error",

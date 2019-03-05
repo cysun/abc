@@ -12,6 +12,7 @@ const FileSchema = require("../../models/File");
 const mail = require("../../send_mail");
 const fs = require("fs");
 const secret = require("../../secret");
+const uuidv4 = require("uuid/v4");
 var upload = multer({
   dest: "tmp/"
 });
@@ -22,6 +23,21 @@ const logger = require("../../logger").winston;
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
+const passwordValidator = require("password-validator");
+const schema = new passwordValidator();
+schema
+  .is()
+  .min(8)
+  .is()
+  .max(30)
+  .has()
+  .uppercase()
+  .has()
+  .lowercase()
+  .has()
+  .digits()
+  .has()
+  .symbols();
 
 const router = Router();
 
@@ -55,6 +71,14 @@ router.get("/latest_acts", async function(req, res, next) {
   res.json(latest_acts);
 });
 
+//Check if reset password token exists
+router.get("/password_reset_token/:id", async function(req, res, next) {
+  const user_count = await User.find({
+    password_reset_token: req.params.id
+  }).countDocuments();
+  res.json({ user_count });
+});
+
 //Contact
 router.post("/contact", async function(req, res, next) {
   try {
@@ -64,6 +88,80 @@ router.post("/contact", async function(req, res, next) {
     next(createError(400, err.message));
     logger.error(
       `A message sent from the contact us form failed to be delivered`
+    );
+  }
+});
+
+//Forgot Password
+router.post("/forgot_password", async function(req, res, next) {
+  try {
+    //Check if email was sent
+    //If not sent, error
+    if (!req.body.email) throw new Error("Invalid email");
+    //Sanitize email
+    const email = sanitize(req.body.email);
+    //Check if email has associated account with ABC
+    const user = await User.findOne({ email: email });
+    //If exists
+    if (user) {
+      //Generate password reset token
+      const token = uuidv4();
+      user.password_reset_token = token;
+      //Send password reset token via email
+      await mail.forgot_password(user.email, token);
+      //Save password reset token
+      await user.save();
+    }
+    //Send success message
+    res.json({ message: "Success" });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(
+      `Password reset instructions could not be sent to ${req.body.email}`
+    );
+  }
+});
+
+//Reset Password
+router.post("/reset_password", async function(req, res, next) {
+  try {
+    //Check that password and reset token were sent
+    //If not, give error
+    if (!req.body.password || !req.body.reset_password) {
+      throw new Error("Incomplete details");
+    }
+    //Check that password is strong
+    //If not, error
+    if (!schema.validate(req.body.password))
+      throw new Error(
+        "Password must have at least 8, and at most 30 characters. Password must also have at least one number, uppercase, lowercase letter and one symbol."
+      );
+    //Check that reset token is valid
+    const user = await User.findOne({
+      password_reset_token: req.body.reset_password
+    });
+    //If not error
+    if (!user) throw new Error("Invalid details");
+    //If both are good
+    else {
+      //Change password
+      await bcrypt.hash(req.body.password, 12).then(function(hash) {
+        user.password = hash;
+      });
+      //Change the refresh_token
+      user.refresh_token = uuidv4();
+      //Remove password reset token
+      user.password_reset_token = undefined;
+      await user.save();
+      //Return success message
+      res.json({ message: "Success" });
+    }
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(
+      `Password could not be reset for this reset token: ${
+        req.body.reset_password
+      }`
     );
   }
 });
