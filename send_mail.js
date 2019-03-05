@@ -237,8 +237,32 @@ async function notifyRewardProvidersOfRequestOrClaim(user_email) {
   }
 }
 
+async function forgot_password(user_email, token) {
+  try {
+    await email.send({
+      template: "forgot_password",
+      message: {
+        to: user_email
+      },
+      locals: {
+        url: process.env.website,
+        token
+      }
+    });
+    logger.info(
+      `Password reset instructions have been sent to ${user_email}`
+    );
+  } catch (err) {
+    logger.error(
+      `Password reset instructions failed while sending to ${user_email}`
+    );
+    throw new Error("Something went wrong. Please try again later");
+  }
+}
+
 module.exports = {
   contactUs,
+  forgot_password,
   sendNewReviewNotice,
   sendExpirationNotice,
   sendVerificationMail,

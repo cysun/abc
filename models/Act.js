@@ -47,6 +47,35 @@ let actSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  reviews: [{
+    id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        sparse: true
+    },
+    first_name: {
+        type: String,
+        required: true,
+        sparse: true
+    },
+    last_name: {
+        type: String,
+        required: true,
+        sparse: true
+    },
+    reward_rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    },
+    reward_comments: String,
+    time: {
+        type: Date,
+        default: Date.now
+    },
+}],
   reward_points: {
     type: Number,
     required: true,

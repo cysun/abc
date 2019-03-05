@@ -10,11 +10,7 @@
           <div class="col-lg-12 blog-sp">
             <article style="margin-bottom: 10px" class="blog-x row">
               <div v-if="data.act.image" class="blog-img w3-agile-grid">
-                  <img
-                    :src="`/api/acts/${$route.params.id}/image`"
-                    alt
-                    class="img-fluid"
-                  >
+                <img :src="`/api/acts/${$route.params.id}/image`" alt class="img-fluid">
               </div>
               <div class="blog_info">
                 <h5>
@@ -40,18 +36,20 @@
                   ></a>
                 </p>
 
-                <div><p v-html="data.act.description"></p></div>
+                <div>
+                  <p v-html="data.act.description"></p>
+                </div>
                 <!-- <textarea
                   id="act_description"
                   v-if="data.edit"
                   class="form-control"
                   rows="4"
                   :value="data.act.description"
-                ></textarea> -->
+                ></textarea>-->
                 <div>
                   <h3>How to submit evidences</h3>
                   <p v-html="data.act.how_to_submit_evidences"></p>
-                  </div>
+                </div>
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span
@@ -151,6 +149,78 @@
                   >{{proof.original_name}}</a>
                 </div>
                 <br>
+
+                <!-- <form
+                  id="smileys"
+                  v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review"
+                  @submit.prevent="submitRating"
+                >
+                  <span class="align-top">{{$t('rate_the_reward')}}:</span>
+                  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
+                  <input
+                    type="radio"
+                    name="smiley"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_rating"
+                  >
+                  <input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
+                  <textarea
+                    class="form-control"
+                    v-model="reward_comments"
+                    :placeholder="$t('additional_comments_about_the_reward')"
+                  ></textarea>
+
+                  <br>
+                  <span class="align-top">{{$t('rate_the_reward_provider')}}:</span>
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="1"
+                    class="devil"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="2"
+                    class="sad"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="4"
+                    class="happy"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="5"
+                    class="love"
+                    v-model="reward_provider_rating"
+                  >
+                  <textarea
+                    class="form-control"
+                    v-model="reward_provider_comments"
+                    :placeholder="$t('additional_comments_about_the_reward_provider')"
+                  ></textarea>
+                  <br>
+                  <div class="text-center">
+                    <input class="btn btn-primary" type="submit" :value="$t('submit_rating')">
+                  </div>
+                </form> -->
+
                 <div
                   v-if="data.act.enabled.state && data.act.state == 'AVAILABLE' && data.proofs.acts[0].state !== 'COMPLETED'"
                   class="form-inline justify-content-center"
@@ -207,18 +277,19 @@
                       class="badge badge-info"
                     >{{data.act.enabled.state ? $t('enabled') : $t('disabled')}}</span>
                   </div>
-                  <div class="col-md-5" v-if="data.act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
+                  <div
+                    class="col-md-5"
+                    v-if="data.act.act_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
+                  >
                     <span v-if="!data.delete">
                       <nuxt-link :to="`/acts/${data.act._id}/edit`">
-                        <button
-                          class="btn btn-primary"
-                        >{{$t('edit')}}</button>
+                        <button class="btn btn-primary">{{$t('edit')}}</button>
                       </nuxt-link>
                       <!-- <button
                         v-if="!data.edit"
                         @click="edit_act"
                         class="btn btn-primary"
-                      >{{$t('edit')}}</button> -->
+                      >{{$t('edit')}}</button>-->
                       <button
                         v-if="data.edit"
                         @click="save_act"
@@ -391,13 +462,17 @@ export default {
     }
     return { data };
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : View act",
       meta: [
-        { hid: 'description', name: 'description', content: 'View more details about your act' }
+        {
+          hid: "description",
+          name: "description",
+          content: "View more details about your act"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -447,11 +522,11 @@ export default {
           //     res.data
           //   );
           // else
-            vue_context.$set(
-              vue_context.data.proofs.acts[0],
-              "proof_of_completion",
-              res.data
-            );
+          vue_context.$set(
+            vue_context.data.proofs.acts[0],
+            "proof_of_completion",
+            res.data
+          );
           document.getElementById("file_input").value = null;
         })
         .catch(function(err) {
