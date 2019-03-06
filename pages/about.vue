@@ -101,7 +101,7 @@
           <div class="col-md-3 col-sm-6 mb-md-0 mb-4 team-grid w3-agile-grid">
             <div class="team-members">
               <div class="team-avatar">
-                <img src="images/t2.jpg" class="img-fluid" alt="image">
+                <img src="~/assets/images/cysun.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
                 <h4>Chengyu Sun</h4>
