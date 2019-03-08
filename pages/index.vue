@@ -22,7 +22,7 @@
         </ul>
       </div>
     </section>
-    <section class="about py-5">
+    <section class="about py-5" style="margin-bottom: -100px">
       <div class="container py-md-3">
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
@@ -42,7 +42,7 @@
         </div>
       </div>
     </section>
-    <section class="about py-5">
+    <section class="about py-5" style="margin-bottom: -100px">
       <div class="container py-md-3">
         <h3 class="heading mb-md-5 mb-4 text-center">Where does the money go?</h3>
         <h3 class="heading mb-md-5 mb-4 text-center">How are we supposed to get ahead?</h3>
@@ -66,10 +66,11 @@
         <!-- <h3 class="heading mb-md-5 mb-4">How we Work</h3> -->
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
-            <h4>This is why we make it easy for anyone to complete financially empowering acts, whether for themselves or by helping another person.</h4>
+            <p><b>This is why we make it easy for anyone to complete financially empowering acts, whether for themselves or by helping another person.</b></p>
             <br>
             <ul>
-              <li>A financially empowering act is something that could help you or others have
+              <li>
+                A financially empowering act is something that could help you or others have
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   href="https://files.consumerfinance.gov/f/201501_cfpb_digest_financial-well-being.pdf"
@@ -81,7 +82,7 @@
               <li>We can invite someone to join us, and encourage them to come up with other ways to build financial empowerment</li>-->
             </ul>
             <br>
-            <h4>We also found a way to reward each other for financially empowering ourselves and our communities. Each act is worth points, which can be redeemed for rewards.</h4>
+            <p><b>We also found a way to reward each other for financially empowering ourselves and our communities. Each act is worth points, which can be redeemed for rewards.</b></p>
           </div>
         </div>
       </div>
@@ -132,7 +133,8 @@
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
             <p>Our members! Everyone either knows something or has something that someone else would need or love. We make it easy for you to share.</p>
             <br>
-            <p>What could you offer? Perhaps you know how to cook something others find complicated? Do you have the patience to teach kids the multiplication table? Maybe you have an object that no longer
+            <p>
+              What could you offer? Perhaps you know how to cook something others find complicated? Do you have the patience to teach kids the multiplication table? Maybe you have an object that no longer
               <a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
@@ -227,8 +229,20 @@
           >{{$t('sign_up')}}</nuxt-link>
           <div class="text-left">
             <hr>
-            <p>[1] <a style="all: unset; cursor: pointer; color: blue" target="_blank" href="https://www.federalreserve.gov/publications/files/2017-report-economic-well-being-us-households-201805.pdf">https://www.federalreserve.gov/publications/files/2017-report-economic-well-being-us-households-201805.pdf</a></p>
-            <p>[2] <a style="all: unset; cursor: pointer; color: blue" target="_blank" href="https://ips-dc.org/report-the-road-to-zero-wealth/">https://ips-dc.org/report-the-road-to-zero-wealth/</a></p>
+            <p>[1]
+              <a
+                style="all: unset; cursor: pointer; color: blue"
+                target="_blank"
+                href="https://www.federalreserve.gov/publications/files/2017-report-economic-well-being-us-households-201805.pdf"
+              >https://www.federalreserve.gov/publications/files/2017-report-economic-well-being-us-households-201805.pdf</a>
+            </p>
+            <p>[2]
+              <a
+                style="all: unset; cursor: pointer; color: blue"
+                target="_blank"
+                href="https://ips-dc.org/report-the-road-to-zero-wealth/"
+              >https://ips-dc.org/report-the-road-to-zero-wealth/</a>
+            </p>
           </div>
         </div>
       </div>
@@ -237,7 +251,11 @@
     <section class="service-bottom">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-lg-12 p-0 services-bottom">
+          <div
+            class="col-lg-12 p-0 services-bottom"
+            style="background: url(../images/banner1.jpg) no-repeat 0px 0px;
+    background-size: cover;"
+          >
             <div class="layer agile-info">
               <h3 class="heading mb-lg-5 mb-4">Our Stats</h3>
               <div class="row">

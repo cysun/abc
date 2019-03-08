@@ -6,7 +6,7 @@
     <!-- <how-we-work/> -->
     <!-- //about -->
     <!-- team -->
-    <section class="about py-5">
+    <!-- <section class="about py-5" style="margin-top: -80px">
       <div class="container py-md-3">
         <h3 class="heading mb-md-5 mb-4">OUR THEORY OF CHANGE</h3>
         <div class="row about-grids agile-info">
@@ -58,14 +58,12 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
-    <div id="myModal" class="modal fade" role="dialog">
+    <!-- <div id="myModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
-        <!-- Modal content-->
         <div class="modal-content">
           <div class="modal-header">
-            <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
             <h4 class="modal-title">Dr Joanna K. Doran</h4>
           </div>
           <div class="modal-body">
@@ -76,16 +74,15 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <section class="team py-5">
+    <section class="team py-5" style="margin-top: -80px">
       <div class="container py-md-3">
-        <h3 class="heading mb-lg-5 mb-4">Our core team</h3>
+        <h3 class="heading mb-lg-5 mb-4">Our core members</h3>
+        <p>ABC’s founding member is Joanna [P: ; she/her/hers] K. Doran, PhD, MSW, and assistant professor in the School of Social Work in California State University in Los Angeles. Dr. Doran currently manages ABC and welcomes anyone to join us in expanding ABC’s operations.</p>
+        <br>
         <div class="row team-grids">
           <div
-            style="cursor: pointer"
-            data-toggle="modal"
-            data-target="#myModal"
             class="col-md-3 col-sm-6 mb-md-0 mb-4 team-grid w3-agile-grid"
           >
             <div class="team-members">
@@ -93,8 +90,8 @@
                 <img src="~/assets/images/founder_formatted.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Joanna Doran</h4>
-                <span>Founding member</span>
+                <h4>Joanna Doran PhD MSW</h4>
+                <span>Founding Member</span>
               </div>
             </div>
           </div>
@@ -104,8 +101,8 @@
                 <img src="~/assets/images/cysun.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Chengyu Sun</h4>
-                <span>Technical consultant</span>
+                <h4>Chengyu Sun PhD</h4>
+                <span>Technical Consultant</span>
               </div>
             </div>
           </div>
@@ -115,19 +112,19 @@
                 <img src="~/assets/images/resercher_formatted.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Agnes Karczewska</h4>
-                <span>Content Development Consultant</span>
+                <h4>Agnes Karczewska MS</h4>
+                <span>Program Development</span>
               </div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6 team-grid w3-agile-grid">
             <div class="team-members">
               <div class="team-avatar">
-                <img src="images/t4.jpg" class="img-fluid" alt="image">
+                <img src="~/assets/images/jv.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
                 <h4>Jennifer Vega</h4>
-                <span>Administrator</span>
+                <span>Web Master</span>
               </div>
             </div>
           </div>
@@ -146,18 +143,18 @@
               </div>
             </div>
           </div>
-          <!-- <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
+          <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
             <div class="team-members">
               <div class="team-avatar">
-                <img src="images/t6.jpg" class="img-fluid" alt="image">
+                <img src="~/assets/images/hm.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Melisa Doe</h4>
-                <span>Director</span>
+                <h4>Hermila Melero MSW LCSW</h4>
+                <span>Clinical Consultant</span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
+          <!-- <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
             <div class="team-members">
               <div class="team-avatar">
                 <img src="images/t7.jpg" class="img-fluid" alt="image">
@@ -178,21 +175,26 @@
                 <span>Director</span>
               </div>
             </div>
-          </div>-->
+          </div> -->
         </div>
       </div>
     </section>
 
-    <section class="about py-5">
+    <section class="about py-5" style="margin-top: -80px">
       <div class="container py-md-3">
-        <!-- <h3 class="heading mb-md-5 mb-4">OUR THEORY OF CHANGE</h3> -->
+        <h3 class="heading mb-md-5 mb-4">Acknowledgements</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
             <p>ABC is deeply grateful for the support we received from institutions.</p>
-            <br>
-            <p>We contacted these organizations for partnership because of the programs and services they offer to the community. They responded generously, providing our students with free financial counseling and coaching, savings programs, and supervision during our navigation at VITA sites. We recommend others try their excellent programs.</p>
-            <br>
+            <br>            
             <ul>
+              <li>
+                <a
+                  style="all: unset; cursor: pointer; color: blue"
+                  target="_blank"
+                  href="http://www.barrioaction.org/index.php?lang=en"
+                >Barrio Action Youth & Family Center</a>
+              </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
@@ -258,7 +260,10 @@
               </li>
             </ul>
             <br>
-            <h4 class="text-center">Additional Partners</h4>
+            <p>We contacted these organizations for partnership because of the programs and services they offer to the community. They responded generously, providing our students with free financial counseling and coaching, savings programs, and supervision during our navigation at VITA sites. We recommend others try their excellent programs.</p>
+            <br>
+            <br>
+            <h4 class="text-left" style="font-size: 50px">Additional Partners</h4>
             <br>
             <!-- <p>At the community level, we seek to enhance relationships and safety. Just like we benefit from having a doctor in the house or a neighbor who knows CPR, our communities can benefit when a critical mass of its members are themselves financially empowered, or at least know how to get in touch with experts when needed.</p> -->
             <br>
@@ -272,11 +277,19 @@
             </p>
             <br>
             <p>
-              <b>Cal State LA Center for Engagement, Service, and the Public Good</b>. The Center’s High Impact Community Engagement Mentorship Project provides stipends to many of the students performing the navigation, and seed funding for the project.
+              <a
+                style="all: unset; cursor: pointer; color: blue"
+                target="_blank"
+                href="http://www.calstatela.edu/engagement"
+              ><b>Cal State LA Center for Engagement, Service, and the Public Good</b></a>. The Center’s High Impact Community Engagement Mentorship Project provides stipends to many of the students performing the navigation, and seed funding for the project.
             </p>
             <br>
             <p>
-              <b>Cal State LA Federal Credit Union</b>
+              <a
+                style="all: unset; cursor: pointer; color: blue"
+                target="_blank"
+                href="https://www.calstatela-fcu.org/"
+              ><b>Cal State LA Federal Credit Union</b></a>
 
               . The credit union has supported ABC's Annual Celebrations from the beginning.
               Thank you!
