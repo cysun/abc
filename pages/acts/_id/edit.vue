@@ -42,8 +42,8 @@
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <br>
-                <label for="summernote1">How to submit evidences</label>
-                <textarea id="summernote1" name="editordata"></textarea>
+                <!-- <label for="summernote1">How to submit evidences</label>
+                <textarea id="summernote1" name="editordata"></textarea> -->
                 <br>
                 <div v-if="data.act.__t == 'Event'" class="control-group">
                   <div
@@ -203,13 +203,17 @@ export default {
       $("#summernote").summernote({
         placeholder: "Description",
         height: 300,
-        callbacks: {
-          // onChange: function(contents, $editable) {
-          //   vue_context.$set(vue_context.data.act, 'description', contents)
-          //   vue_context.data.act.description = contents;
-          //   // console.log('onChange:', contents);
-          // }
-        }
+        toolbar: [
+          // [groupName, [list of button]]
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname", "fontsize"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
       });
       $("#summernote").summernote("insertNode", doc);
       $("#summernote1").summernote({

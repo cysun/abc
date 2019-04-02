@@ -62,7 +62,7 @@
                     </div>
                   </div>
                   <br>
-                  <div class="chit-chat-heading">{{$t('acts')}}</div>
+                  <!-- <div class="chit-chat-heading">{{$t('acts')}}</div> -->
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
@@ -74,6 +74,8 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
+                          <th>More details</th>
+                          <th>Edit</th>
                           <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
@@ -97,6 +99,16 @@
                           </td>
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
+                          </td>
+                          <td>
+                            <nuxt-link :to="'/admin/acts/' + act._id + '/users'">
+                              <button class="btn btn-primary">Users</button>
+                            </nuxt-link>
+                          </td>
+                          <td>
+                            <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
+                              <button class="btn btn-primary">Edit</button>
+                            </nuxt-link>
                           </td>
                           <!-- <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">

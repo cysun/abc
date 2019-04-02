@@ -675,6 +675,43 @@ router.get("/proof/:id", async function(req, res, next) {
   }
 });
 
+//Get individual act proof by admin
+router.get("/admin_proof/:id", async function(req, res, next) {
+  try {
+    //Check to make sure this is the person who uploaded the proof
+    const act_proof = await User.aggregate([
+      {
+        $match: {
+          "acts.proof_of_completion._id": mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      {
+        $project: {
+          "acts.proof_of_completion.new_name": true,
+          "acts.proof_of_completion.original_name": true
+        }
+      }
+    ]);
+    //If not, error
+    // if (act_proof[0]._id != req.user.id)
+    //   throw new Error("You do not have authorization");
+    // console.log(JSON.stringify(act_proof))
+    const new_name = act_proof[0].acts[0].proof_of_completion[0].new_name;
+    // const original_name = act_proof[0].acts.proof_of_completion.original_name;
+    // const file_location = new_name.replace(`${process.env.website}`, "");
+    //Else,
+    //return proof
+    res.sendFile(`${process.env.files_folder}/${new_name}`);
+    // res.json(file_location);
+    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
+    // res.redirect(new_name);
+    // res.json({message: new_name});
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
+  }
+});
+
 //Get individual act proof by manager
 router.get("/manage_proof/:id", async function(req, res, next) {
   try {
@@ -1198,8 +1235,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
     if (
       !req.body.name ||
       !req.body.description ||
-      !req.body.reward_points ||
-      !req.body.how_to_submit_evidences
+      !req.body.reward_points
     )
       throw new Error(res.__("incomplete_request"));
 
@@ -1377,124 +1413,124 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       console.log(description);
     }
 
-    //Do the same for how to submit evidences
-    $ = cheerio.load(act.how_to_submit_evidences);
-    //Check if there are images in the description in the database
-    if ($("img").length > 0) {
-      //Compare with new description to figure out old images to delete
-      const old_image_srcs = [];
-      const new_image_srcs = [];
-      const old_description_images = $("img");
-      //Put database description image srcs in an array
-      for (let i = 0; i < old_description_images.length; i++) {
-        old_image_srcs.push(old_description_images[i].attribs["src"]);
-      }
-      //Check the new description for image srcs
-      const new_description1 = cheerio.load(description);
-      // console.log(new_description1("img").nextAll())
-      if (new_description1("img").length > 0) {
-        const new_description_images = new_description1("img");
-        //For each new description src, check if it starts with '/'
-        for (let i = 0; i < new_description_images.length; i++) {
-          //If so, put in another array
-          // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
-          if (new_description_images[i].attribs["src"].charAt(0) == "/")
-            new_image_srcs.push(new_description_images[i].attribs["src"]);
-        }
-        //Check if old description src exists in new description src (Do it backwards)
-        for (let i = old_image_srcs.length - 1; i >= 0; i--) {
-          if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
-            //If so, remove from old array
-            old_image_srcs.splice(i, 1);
-          }
-        }
-      }
-      // console.log(old_image_srcs);
-      // console.log(new_image_srcs);
-      //After everything is done,
-      const promised_delete_files = [];
-      for (let i = 0; i < old_image_srcs.length; i++) {
-        //Get image link in old description src array
-        old_image_srcs[i] = old_image_srcs[i].replace(`/api/acts/images/`, "");
-        //Unlink all those images
-        // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
-        promised_delete_files.push(
-          fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
-        );
-        //Also delete from fileschema
-        promised_delete_files.push(
-          FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
-        );
-      }
-      await Promise.all(promised_delete_files);
-    }
+    // //Do the same for how to submit evidences
+    // $ = cheerio.load(act.how_to_submit_evidences);
+    // //Check if there are images in the description in the database
+    // if ($("img").length > 0) {
+    //   //Compare with new description to figure out old images to delete
+    //   const old_image_srcs = [];
+    //   const new_image_srcs = [];
+    //   const old_description_images = $("img");
+    //   //Put database description image srcs in an array
+    //   for (let i = 0; i < old_description_images.length; i++) {
+    //     old_image_srcs.push(old_description_images[i].attribs["src"]);
+    //   }
+    //   //Check the new description for image srcs
+    //   const new_description1 = cheerio.load(description);
+    //   // console.log(new_description1("img").nextAll())
+    //   if (new_description1("img").length > 0) {
+    //     const new_description_images = new_description1("img");
+    //     //For each new description src, check if it starts with '/'
+    //     for (let i = 0; i < new_description_images.length; i++) {
+    //       //If so, put in another array
+    //       // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
+    //       if (new_description_images[i].attribs["src"].charAt(0) == "/")
+    //         new_image_srcs.push(new_description_images[i].attribs["src"]);
+    //     }
+    //     //Check if old description src exists in new description src (Do it backwards)
+    //     for (let i = old_image_srcs.length - 1; i >= 0; i--) {
+    //       if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
+    //         //If so, remove from old array
+    //         old_image_srcs.splice(i, 1);
+    //       }
+    //     }
+    //   }
+    //   // console.log(old_image_srcs);
+    //   // console.log(new_image_srcs);
+    //   //After everything is done,
+    //   const promised_delete_files = [];
+    //   for (let i = 0; i < old_image_srcs.length; i++) {
+    //     //Get image link in old description src array
+    //     old_image_srcs[i] = old_image_srcs[i].replace(`/api/acts/images/`, "");
+    //     //Unlink all those images
+    //     // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
+    //     promised_delete_files.push(
+    //       fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
+    //     );
+    //     //Also delete from fileschema
+    //     promised_delete_files.push(
+    //       FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
+    //     );
+    //   }
+    //   await Promise.all(promised_delete_files);
+    // }
 
     //Add new images
     //Check if there are images in the new description
     //If image tag start with '/'
     //Skip
     //Else, decode, store, change src to link
-    $ = cheerio.load(how_to_submit_evidences);
-    if ($("img").length > 0) {
-      let ext;
-      const image_promises = [];
-      const image_names = [];
-      const file_details = [];
-      //Look for all images in the description
-      const images = $("img");
-      //Get unique names
-      for (let i = 0; i < images.length; i++) {
-        if (images[i].attribs["src"].charAt(0) != "/") {
-          ext = re.exec(images[i].attribs["data-filename"])[1];
-          if (ext == undefined) ext = "";
-          else ext = `.${ext}`;
-          image_names.push(uuidv4());
-          //Convert them to files
-          image_promises.push(
-            base64Img.img(
-              images[i].attribs.src,
-              process.env.files_folder,
-              image_names[i]
-            )
-          );
-          image_names[i] = image_names[i] + ext;
-          // .then(function(filepath) {});
-        } else {
-          image_names.push("");
-          image_names[i] = images[i].attribs["src"];
-        }
-      }
-      await Promise.all(image_promises);
-      //Get their image links
-      for (let i = 0; i < images.length; i++) {
-        if (images[i].attribs["src"].charAt(0) != "/") {
-          //Replace the src of the images in the description with the new links
-          images[i].attribs["src"] = "/api/acts/images/" + image_names[i];
-          file_details.push({
-            uploader_id: mongoose.Types.ObjectId(req.user.id),
-            proof_name: image_names[i],
-            upload_time: new Date(),
-            original_name: images[i].attribs["data-filename"],
-            size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
-              .size
-          });
-        }
-      }
-      // console.log($.html())
-      let new_description = $.html();
-      new_description = new_description.split("<body>")[1];
-      new_description = new_description.split("</body>")[0];
-      how_to_submit_evidences = new_description;
-      //Insert these new files into the file schema
-      if (file_details.length > 0)
-        await FileSchema.collection.insertMany(file_details);
+    // $ = cheerio.load(how_to_submit_evidences);
+    // if ($("img").length > 0) {
+    //   let ext;
+    //   const image_promises = [];
+    //   const image_names = [];
+    //   const file_details = [];
+    //   //Look for all images in the description
+    //   const images = $("img");
+    //   //Get unique names
+    //   for (let i = 0; i < images.length; i++) {
+    //     if (images[i].attribs["src"].charAt(0) != "/") {
+    //       ext = re.exec(images[i].attribs["data-filename"])[1];
+    //       if (ext == undefined) ext = "";
+    //       else ext = `.${ext}`;
+    //       image_names.push(uuidv4());
+    //       //Convert them to files
+    //       image_promises.push(
+    //         base64Img.img(
+    //           images[i].attribs.src,
+    //           process.env.files_folder,
+    //           image_names[i]
+    //         )
+    //       );
+    //       image_names[i] = image_names[i] + ext;
+    //       // .then(function(filepath) {});
+    //     } else {
+    //       image_names.push("");
+    //       image_names[i] = images[i].attribs["src"];
+    //     }
+    //   }
+    //   await Promise.all(image_promises);
+    //   //Get their image links
+    //   for (let i = 0; i < images.length; i++) {
+    //     if (images[i].attribs["src"].charAt(0) != "/") {
+    //       //Replace the src of the images in the description with the new links
+    //       images[i].attribs["src"] = "/api/acts/images/" + image_names[i];
+    //       file_details.push({
+    //         uploader_id: mongoose.Types.ObjectId(req.user.id),
+    //         proof_name: image_names[i],
+    //         upload_time: new Date(),
+    //         original_name: images[i].attribs["data-filename"],
+    //         size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
+    //           .size
+    //       });
+    //     }
+    //   }
+    //   // console.log($.html())
+    //   let new_description = $.html();
+    //   new_description = new_description.split("<body>")[1];
+    //   new_description = new_description.split("</body>")[0];
+    //   how_to_submit_evidences = new_description;
+    //   //Insert these new files into the file schema
+    //   if (file_details.length > 0)
+    //     await FileSchema.collection.insertMany(file_details);
 
-      console.log(description);
-    }
+    //   console.log(description);
+    // }
 
     //Add other details
     act.description = description;
-    act.how_to_submit_evidences = how_to_submit_evidences;
+    // act.how_to_submit_evidences = how_to_submit_evidences;
     if (req.body.amount == "") req.body.amount = -1;
     act.amount = req.body.amount;
     act.expiration_date = req.body.expiration_date;

@@ -124,7 +124,7 @@ export default {
           // [groupName, [list of button]]
           ["para", ["style"]],
           ["style", ["bold", "underline", "clear"]],
-          ["style", ["fontname"]],
+          ["style", ["fontname", "fontsize"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],

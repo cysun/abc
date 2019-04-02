@@ -87,15 +87,15 @@
                   </div>
                   <input type="hidden" id="dtp_input1" value>
                   <script>
-                    $(".form_datetime").datetimepicker({
-                      weekStart: 1,
-                      todayBtn: 1,
-                      autoclose: 1,
-                      todayHighlight: 1,
-                      startView: 2,
-                      forceParse: 0,
-                      showMeridian: 1
-                    });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                   </script>
                 </div>
                 <label for="value">Value</label>
@@ -126,7 +126,7 @@
                   id="tags"
                   :placeholder="$t('tags_placeholder')"
                   v-model="tags"
-                > -->
+                >-->
                 <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
                 <!-- <label for="expiration_date">Expiration date</label>
@@ -143,7 +143,7 @@
                   <span class="add-on">
                     <i class="icon-th"></i>
                   </span>
-                </div> -->
+                </div>-->
                 <!-- <input
                   class="form-control"
                   type="text"
@@ -191,13 +191,24 @@ export default {
       $("#summernote").summernote({
         placeholder: "Description",
         height: 300,
-        callbacks: {
-    // onChange: function(contents, $editable) {
-    //   vue_context.$set(vue_context.data.act, 'description', contents)
-    //   vue_context.data.act.description = contents;
-    //   // console.log('onChange:', contents);
-    // }
-  }
+        toolbar: [
+          // [groupName, [list of button]]
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname", "fontsize"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
+        //       callbacks: {
+        //   // onChange: function(contents, $editable) {
+        //   //   vue_context.$set(vue_context.data.act, 'description', contents)
+        //   //   vue_context.data.act.description = contents;
+        //   //   // console.log('onChange:', contents);
+        //   // }
+        // }
       });
       $("#summernote").summernote("insertNode", doc);
     });
@@ -264,13 +275,17 @@ export default {
     // }
     return { data, tags };
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : Edit your reward",
       meta: [
-        { hid: 'description', name: 'description', content: 'Make changes to your reward' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Make changes to your reward"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -392,7 +407,7 @@ export default {
           //If works
           //Remove image from screen
           vue_context.data.act.image = null;
-      //Give success message
+          //Give success message
           izitoast.success({
             title: "Success",
             message: "Image successfully deleted",
@@ -401,7 +416,7 @@ export default {
         })
         .catch(function(err) {
           //If error
-      //Give error
+          //Give error
           izitoast.error({
             title: "Error",
             message: "Image could not be deleted",
@@ -414,8 +429,6 @@ export default {
       //Change button text to show normal state
       this.disable_delete_button = false;
       this.delete_act_image = "Delete Reward Image";
-      
-      
     },
     reset() {
       this.query.order = "";

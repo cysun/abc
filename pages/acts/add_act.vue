@@ -45,8 +45,8 @@
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <br>
-                <label for="summernote1">How to submit evidences</label>
-                <textarea id="summernote1" name="editordata"></textarea>
+                <!-- <label for="summernote1">How to submit evidences</label>
+                <textarea id="summernote1" name="editordata"></textarea> -->
                 <div v-if="upload_type == 'event'" class="control-group">
                   <label for="start_time">Start time</label>
                   <div
@@ -205,7 +205,7 @@ export default {
           // [groupName, [list of button]]
           ["para", ["style"]],
           ["style", ["bold", "underline", "clear"]],
-          ["style", ["fontname"]],
+          ["style", ["fontname", "fontsize"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],
@@ -227,7 +227,7 @@ export default {
         toolbar: [
           ["para", ["style"]],
           ["style", ["bold", "underline", "clear"]],
-          ["style", ["fontname"]],
+          ["style", ["fontname", "fontsize"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],

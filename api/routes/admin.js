@@ -29,8 +29,7 @@ const router = Router();
 router.get("/acts", async function(req, res, next) {
   try {
     let type = Act;
-    if (req.query.type == 'event')
-    type = Event_Act;
+    if (req.query.type == "event") type = Event_Act;
     //Only admin can get here
     if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
@@ -58,15 +57,16 @@ router.get("/acts", async function(req, res, next) {
 
     let results;
     let count;
-    results = type.find(search, {
-      name: true,
-      // description: true,
-      enabled: true,
-      creation_date: true,
-      state: true,
-      deleted: true,
-      act_provider: true
-    })
+    results = type
+      .find(search, {
+        name: true,
+        // description: true,
+        enabled: true,
+        creation_date: true,
+        state: true,
+        deleted: true,
+        act_provider: true
+      })
       .sort({ [sort]: order })
       .skip(offset)
       .limit(10)
@@ -85,6 +85,286 @@ router.get("/acts", async function(req, res, next) {
     res.json({ data: returned_results, count: pages });
   } catch (err) {
     console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get acts`);
+  }
+});
+
+router.get("/acts/:id/users/:page", async function(req, res, next) {
+  try {
+    //Return act details
+
+    // let type = Act;
+    // if (req.query.type == "event") type = Event_Act;
+    // //Only admin can get here
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
+
+    //Return acts with respect to search, sort, order
+    let search;
+    // if (req.query.search)
+    //   search = { $text: { $search: sanitize(req.query.search) } };
+
+    if (!req.query.search) search = "";
+    else search = sanitize(req.query.search);
+
+    // let page = parseInt(sanitize(req.query.page));
+
+    let sort = sanitize(req.query.sort);
+    let order = parseInt(sanitize(req.query.order));
+    let type = sanitize(req.query.type);
+
+    // //Handle invalid page
+    // if (!page || page < 1) page = 1;
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "first_name";
+    if (!type || globals.user_act_types.indexOf(type) === -1)
+      type = "COMPLETED";
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    if (type == "COMPLETED") {
+      type = "$completed_users";
+    } else if (type == "UNDER_REVIEW") {
+      type = "$users_under_review";
+    } else if (type == "REJECTED") {
+      type = "$rejected_users";
+    }
+
+    // //Handle invalid act order category
+    // if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+    //   order = 1;
+
+    // let offset = (page - 1) * 10;
+
+    // let results;
+    // let count;
+    // results = type
+    //   .find(search, {
+    //     name: true,
+    //     // description: true,
+    //     enabled: true,
+    //     creation_date: true,
+    //     state: true,
+    //     deleted: true,
+    //     act_provider: true
+    //   })
+    //   .sort({ [sort]: order })
+    //   .skip(offset)
+    //   .limit(10)
+    //   .lean();
+
+    // count = type.find(search).countDocuments();
+
+    // const promises = [results, count];
+    // let returned_results, pages;
+    // await Promise.all(promises).then(function(values) {
+    //   returned_results = values[0];
+    //   count = values[1];
+    //   pages = Math.ceil(count / 10);
+    // });
+
+    const page = req.params.page;
+    const skip = (page - 1) * 10;
+    //Get act details (completed users)
+
+    // const users = await Act.find(
+    //   { _id: mongoose.Types.ObjectId(req.params.id) },
+    //   {
+    //     completed_users: true,
+    //     _id: false
+    //   }
+    // )
+    //   .skip(skip)
+    //   .limit(10);
+    const type_last_name = type.substring(1) + ".last_name";
+    const sort_type = type.substring(1) + "." + sort;
+
+    const users = await Act.aggregate([
+      {
+        $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+      },
+      {
+        $unwind: type
+      },
+      {
+        $match: { [type_last_name]: new RegExp(".*" + search + ".*", "i") }
+      },
+      {
+        $sort: { [sort_type]: order }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          completed_users: type,
+          _id: false
+        }
+      }
+    ]);
+
+    // logger.info(`${req.user.id} successfully got acts`);
+    res.json({ users });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get acts`);
+  }
+});
+
+router.get("/users/:id/acts/:page", async function(req, res, next) {
+  try {
+    // //Only admin can get here
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
+
+    //Return acts with respect to search, sort, order
+    let search;
+    // if (req.query.search)
+    //   search = { $text: { $search: sanitize(req.query.search) } };
+
+    if (!req.query.search) search = "";
+    else search = sanitize(req.query.search);
+
+    // let page = parseInt(sanitize(req.query.page));
+
+    let sort = sanitize(req.query.sort);
+    let order = parseInt(sanitize(req.query.order));
+    let type = sanitize(req.query.type);
+
+    // //Handle invalid page
+    // if (!page || page < 1) page = 1;
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "name";
+    if (!type || globals.user_act_types.indexOf(type) === -1)
+      type = "COMPLETED";
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    // if (type == "COMPLETED") {
+    //   type = "$completed_users";
+    // } else if (type == "UNDER_REVIEW") {
+    //   type = "$users_under_review";
+    // } else if (type == "REJECTED") {
+    //   type = "$rejected_users";
+    // }
+
+    // //Handle invalid act order category
+    // if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+    //   order = 1;
+
+    // let offset = (page - 1) * 10;
+
+    // let results;
+    // let count;
+    // results = type
+    //   .find(search, {
+    //     name: true,
+    //     // description: true,
+    //     enabled: true,
+    //     creation_date: true,
+    //     state: true,
+    //     deleted: true,
+    //     act_provider: true
+    //   })
+    //   .sort({ [sort]: order })
+    //   .skip(offset)
+    //   .limit(10)
+    //   .lean();
+
+    // count = type.find(search).countDocuments();
+
+    // const promises = [results, count];
+    // let returned_results, pages;
+    // await Promise.all(promises).then(function(values) {
+    //   returned_results = values[0];
+    //   count = values[1];
+    //   pages = Math.ceil(count / 10);
+    // });
+
+    const page = req.params.page;
+    const skip = (page - 1) * 10;
+    //Get act details (completed users)
+
+    // const users = await Act.find(
+    //   { _id: mongoose.Types.ObjectId(req.params.id) },
+    //   {
+    //     completed_users: true,
+    //     _id: false
+    //   }
+    // )
+    //   .skip(skip)
+    //   .limit(10);
+    const name = "populated_act.name";
+    const type_last_name = type.substring(1) + ".last_name";
+    let sort_type;
+    if (sort == "name") sort_type = "populated_act.name";
+    else if (sort == "time") sort_type = "acts.time";
+    // const sort_type = type.substring(1) + "." + sort;
+
+    const acts = await User.aggregate([
+      {
+        $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+      },
+      {
+        $unwind: "$acts"
+      },
+      {
+        $match: { "acts.state": type }
+      },
+      {
+        $lookup: {
+          from: "acts",
+          localField: "acts.id",
+          foreignField: "_id",
+          as: "populated_act"
+        }
+      },
+      {
+        $match: { "populated_act.name": new RegExp(".*" + search + ".*", "i") }
+      },
+      {
+        $sort: { [sort_type]: order }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          "populated_act.name": 1,
+          "populated_act.act_provider.first_name": 1,
+          "populated_act.act_provider.last_name": 1,
+          _id: 0,
+          "acts.time": 1
+        }
+      }
+    ]);
+
+    // logger.info(`${req.user.id} successfully got acts`);
+    res.json({ acts });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get acts`);
+  }
+});
+
+router.put("/users/:id/points/:points", async function(req, res, next) {
+  try {
+    await User.findByIdAndUpdate(req.params.id, {
+      $inc: { points: req.params.points }
+    });
+    res.json({ Success: "Success" });
+  } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get acts`);
   }

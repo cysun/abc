@@ -46,10 +46,10 @@
                   rows="4"
                   :value="data.act.description"
                 ></textarea>-->
-                <div>
+                <!-- <div>
                   <h3>How to submit evidences</h3>
                   <p v-html="data.act.how_to_submit_evidences"></p>
-                </div>
+                </div> -->
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span

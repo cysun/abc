@@ -22,13 +22,14 @@
                     v-model="data.act.name"
                   >
                   <label for="description">{{$t('description')}}</label>
-                  <input
+                  <textarea id="summernote" name="editordata"></textarea>
+                  <!-- <input
                     type="text"
                     name="description"
                     id="description"
                     :placeholder="$t('description')"
                     v-model="data.act.description"
-                  >
+                  > -->
                   <label for="reward_points">{{$t('Reward_points')}}</label>
                   <input
                     type="text"
@@ -180,6 +181,28 @@ export default {
       showMeridian: 1
     });
 
+    const doc = document.createElement("span");
+    doc.innerHTML = vue_context.data.act.description;
+
+    $(document).ready(function() {
+      $("#summernote").summernote({
+        placeholder: "Description",
+        height: 300,
+        toolbar: [
+          // [groupName, [list of button]]
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname", "fontsize"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
+      });
+      $("#summernote").summernote("insertNode", doc);
+    });
+
     $(".form_datetime")
       .datetimepicker()
       .on("changeDate", function(e) {
@@ -329,6 +352,7 @@ export default {
       const params = new URLSearchParams();
 
       params.append("name", this.data.act.name);
+      this.data.act.description = $("#summernote").summernote("code");
       params.append("description", this.data.act.description);
       params.append("reward_points", this.data.act.reward_points);
       if (this.data.act.start_time) {

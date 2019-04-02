@@ -43,10 +43,10 @@ let actSchema = new mongoose.Schema({
     required: true
     // sparse: true
   },
-  how_to_submit_evidences: {
-    type: String,
-    required: true
-  },
+  // how_to_submit_evidences: {
+  //   type: String,
+  //   required: true
+  // },
   reviews: [{
     id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -550,7 +550,7 @@ actSchema.statics.getUniqueProofImageName = async function(
 actSchema.statics.initialize = async function(data) {
   let act = new this({});
 
-  if (!data.name || !data.description || !data.reward_points ||!data.how_to_submit_evidences)
+  if (!data.name || !data.description || !data.reward_points)
     throw new Error("Incomplete request");
 
   // Sanitize all required fields
@@ -615,60 +615,60 @@ actSchema.statics.initialize = async function(data) {
       await FileSchema.collection.insertMany(file_details);
   }
 
-  //Check if there are images in the instructions to submit evidences
-  $ = cheerio.load(how_to_submit_evidences);
-  if ($("img").length > 0) {
-    let ext;
-    const image_promises = [];
-    const image_names = [];
-    const file_details = [];
-    //Look for all images in the description
-    const images = $("img");
-    // console.log(images.length);
-    //Get unique names
-    for (let i = 0; i < images.length; i++) {
-      if (!images[i].attribs["src"]) continue;
-      ext = re.exec(images[i].attribs["data-filename"])[1];
-      if (ext == undefined) ext = "";
-      else ext = `.${ext}`;
-      image_names.push(uuidv4());
-      //Convert them to files
-      image_promises.push(
-        base64Img.img(
-          images[i].attribs.src,
-          process.env.files_folder,
-          image_names[i]
-        )
-      );
-      image_names[i] = image_names[i] + ext;
-      // .then(function(filepath) {});
-    }
-    await Promise.all(image_promises);
-    //Get their image links
-    for (let i = 0; i < images.length; i++) {
-      if (!images[i].attribs["src"]) continue;
-      //Replace the src of the images in the description with the new links
-      $("img")[i].attribs["src"] =
-        "/api/acts/images/" + image_names[i];
-      file_details.push({
-        uploader_id: mongoose.Types.ObjectId(data.provider.id),
-        proof_name: image_names[i],
-        upload_time: new Date(),
-        original_name: images[i].attribs["data-filename"],
-        size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`).size
-      });
-      // console.log($("img")[i].attribs["src"]);
-    }
-    // console.log($.html())
-    let new_description = $.html();
-    new_description = new_description.split("<body>")[1];
-    new_description = new_description.split("</body>")[0];
-    how_to_submit_evidences = new_description;
-    // console.log(description);
-    //Insert these new files into the file schema
-    if (file_details.length > 0)
-      await FileSchema.collection.insertMany(file_details);
-  }
+  // //Check if there are images in the instructions to submit evidences
+  // $ = cheerio.load(how_to_submit_evidences);
+  // if ($("img").length > 0) {
+  //   let ext;
+  //   const image_promises = [];
+  //   const image_names = [];
+  //   const file_details = [];
+  //   //Look for all images in the description
+  //   const images = $("img");
+  //   // console.log(images.length);
+  //   //Get unique names
+  //   for (let i = 0; i < images.length; i++) {
+  //     if (!images[i].attribs["src"]) continue;
+  //     ext = re.exec(images[i].attribs["data-filename"])[1];
+  //     if (ext == undefined) ext = "";
+  //     else ext = `.${ext}`;
+  //     image_names.push(uuidv4());
+  //     //Convert them to files
+  //     image_promises.push(
+  //       base64Img.img(
+  //         images[i].attribs.src,
+  //         process.env.files_folder,
+  //         image_names[i]
+  //       )
+  //     );
+  //     image_names[i] = image_names[i] + ext;
+  //     // .then(function(filepath) {});
+  //   }
+  //   await Promise.all(image_promises);
+  //   //Get their image links
+  //   for (let i = 0; i < images.length; i++) {
+  //     if (!images[i].attribs["src"]) continue;
+  //     //Replace the src of the images in the description with the new links
+  //     $("img")[i].attribs["src"] =
+  //       "/api/acts/images/" + image_names[i];
+  //     file_details.push({
+  //       uploader_id: mongoose.Types.ObjectId(data.provider.id),
+  //       proof_name: image_names[i],
+  //       upload_time: new Date(),
+  //       original_name: images[i].attribs["data-filename"],
+  //       size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`).size
+  //     });
+  //     // console.log($("img")[i].attribs["src"]);
+  //   }
+  //   // console.log($.html())
+  //   let new_description = $.html();
+  //   new_description = new_description.split("<body>")[1];
+  //   new_description = new_description.split("</body>")[0];
+  //   how_to_submit_evidences = new_description;
+  //   // console.log(description);
+  //   //Insert these new files into the file schema
+  //   if (file_details.length > 0)
+  //     await FileSchema.collection.insertMany(file_details);
+  // }
 
   
 
@@ -718,7 +718,7 @@ actSchema.statics.initialize = async function(data) {
 
   act.name = name;
   act.description = description;
-  act.how_to_submit_evidences = how_to_submit_evidences;
+  // act.how_to_submit_evidences = how_to_submit_evidences;
   act.reward_points = reward_points;
   if (data.amount == '')
   data.amount = -1;

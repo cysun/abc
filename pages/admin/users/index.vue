@@ -12,8 +12,8 @@
               <h1>{{$t('users')}}</h1>
             </div>
             <div class="chit-chat-layer1">
-              <div class="col-md-3"></div>
-              <div class="col-md-6 chit-chat-layer1">
+              <div class="col-md-1"></div>
+              <div class="col-md-8 chit-chat-layer1">
                 <div class="work-progres">
                   <div class="form-inline text-center">
                     <div class="form-group" style="margin-right: 10px">
@@ -46,7 +46,7 @@
                             :selected="query.sort == 'last_name'"
                           >{{$t('last_name')}}</option>
                         </select>
-                        
+
                         <select
                           :disabled="query.type == 'REVIEWS'"
                           class="form-control"
@@ -83,7 +83,9 @@
                           <th>{{$t('last_name')}}</th>
                           <th>{{$t('verified')}}</th>
                           <th>{{$t('registration_date')}}</th>
-                          <th>{{$t('actions')}}</th>
+                          <th>Edit</th>
+                          <th>View Acts</th>
+                          <th>Give points</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -104,6 +106,22 @@
                             <nuxt-link :to="'/user/' + user._id + '/edit'">
                               <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
+                          </td>
+                          <td>
+                            <nuxt-link :to="'/admin/users/' + user._id + '/acts'">
+                              <button class="btn btn-primary">View Acts</button>
+                            </nuxt-link>
+                          </td>
+                          <td>
+                            <!-- Button trigger modal -->
+                            <input class="form-control" type="number" v-model="points[user._id]">
+                            <button
+                              type="button"
+                              @click="givePoints(user._id)"
+                              class="btn btn-primary"
+                              data-toggle="modal"
+                              data-target="#exampleModalCenter"
+                            >Give points</button>
                           </td>
                         </tr>
                       </tbody>
@@ -195,7 +213,11 @@ import MySidebar from "~/components/Admin_Sidebar.vue";
 import MyHeader from "~/components/Admin_Header.vue";
 import MyFooter from "~/components/Admin_Footer.vue";
 import scrollToElement from "scroll-to-element";
-let vue_context;
+let vue_context, izitoast;
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 export default {
   layout: "admin",
@@ -207,13 +229,23 @@ export default {
   created: function() {
     vue_context = this;
   },
-  head () {
+  data() {
+    return {
+      give_points_to: "",
+      points: {}
+    };
+  },
+  head() {
     return {
       title: "Asset Building Clinic : View Users",
       meta: [
-        { hid: 'description', name: 'description', content: 'Search for specific users' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Search for specific users"
+        }
       ]
-    }
+    };
   },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
@@ -291,6 +323,8 @@ export default {
     next();
   },
   mounted() {
+    izitoast = require("izitoast");
+
     $(document).ready(function() {
       var navoffeset = $(".header-main").offset().top;
       $(window).scroll(function() {
@@ -357,6 +391,52 @@ export default {
       this.query.search = "";
       this.query.sort = "";
       this.$router.push(`/admin/users`);
+    },
+    store_this_id(id) {
+      this.give_points_to = id;
+    },
+    givePoints(id) {
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+      //Ensure this is a number
+      if (!isNumeric(this.points[id])) {
+        //Give error message
+        izitoast.error({
+          title: "Error",
+          message: "Please enter a valid whole number",
+          position: "topRight"
+        });
+      } else {
+        
+        
+        
+        
+        // Add the number of points to this user
+        axios
+          .put(`/api/admin/users/${id}/points/${this.points[id]}`, {
+            headers: {
+              Cookie: `token=${token}; refresh_token=${refresh_token};`
+            }
+          })
+          .then(function(res) {
+            // Then give success message
+            izitoast.success({
+              title: "Success",
+              message: "Points were successfully added",
+              position: "topRight"
+            });
+            // Reset points
+            vue_context.points[id] = ""
+          })
+          .catch(function(err) {
+            // If something goes wrong, give error message
+            izitoast.error({
+              title: "Error",
+              message: "Something went wrong. Please try again later.",
+              position: "topRight"
+            });
+          });
+      }
     }
   }
 };
