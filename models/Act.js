@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const globals = require("../globals");
 const fs = require("fs");
-const User = require('./User');
+const User = require("./User");
 const nodemailer = require("nodemailer");
 const sanitize = require("sanitize-html");
 const FileSchema = require("./File");
@@ -43,39 +43,49 @@ let actSchema = new mongoose.Schema({
     required: true
     // sparse: true
   },
+  repeatable: {
+    type: Boolean,
+    default: false
+  },
+  importance: {
+    type: Number,
+    default: 0
+  },
   // how_to_submit_evidences: {
   //   type: String,
   //   required: true
   // },
-  reviews: [{
-    id: {
+  reviews: [
+    {
+      id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
         sparse: true
-    },
-    first_name: {
+      },
+      first_name: {
         type: String,
         required: true,
         sparse: true
-    },
-    last_name: {
+      },
+      last_name: {
         type: String,
         required: true,
         sparse: true
-    },
-    reward_rating: {
+      },      
+      reward_rating: {
         type: Number,
         required: true,
         min: 1,
         max: 5
-    },
-    reward_comments: String,
-    time: {
+      },
+      reward_comments: String,
+      time: {
         type: Date,
         default: Date.now
-    },
-}],
+      }
+    }
+  ],
   reward_points: {
     type: Number,
     required: true,
@@ -593,8 +603,7 @@ actSchema.statics.initialize = async function(data) {
     for (let i = 0; i < images.length; i++) {
       if (!images[i].attribs["src"]) continue;
       //Replace the src of the images in the description with the new links
-      $("img")[i].attribs["src"] =
-        "/api/acts/images/" + image_names[i];
+      $("img")[i].attribs["src"] = "/api/acts/images/" + image_names[i];
       file_details.push({
         uploader_id: mongoose.Types.ObjectId(data.provider.id),
         proof_name: image_names[i],
@@ -670,8 +679,6 @@ actSchema.statics.initialize = async function(data) {
   //     await FileSchema.collection.insertMany(file_details);
   // }
 
-  
-
   // console.log($("img").nextAll()[0].prev.attribs["data-filename"]);
   // $("img").nextAll()[0].prev.attribs["src"] = "";
   // throw new Error($("img"));
@@ -714,15 +721,14 @@ actSchema.statics.initialize = async function(data) {
 
   if (error_drawing_file) throw new Error("Invalid image");
 
-  
-
   act.name = name;
   act.description = description;
   // act.how_to_submit_evidences = how_to_submit_evidences;
   act.reward_points = reward_points;
-  if (data.amount == '')
-  data.amount = -1;
+  if (data.amount == "") data.amount = -1;
   act.amount = data.amount;
+  act.repeatable = data.repeatable
+  act.importance = data.importance
   act.act_provider = {
     id: data.provider.id,
     first_name: data.provider.first_name,

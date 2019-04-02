@@ -11,10 +11,11 @@ const globals = require("../../globals");
 const FileSchema = require("../../models/File");
 const mail = require("../../send_mail");
 const fs = require("fs");
+const os = require('os');
 const secret = require("../../secret");
 const uuidv4 = require("uuid/v4");
 var upload = multer({
-  dest: "tmp/"
+  dest: os.tmpdir()
 });
 const mongoose = require("mongoose");
 const util = require("util");
@@ -240,7 +241,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     //If the user is already logged in and this is not the admin, give error
     if (req.user && !req.roles.administrator)
       throw new Error(res.__("you_must_be_logged_out"));
-    if (req.file) req.body.profile_picture = "./tmp/" + req.file.filename;
+    if (req.file) req.body.profile_picture = os.tmpdir() + "\\" + req.file.filename;
     let user = await User.initialize(req.body);
 
     // await user.save();

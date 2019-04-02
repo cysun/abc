@@ -24,10 +24,11 @@ const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
 const sharp = require("sharp");
 const uuidv4 = require("uuid/v4");
+const os = require('os');
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/",
+  dest: os.tmpdir(),
   limits: { fieldSize: 25 * 1024 * 1024 * 1024 }
 });
 
@@ -930,7 +931,7 @@ router.post("/", upload.single("file"), async function(req, res, next) {
     if (req.file) {
       let buffer;
       const file_name = uuidv4();
-      const picture = "./tmp/" + req.file.filename;
+      const picture = os.tmpdir() + "\\" + req.file.filename;
       await fs_read_file(picture)
         .then(function(data) {
           buffer = data;
@@ -1048,7 +1049,7 @@ router.post("/", upload.single("file"), async function(req, res, next) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to create reward`);
   } finally {
-    if (req.file) fs.unlinkSync("./tmp/" + req.file.filename);
+    if (req.file) fs.unlinkSync(os.tmpdir() + "\\" + req.file.filename);
   }
 });
 // finally {
@@ -1273,7 +1274,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
 
     if (req.file) {
       //Process image
-      const image = "./tmp/" + req.file.filename;
+      const image = os.tmpdir() + "\\" + req.file.filename;
       let error_drawing_file = false;
       let buffer;
       const file_name = uuidv4();

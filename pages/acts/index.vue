@@ -5,6 +5,9 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
+        <span v-if="query.type == 'COMPLETED'"
+          class="badge badge-secondary float-left"
+        >{{data.act_count}} completed acts</span>
         <span
           class="badge badge-primary float-right"
         >{{data.reward_points.points}} {{$t('reward_points')}}</span>
@@ -84,13 +87,17 @@
               v-for="(act, index) in data.acts"
             >
               <div class="blog-img w3-agile-grid">
-                <nuxt-link :to="`/acts/${act._id}`" v-if="act.image">
+                <nuxt-link :to="`/acts/${act.completed_users._id}/complete`" v-if="act.image && data.type == 'COMPLETED'">
+                  <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
+                </nuxt-link>
+                <nuxt-link :to="`/acts/${act._id}`" v-if="act.image && data.type != 'COMPLETED'">
                   <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
                 </nuxt-link>
               </div>
               <div class="blog_info">
                 <h5>
-                  <nuxt-link v-if="!act.edit" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
+                  <nuxt-link v-if="!act.edit && data.type == 'COMPLETED'" :to="{path: 'acts/' + act.completed_users._id + '/complete'}">{{act.name}}</nuxt-link>
+                  <nuxt-link v-if="!act.edit && data.type != 'COMPLETED'" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -188,7 +195,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="float-right"><nuxt-link :to="`/acts/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
+                <div class="float-right"><nuxt-link v-if="data.type == 'COMPLETE'" :to="`/acts/${act.completed_users._id}/complete`"><button class="btn btn-primary">More details</button></nuxt-link><nuxt-link v-if="data.type != 'COMPLETE'" :to="`/acts/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
                 <div class="clearfix"></div>
                 <div
                   class="row"

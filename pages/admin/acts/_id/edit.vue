@@ -87,6 +87,19 @@
                       </span>
                     </div>
                   </template>
+                  <label for="importance">Importance</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="importance"
+                  name="importance"
+                  placeholder="Importance"
+                  required
+                  v-model="data.act.importance"
+                >
+                <br>
+                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="data.act.repeatable" type="checkbox" id="repeatable" name="repeatable">
+                <label for="repeatable">Repeatable</label>
                   <h3>{{$t('tags')}}</h3>
                   <div>
                     <!-- <span v-for="(tag, index) in data.act.tags">
@@ -100,6 +113,9 @@
                       @click="deleteTag(index)"
                     >{{tag.name}}</a>
                   </div>
+                  <div>
+                    
+                </div>
                   <br>
                   <label for="tags">{{$t('new_tags')}}</label>
                   <input
@@ -355,6 +371,8 @@ export default {
       this.data.act.description = $("#summernote").summernote("code");
       params.append("description", this.data.act.description);
       params.append("reward_points", this.data.act.reward_points);
+      params.append("repeatable", this.data.act.repeatable);
+      params.append("importance", this.data.act.importance);
       if (this.data.act.start_time) {
         params.append("start_time", this.data.act.start_time + "Z");
         params.append("end_time", this.data.act.end_time + "Z");

@@ -112,6 +112,10 @@
                   required
                   v-model="data.act.reward_points"
                 >
+                <div>
+                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="data.act.repeatable" type="checkbox" id="repeatable" name="repeatable">
+                <label for="repeatable">Repeatable</label>
+                </div>
                 <label for="tags">Tags</label>
                 <input
                   class="form-control"
@@ -123,6 +127,16 @@
                 >
                 <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
+                <label for="importance">Importance</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="importance"
+                  name="importance"
+                  placeholder="Importance"
+                  required
+                  v-model="data.act.importance"
+                >
                 <label for="expiration_date">Expiration date</label>
                 <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                   <input
@@ -461,6 +475,8 @@ export default {
       params.append("how_to_submit_evidences", this.data.act.how_to_submit_evidences);
       params.append("reward_points", this.data.act.reward_points);
       params.append("amount", this.data.act.amount);
+      params.append("repeatable", this.data.act.repeatable);
+      params.append("importance", this.data.act.importance);
       if (this.data.act.expiration_date)
         params.append("expiration_date", this.data.act.expiration_date);
       if (this.image) params.append("file", this.image, this.image.name);

@@ -126,6 +126,10 @@
                   required
                   v-model="add_act.reward_points"
                 >
+                <div>
+                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="add_act.repeatable" type="checkbox" id="repeatable" name="repeatable">
+                <label for="repeatable">Repeatable</label>
+                </div>
                 <label for="tags">Tags</label>
                 <input
                   class="form-control"
@@ -137,6 +141,16 @@
                 >
                 <label for="file">Image should be 1600 X 800</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
+                <label for="importance">Importance</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="importance"
+                  name="importance"
+                  placeholder="Importance"
+                  required
+                  v-model="add_act.importance"
+                >
                 <label for="expiration_date">Expiration date</label>
                 <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                   <input
@@ -328,7 +342,9 @@ export default {
         reward_points: "",
         start_time: "",
         end_time: "",
-        expiration_date: ""
+        expiration_date: "",
+        repeatable: false,
+        importance: 0
       }
     };
   },
@@ -732,6 +748,8 @@ export default {
       params.append("how_to_submit_evidences", this.add_act.how_to_submit_evidences);
       params.append("reward_points", this.add_act.reward_points);
       params.append("amount", this.add_act.amount);
+      params.append("repeatable", this.add_act.repeatable);
+      params.append("importance", this.add_act.importance);
       if (this.add_act.expiration_date)
         params.append("expiration_date", this.add_act.expiration_date);
       if (this.image) params.append("file", this.image, this.image.name);
@@ -760,6 +778,8 @@ export default {
           new Date(document.getElementById("end_time").value)
         );
       }
+      let good_ending = false;
+      let id = "";
       await axios
         .post(`/api/acts/${vue_context.upload_type}`, params, {
           headers: {
@@ -767,6 +787,7 @@ export default {
           }
         })
         .then(function(res) {
+          id = res.data._id;
           izitoast.success({
             title: "Success",
             message: "Your act has been successfully created",
@@ -833,6 +854,7 @@ export default {
           //     vue_context.data.acts.splice(0, 0, res.data);
           //   }
           // }
+          good_ending = true;
         })
         .catch(function(err) {
           // console.log(err);
@@ -845,6 +867,10 @@ export default {
       this.disable_submit_button = false;
       this.submit_text = "Submit";
       this.$nuxt.$loading.finish();
+      if (good_ending)
+      {
+        this.$router.push(`/acts/${id}`);
+      }
     },
     async search() {
       this.$router.push(

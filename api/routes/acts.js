@@ -21,15 +21,18 @@ const cheerio = require("cheerio");
 const fs_read_file = util.promisify(fs.readFile);
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
-const fs_rename_file = util.promisify(fs.rename);
+const mv = require('mv');
+const fs_rename_file = util.promisify(mv);
+// const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
 const mailTest = require("../../mail_test");
+const os = require('os');
 const moment = require("moment");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/",
+  dest: os.tmpdir(),
   limits: { fieldSize: 25 * 1024 * 1024 * 1024 }
 });
 
@@ -55,7 +58,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
     .then(function() {
       //Move the file to the acts proof folder with the new name and extension
       fs_rename_file(
-        `./tmp/${file_name}`,
+        `${os.tmpdir()}\\${file_name}`,
         `${process.env.files_folder}/${unique_name}${ext}`
       );
     })
@@ -78,7 +81,11 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
     let promises = [];
     // const user = await User.findById(req.params.user_id)
     const promised_user = User.findOne(
-      { _id: req.params.user_id, "acts.id": req.params.act_id },
+      {
+        _id: req.params.user_id,
+        "acts.id": req.params.act_id,
+        "acts.state": "UNDER_REVIEW"
+      },
       { "acts.$": true, first_name: true, last_name: true, email: true }
     ).lean();
     const promised_act = Act.findById(req.params.act_id);
@@ -136,7 +143,11 @@ router.put("/:act_id/user/:user_id/approve", async function(req, res, next) {
     );
 
     const promised_user_change = User.findOneAndUpdate(
-      { _id: req.params.user_id, "acts.id": req.params.act_id },
+      {
+        _id: req.params.user_id,
+        "acts.id": req.params.act_id,
+        "acts.state": "UNDER_REVIEW"
+      },
       {
         //Change the state of this act to completed in the user object
         "acts.$.state": "COMPLETED",
@@ -172,7 +183,11 @@ router.put("/:act_id/user/:user_id/disapprove", async function(req, res, next) {
     let promises = [];
     // const user = await User.findById(req.params.user_id)
     const promised_user = User.findOne(
-      { _id: req.params.user_id, "acts.id": req.params.act_id },
+      {
+        _id: req.params.user_id,
+        "acts.id": req.params.act_id,
+        "acts.state": "UNDER_REVIEW"
+      },
       { "acts.$": true, first_name: true, last_name: true, email: true }
     ).lean();
     const promised_act = Act.findById(req.params.act_id);
@@ -220,7 +235,11 @@ router.put("/:act_id/user/:user_id/disapprove", async function(req, res, next) {
     );
 
     const promised_user_change = User.findOneAndUpdate(
-      { _id: req.params.user_id, "acts.id": req.params.act_id },
+      {
+        _id: req.params.user_id,
+        "acts.id": req.params.act_id,
+        "acts.state": "UNDER_REVIEW"
+      },
       {
         //Change the state of this act to rejected in the user object
         "acts.$.comments": req.body.comments,
@@ -370,6 +389,22 @@ router.post("/:id/complete", upload.array("files"), async function(
 
     await Promise.all(promises);
 
+    //Get user's relationship with this act
+    const act_user_relationship = await Act.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+      { $unwind: { path: "$users_who_completed_this_act" } },
+      {
+        $match: {
+          "users_who_completed_this_act.id": mongoose.Types.ObjectId(
+            req.user.id
+          )
+        }
+      },
+      { $sort: { "users_who_completed_this_act.time_completed": -1 } },
+      { $limit: 1 },
+      { $project: { users_who_completed_this_act: 1, repeatable: 1 } }
+    ]);
+
     //Save changes in the database
     //return json of all proofs for this act for this person
     // Update the act and the user
@@ -390,13 +425,18 @@ router.post("/:id/complete", upload.array("files"), async function(
       },
       { $sort: { "users_who_completed_this_act.time_completed": -1 } },
       { $limit: 1 },
-      { $project: { users_who_completed_this_act: 1 } }
+      { $project: { users_who_completed_this_act: 1, repeatable: 1 } }
     ])
       .session(session)
       .then(async function(act) {
         //Check if it's under review
+        //If this act is not under review for this user
+        //If this act is not completed by this user (If non repeatable)
+        //If this act is repeatable and completed by this user
         if (
-          !act[0]
+          !act[0] ||
+          (act[0].users_who_completed_this_act.state == "COMPLETED" &&
+            act[0].repeatable)
           // ||
           // act[0].users_who_completed_this_act.state != "UNDER_REVIEW"
         ) {
@@ -466,8 +506,8 @@ router.post("/:id/complete", upload.array("files"), async function(
         ) {
           await Act.findOneAndUpdate(
             {
-              "users_who_completed_this_act.id":
-                act[0].users_who_completed_this_act.id
+              "users_who_completed_this_act._id":
+                act[0].users_who_completed_this_act._id
             },
             {
               $push: {
@@ -505,24 +545,91 @@ router.post("/:id/complete", upload.array("files"), async function(
     //Change act to under review
     //Update time as well
     //Add the new files that were uploaded as well
-    const promised_user_change = User.findOneAndUpdate(
-      { _id: user.id, "acts.id": req.params.id },
-      {
-        $set: { "acts.$.state": "UNDER_REVIEW", "acts.$.time": Date.now() },
-        $addToSet: { "acts.$.proof_of_completion": user.proof_of_completion }
-      },
-      { session },
-      async function(err, numberAffected, rawResponse) {
-        if (!numberAffected) {
-          //If not exists, insert act
-          await User.findByIdAndUpdate(
-            user.id,
-            { $push: { acts: act } },
-            { session }
-          );
-        }
+
+    let promised_user_change;
+
+    //If this act has been completed/ is under review by this user
+    //And this act is repeatable
+    if (
+      ((act_user_relationship[0] &&
+        act_user_relationship[0].users_who_completed_this_act.state ==
+          "COMPLETED") ||
+        (act_user_relationship[0] &&
+          act_user_relationship[0].users_who_completed_this_act.state ==
+            "UNDER_REVIEW")) &&
+      this_act.repeatable
+    ) {
+      //If this act is already in review
+      if (
+        act_user_relationship[0].users_who_completed_this_act.state ==
+        "UNDER_REVIEW"
+      ) {
+        //Find the specific entry and add these proofs to it
+        // const last_under_review_act = await User.findOne(
+        //   {
+        //     _id: user.id,
+        //     "acts.id": req.params.id,
+        //     "acts.state": "UNDER_REVIEW"
+        //   },
+        //   { "acts.$._id": 1 },
+        //   { sort: { "acts.time": -1 } }
+        // );
+        //Add to the entry where it's under review
+        promised_user_change = User.findOneAndUpdate(
+          {
+            _id: user.id,
+            "acts.id": req.params.id,
+            "acts.state": "UNDER_REVIEW"
+          },
+          {
+            $set: { "acts.$.state": "UNDER_REVIEW", "acts.$.time": Date.now() },
+            $addToSet: {
+              "acts.$.proof_of_completion": user.proof_of_completion
+            }
+          },
+          { session }
+        );
       }
-    );
+
+      //If this act is not in review (Completed)
+      //Add these proofs to it and set it as under review
+      else if (
+        act_user_relationship[0].users_who_completed_this_act.state ==
+        "COMPLETED"
+      ) {
+        promised_user_change = User.findOneAndUpdate(
+          { _id: user.id },
+          { $push: { acts: act } },
+          { session }
+        );
+      }
+    }
+
+    //If this act has not been completed by this user
+    //do what you've been doing all this time
+    else if (
+      !act_user_relationship[0] ||
+      act_user_relationship[0].users_who_completed_this_act.state != "COMPLETED"
+    ) {
+      promised_user_change = User.findOneAndUpdate(
+        { _id: user.id, "acts.id": req.params.id },
+        {
+          $set: { "acts.$.state": "UNDER_REVIEW", "acts.$.time": Date.now() },
+          $addToSet: { "acts.$.proof_of_completion": user.proof_of_completion }
+        },
+        { session },
+        async function(err, numberAffected, rawResponse) {
+          if (!numberAffected) {
+            //If not exists, insert act
+            await User.findByIdAndUpdate(
+              user.id,
+              { $push: { acts: act } },
+              { session }
+            );
+          }
+        }
+      );
+    }
 
     const file_details = [];
     for (let i = 0; i < req.user.proof_of_completion.length; i++) {
@@ -555,19 +662,22 @@ router.post("/:id/complete", upload.array("files"), async function(
     const act_proofs = await User.findOne(
       {
         _id: req.user.id,
-        "acts.id": req.params.id
+        "acts.id": req.params.id,
+        "acts.state": "UNDER_REVIEW"
       },
-      { "acts.$.proof_of_completion": true, _id: false }
+      { "acts.$.proof_of_completion": true, _id: false },
+      { sort: { "acts.time": -1 } }
     );
     // console.log(act_proofs.acts[0].proof_of_completion);
     res.json(act_proofs.acts[0].proof_of_completion);
   } catch (err) {
+    console.log(err);
     //Delete uploaded files
     const this_promises = [];
     if (req.files) {
       for (let i = 0; i < req.files.length; i++) {
-        if (fs.existsSync("./tmp/" + req.files[i].filename))
-          this_promises.push(fs_delete_file("./tmp/" + req.files[i].filename));
+        if (fs.existsSync(os.tmpdir() + "\\" + req.files[i].filename))
+          this_promises.push(fs_delete_file(os.tmpdir() + "\\" + req.files[i].filename));
       }
       await Promise.all(this_promises);
     }
@@ -801,12 +911,35 @@ router.get("/:id", async function(req, res, next) {
 
     const promised_act = Act.findById(
       req.params.id,
-      "act_provider deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
+      "act_provider importance repeatable deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
     ).lean();
-    const promised_user = User.findOne(
-      { _id: req.user.id, "acts.id": req.params.id },
-      { "acts.$": 1 }
-    );
+    // const promised_user = User.findOne(
+    //   { _id: req.user.id, "acts.id": req.params.id },
+    //   { "acts.$": 1 },
+    //   { sort: { "acts.$.time": -1 } }
+    // );
+
+    const promised_user = User.aggregate([
+      {
+        $match: { _id: mongoose.Types.ObjectId(req.user.id) }
+      },
+      {
+        $unwind: "$acts"
+      },
+      {
+        $match: { "acts.id": mongoose.Types.ObjectId(req.params.id) }
+      },
+      {
+        $sort: { "acts.time": -1 }
+      },
+      {
+        $limit: 1
+      },
+      {
+        $project: { acts: 1 }
+      }
+    ]);
+
     //Add this user to the act click counter
     const promised_click_counter = Act.findByIdAndUpdate(req.params.id, {
       $push: { users_who_clicked_on_this_act: req.user },
@@ -818,6 +951,16 @@ router.get("/:id", async function(req, res, next) {
       act = values[0];
       user_act = values[1];
     });
+
+    if (user_act[0]) {
+      let x;
+      x = user_act[0].acts;
+      user_act[0].acts = [x];
+      user_act = user_act[0];
+      console.log(user_act);
+    } else {
+      user_act = user_act[0];
+    }
 
     //If act does not exist, error
     if (!act) throw new Error(res.__("act_does_not_exist"));
@@ -870,9 +1013,138 @@ router.get("/:id", async function(req, res, next) {
       }
     }
 
+    // console.log(user_act)
+    // console.log()
+    // console.log(act)
+
+    //If user has completed this act and it is repeatable
+    //Act should behave like the user has not completed it before
+    if (user_act && user_act.acts[0].state == "COMPLETED" && act.repeatable)
+      user_act = null;
+
     logger.info(`${req.user.id} successfully got act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get act ${req.params.id}`);
+  }
+});
+
+//Get individual completed act
+router.get("/:id/complete", async function(req, res, next) {
+  //Get act from Act table
+  //Get user's relationship with act from user table
+  //Combine and deliver
+
+  try {
+    //Only logged in users can view act
+    if (!req.user) throw new Error(res.__("lack_auth"));
+
+    const promised_act = Act.findOne(
+      { "completed_users._id": req.params.id },
+      "act_provider repeatable deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
+    ).lean();
+    // const promised_user = User.findOne(
+    //   { _id: req.user.id, "acts.id": req.params.id },
+    //   { "acts.$": 1 },
+    //   { sort: { "acts.$.time": -1 } }
+    // );
+
+    const promised_user = Act.findOne(
+      { "completed_users._id": req.params.id },
+      { "completed_users.$": true, _id: false }
+    );
+
+    //Add this user to the act click counter
+    const promised_click_counter = Act.findByIdAndUpdate(req.params.id, {
+      $push: { users_who_clicked_on_this_act: req.user },
+      $inc: { total_number_of_clicks: 1 }
+    });
+    const promises = [promised_act, promised_user, promised_click_counter];
+    let act, user_act;
+    await Promise.all(promises).then(function(values) {
+      act = values[0];
+      user_act = values[1];
+      // console.log(user_act)
+      // console.log()
+      // console.log(act)
+    });
+
+    // if (user_act[0]) {
+    //   let x;
+    //   x = user_act[0].acts;
+    //   user_act[0].acts = [x];
+    //   user_act = user_act[0];
+    //   console.log(user_act);
+    // } else {
+    //   user_act = user_act[0];
+    // }
+
+    //If act does not exist, error
+    if (!act) throw new Error(res.__("act_does_not_exist"));
+
+    // //If this request is coming from the act poster who uploaded it or an admin
+    // //Return the act
+    // let creator_rights = false;
+    // if (req.roles && req.roles.act_poster) {
+    //   if (req.roles.administrator || act.act_provider.id == req.user.id)
+    //     creator_rights = true;
+    // }
+    // if (!creator_rights) {
+    //   //If this act is unavailable and this user has not completed it and this person doesn't have creator rights (Rightful act poster or admin)
+    //   if (act.state == "NOT_AVAILABLE" && !user_act)
+    //     throw new Error(res.__("act_is_not_available"));
+    //   if (user_act)
+    //     if (
+    //       act.state == "NOT_AVAILABLE" &&
+    //       user_act.acts[0].state != "COMPLETED"
+    //     )
+    //       throw new Error(res.__("act_is_not_available"));
+    //   //If act is disabled and available
+    //   //And this is a manager
+    //   if (req.roles && req.roles.manager) {
+    //     //Return the act
+    //   } else {
+    //     if (act.enabled.state == false && !user_act)
+    //       throw new Error(res.__("act_is_disabled"));
+    //     if (user_act)
+    //       if (
+    //         act.enabled.state == false &&
+    //         user_act.acts[0].state != "COMPLETED"
+    //       )
+    //         throw new Error(res.__("act_is_disabled"));
+    //   }
+    // }
+
+    //If this act has been deleted
+    //Only admins and users who have completed it can view it
+
+    // if (act.deleted == true) {
+    //   let display_act = false;
+    //   if (req.roles && req.roles.administrator) {
+    //     display_act = true;
+    //   } else if (user_act && user_act.acts[0].state == "COMPLETED") {
+    //     display_act = true;
+    //   }
+    //   if (!display_act) {
+    //     throw new Error(res.__("act_has_been_deleted"));
+    //   }
+    // }
+
+    // console.log(user_act)
+    // console.log()
+    // console.log(act)
+
+    // //If user has completed this act and it is repeatable
+    // //Act should behave like the user has not completed it before
+    // if (user_act && user_act.acts[0].state == "COMPLETED" && act.repeatable)
+    //   user_act = null;
+
+    logger.info(`${req.user.id} successfully got act ${req.params.id}`);
+    res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
+  } catch (err) {
+    console.log(err);
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act ${req.params.id}`);
   }
@@ -950,8 +1222,13 @@ router.get("/", async function(req, res, next) {
 
     if (type == "AVAILABLE") {
       //Only return acts this user has not completed
+      //Return completed acts only if the act is repeatable
       search["users_under_review.id"] = { $not: { $eq: req.user.id } };
-      search["completed_users.id"] = { $not: { $eq: req.user.id } };
+      search["$or"] = [
+        { "completed_users.id": { $not: { $eq: req.user.id } } },
+        { repeatable: true }
+      ];
+      // search["completed_users.id"] = { $not: { $eq: req.user.id } };
     } else if (type == "UNDER_REVIEW")
       search["users_under_review.id"] = req.user.id;
     else if (type == "COMPLETED") search["completed_users.id"] = req.user.id;
@@ -987,10 +1264,15 @@ router.get("/", async function(req, res, next) {
       delete search.state;
     }
 
+    let sort_query = { [sort]: order };
+    if (type == "AVAILABLE") {
+      sort_query = [["importance", -1], [sort, order]];
+    }
+
     //For some unknown reason, the below command gives this error: Projection cannot have a mix of inclusion and exclusion.
     // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
     const promised_acts = Act.find(search)
-      .sort({ [sort]: order })
+      .sort(sort_query)
       .skip(offset)
       .limit(10)
       .lean();
@@ -1065,6 +1347,57 @@ router.get("/", async function(req, res, next) {
       promised_user_reward_points,
       promised_best_acts_for_this_month
     ];
+
+    if (type == "COMPLETED") {
+      let this_search = req.query.search;
+      if (!this_search) this_search = "";
+      const promised_completed_acts = Act.aggregate([
+        {
+          $match: {
+            //Handle search
+            $or: [{ $text: { $search: this_search } }, {}],
+            "completed_users.id": mongoose.Types.ObjectId(req.user.id)
+          }
+        },
+        {
+          ////Get all cases where this user has completed the act
+          $unwind: "$completed_users"
+        },
+        {
+          $match: { "completed_users.id": mongoose.Types.ObjectId(req.user.id) }
+        },
+        //Handle pagination, sort and sort direction
+        { $sort: { [sort]: order } },
+        { $skip: offset },
+        { $limit: 10 }
+        // { $project: { _id: false } }
+      ]);
+
+      const promised_completed_acts_count = Act.aggregate([
+        {
+          $match: {
+            //Handle search
+            $or: [{ $text: { $search: this_search } }, {}],
+            "completed_users.id": mongoose.Types.ObjectId(req.user.id)
+          }
+        },
+        {
+          ////Get all cases where this user has completed the act
+          $unwind: "$completed_users"
+        },
+        {
+          $match: { "completed_users.id": mongoose.Types.ObjectId(req.user.id) }
+        },
+        //Count documents
+        {
+          $count: "no"
+        }
+      ]);
+
+      promises.push(promised_completed_acts);
+      promises.push(promised_completed_acts_count);
+    }
+
     let acts;
     let count;
     let reward_points;
@@ -1078,7 +1411,10 @@ router.get("/", async function(req, res, next) {
       count = values[1];
       reward_points = values[2];
       best_acts = values[3];
+      if (values[4]) acts = values[4];
+      if (values[5]) count = values[5][0].no;
     });
+
     const act_count = count;
     count = Math.ceil(count / 10);
     const total = [];
@@ -1134,7 +1470,7 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
     if (!req.roles || !req.roles.act_poster) {
       throw new Error(res.__("lack_auth"));
     }
-    if (req.file) req.body.picture = "./tmp/" + req.file.filename;
+    if (req.file) req.body.picture = os.tmpdir() + "\\" + req.file.filename;
     req.body.provider = req.user;
     const this_user = await User.findById(req.user.id, { email: true });
     req.body.provider.email = this_user.email;
@@ -1232,11 +1568,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
     }
 
     //Make sure all details were sent
-    if (
-      !req.body.name ||
-      !req.body.description ||
-      !req.body.reward_points
-    )
+    if (!req.body.name || !req.body.description || !req.body.reward_points)
       throw new Error(res.__("incomplete_request"));
 
     const name = sanitize(req.body.name);
@@ -1259,7 +1591,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
 
     if (req.file) {
       //Process image
-      const image = "./tmp/" + req.file.filename;
+      const image = os.tmpdir() + "\\" + req.file.filename;
       let error_drawing_file = false;
       let buffer;
       const file_name = uuidv4();
@@ -1534,6 +1866,11 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
     if (req.body.amount == "") req.body.amount = -1;
     act.amount = req.body.amount;
     act.expiration_date = req.body.expiration_date;
+    act.importance = req.body.importance;
+
+    if (!act.repeatable) {
+      act.repeatable = req.body.repeatable;
+    } else if (act.repeatable && req.body.repeatable == "false") throw new Error("A repeatable act cannot be made unrepeatable");
 
     //If this is an event
     if (act.__t == "Event") {

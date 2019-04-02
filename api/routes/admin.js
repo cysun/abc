@@ -17,11 +17,12 @@ const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
 const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../mail");
+const os = require('os');
 const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/"
+  dest: os.tmpdir()
 });
 
 const router = Router();

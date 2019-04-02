@@ -7,13 +7,14 @@ const jwt = require("jsonwebtoken");
 const secret = require("../../secret");
 const globals = require("../../globals");
 const fs = require("fs");
+const os = require('os');
 const mail = require("../../send_mail");
 const sanitize = require("sanitize-html");
 const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
-  dest: "tmp/"
+  dest: os.tmpdir()
 });
 
 const router = Router();
