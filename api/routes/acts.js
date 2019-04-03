@@ -760,7 +760,7 @@ router.put("/:id/review", async function(req, res, next) {
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
-    console.log(err);
+    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to review act ${req.params.id}`);
   }
@@ -1020,7 +1020,7 @@ router.get("/:id", async function(req, res, next) {
       x = user_act[0].acts;
       user_act[0].acts = [x];
       user_act = user_act[0];
-      console.log(user_act);
+      
     } else {
       user_act = user_act[0];
     }
@@ -1084,7 +1084,7 @@ router.get("/:id", async function(req, res, next) {
     logger.info(`${req.user.id} successfully got act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
-    console.log(err);
+    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act ${req.params.id}`);
   }
@@ -1181,7 +1181,7 @@ router.get("/:id/complete", async function(req, res, next) {
     logger.info(`${req.user.id} successfully got completed act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
-    console.log(err);
+    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get completed act ${req.params.id}`);
   }
@@ -1763,7 +1763,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       if (file_details.length > 0)
         await FileSchema.collection.insertMany(file_details);
 
-      console.log(description);
+      
     }
 
     //Add other details

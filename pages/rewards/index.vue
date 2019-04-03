@@ -4,7 +4,9 @@
     <my-banner :title="title"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <div class="container py-md-3">
-        <span class="badge badge-primary float-right">{{data.reward_points.points}} {{$t('reward_points')}}</span>
+        <span
+          class="badge badge-primary float-right"
+        >{{data.reward_points.points}} {{$t('reward_points')}}</span>
         <div style="clear: both"></div>
         <br>
         <div class="form-inline justify-content-center">
@@ -20,7 +22,10 @@
               >
               <select class="form-control" name="sort" v-model="query.sort">
                 <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
-                <option value="creation_date" :selected="query.sort == 'creation_date'">{{$t('date')}}</option>
+                <option
+                  value="creation_date"
+                  :selected="query.sort == 'creation_date'"
+                >{{$t('date')}}</option>
                 <option
                   value="total_number_of_users_who_got_this_reward"
                   :selected="query.sort == 'total_number_of_users_who_got_this_reward'"
@@ -30,36 +35,30 @@
                   value="total_number_of_users_who_clicked_on_this_reward"
                   :selected="query.sort == 'total_number_of_users_who_clicked_on_this_reward'"
                 >{{$t('popularity')}}</option>
-                <option
-                  value="value"
-                  :selected="query.sort == 'value'"
-                >{{$t('value')}}</option>
+                <option value="value" :selected="query.sort == 'value'">{{$t('value')}}</option>
               </select>
-              
+
               <select class="form-control" name="order" v-model="query.order">
                 <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
                 <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
                 <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
-              
+
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
                 <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
                 <option value="REQUESTED" :selected="!query.type == 'REQUESTED'">{{$t('requested')}}</option>
                 <option value="COLLECTED" :selected="!query.type == 'COLLECTED'">{{$t('collected')}}</option>
                 <template v-if="data.roles && data.roles.reward_provider">
-                <option disabled>──────────</option>
-                <option
-                  value="MY_REWARDS"
-                  :selected="!query.type == 'MY_REWARDS'"
-                >{{$t('my_rewards')}}</option>
-                <option
-                  value="OPEN"
-                  :selected="!query.type == 'OPEN'"
-                >{{$t('open_transactions')}}</option>
-                <option
-                  value="CLOSED"
-                  :selected="!query.type == 'CLOSED'"
-                >{{$t('closed_transactions')}}</option>
+                  <option disabled>──────────</option>
+                  <option
+                    value="MY_REWARDS"
+                    :selected="!query.type == 'MY_REWARDS'"
+                  >{{$t('my_rewards')}}</option>
+                  <option value="OPEN" :selected="!query.type == 'OPEN'">{{$t('open_transactions')}}</option>
+                  <option
+                    value="CLOSED"
+                    :selected="!query.type == 'CLOSED'"
+                  >{{$t('closed_transactions')}}</option>
                 </template>
               </select>
             </span>
@@ -84,17 +83,13 @@
             >
               <div class="blog-img w3-agile-grid">
                 <nuxt-link :to="`/rewards/${act._id}`" v-if="act.image">
-                  <img
-                    :src="`/api/rewards/${act._id}/image`"
-                    alt
-                    class="img-fluid"
-                  >
+                  <img :src="`/api/rewards/${act._id}/image`" alt class="img-fluid">
                 </nuxt-link>
               </div>
               <div class="blog_info">
                 <h5>
                   <a
-                  style='cursor: pointer'
+                    style="cursor: pointer"
                     tabindex="0"
                     v-if="!act.edit && act.reward_provider.id == data.user.id"
                     data-toggle="popover"
@@ -102,8 +97,11 @@
                     :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/rewards/' + act._id + '/details\'>' + $t('more_details') + '</a>'"
                     data-trigger="focus"
                     data-html="true"
-                  >{{act.name}}</a>                  
-                  <nuxt-link v-if="!act.edit && act.reward_provider.id !== data.user.id" :to="{path: 'rewards/' + act._id}">{{act.name}}</nuxt-link>
+                  >{{act.name}}</a>
+                  <nuxt-link
+                    v-if="!act.edit && act.reward_provider.id !== data.user.id"
+                    :to="{path: 'rewards/' + act._id}"
+                  >{{act.name}}</nuxt-link>
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -120,7 +118,9 @@
                   ></a>
                 </p>
 
-                <div><p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p></div>
+                <div>
+                  <p v-if="!act.edit" class="truncate_text_3_lines" v-html="act.description"></p>
+                </div>
                 <textarea
                   :id="'act_description' + index"
                   v-if="act.edit"
@@ -186,72 +186,91 @@
                       </div>
                       <input type="hidden" id="dtp_input1" value>
                       <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                       </script>
                     </div>
                   </div>
                 </div>
-                <div class="float-right"><nuxt-link :to="`/rewards/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
+                <div class="float-right">
+                  <nuxt-link :to="`/rewards/${act._id}`">
+                    <button class="btn btn-primary">More details</button>
+                  </nuxt-link>
+                </div>
                 <div class="clearfix"></div>
-                <div class="row" v-if="act.reward_provider.id == data.user.id || (data.roles && data.roles.manager)">
+                <div
+                  class="row"
+                  v-if="act.reward_provider.id == data.user.id || (data.roles && data.roles.manager)"
+                >
                   <div class="col-md-7">
                     <span
                       v-if="data.roles && data.roles.manager && !data.roles.administrator"
                       class="badge badge-info"
                     >{{act.state ? $t('available') : $t('not_available')}}</span>
                     <span v-if="act.reward_provider.id == data.user.id || data.roles.administrator">
-                    <a
-                      tabindex="0"
-                      class="badge badge-info"
-                      @click="change_act_state(index)"
-                      v-if="act.state == 'AVAILABLE'"
-                      style="cursor: pointer"
-                    >{{$t('available')}}</a>
-                    <a
-                    tabindex="0"
-                      @click="change_act_state(index)"
-                      v-if="act.state == 'NOT_AVAILABLE'"
-                      class="badge badge-info"
-                      style="cursor: pointer"
-                    >{{$t('not_available')}}</a>
+                      <a
+                        tabindex="0"
+                        class="badge badge-info"
+                        @click="change_act_state(index)"
+                        v-if="act.state == 'AVAILABLE'"
+                        style="cursor: pointer"
+                      >{{$t('available')}}</a>
+                      <a
+                        tabindex="0"
+                        @click="change_act_state(index)"
+                        v-if="act.state == 'NOT_AVAILABLE'"
+                        class="badge badge-info"
+                        style="cursor: pointer"
+                      >{{$t('not_available')}}</a>
                     </span>
-                    <span v-if="!data.roles || !data.roles.manager" class="badge badge-info">{{ act.enabled ? $t('enabled'):  $t('disabled') }}</span>
+                    <span
+                      v-if="!data.roles || !data.roles.manager"
+                      class="badge badge-info"
+                    >{{ act.enabled ? $t('enabled'): $t('disabled') }}</span>
                     <span v-if="data.roles && data.roles.manager">
-                    <a
-                    tabindex="0"
-                      class="badge badge-info"
-                      @click="change_act_state_by_manager(index)"
-                      v-if="act.enabled"
-                      style="cursor: pointer"
-                    >{{$t('enabled')}}</a>
-                    <!-- <span v-if="!act.enabled" class="badge badge-info">{{$t('disabled')}}</span> -->
-                    <a
-                    tabindex="0"
-                      class="badge badge-info"
-                      @click="change_act_state_by_manager(index)"
-                      v-if="!act.enabled"
-                      style="cursor: pointer"
-                    >{{$t('disabled')}}</a>
+                      <a
+                        tabindex="0"
+                        class="badge badge-info"
+                        @click="change_act_state_by_manager(index)"
+                        v-if="act.enabled"
+                        style="cursor: pointer"
+                      >{{$t('enabled')}}</a>
+                      <!-- <span v-if="!act.enabled" class="badge badge-info">{{$t('disabled')}}</span> -->
+                      <a
+                        tabindex="0"
+                        class="badge badge-info"
+                        @click="change_act_state_by_manager(index)"
+                        v-if="!act.enabled"
+                        style="cursor: pointer"
+                      >{{$t('disabled')}}</a>
                     </span>
                   </div>
-                  <div class="col-md-5" v-if="act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
+                  <div
+                    class="col-md-5"
+                    v-if="act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
+                  >
                     <span v-if="!act.delete">
                       <nuxt-link :to="`/rewards/${act._id}/edit`">
-                        <button
-                          class="btn btn-primary"
-                        >{{$t('edit')}}</button>
+                        <button class="btn btn-primary">{{$t('edit')}}</button>
                       </nuxt-link>
                       <!-- <button v-if="!act.edit" @click="edit_act(index)" class="btn btn-primary">{{$t('edit')}}</button> -->
-                      <button v-if="act.edit" @click="save_act(index)" class="btn btn-primary">{{$t('save')}}</button>
-                      <button v-if="act.edit" @click="edit_act(index)" class="btn btn-danger">{{$t('cancel')}}</button>
+                      <button
+                        v-if="act.edit"
+                        @click="save_act(index)"
+                        class="btn btn-primary"
+                      >{{$t('save')}}</button>
+                      <button
+                        v-if="act.edit"
+                        @click="edit_act(index)"
+                        class="btn btn-danger"
+                      >{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!act.edit">
                       <button
@@ -390,7 +409,7 @@ export default {
 
     $(document).on("click", ".view_popover", function(event) {
       event.preventDefault();
-      
+
       event.stopPropagation();
       event.stopImmediatePropagation();
       var target = $(event.target);
@@ -400,7 +419,7 @@ export default {
     });
     $(document).on("click", ".more_details_popover", function(event) {
       event.preventDefault();
-      
+
       event.stopPropagation();
       event.stopImmediatePropagation();
       var target = $(event.target);
@@ -439,16 +458,20 @@ export default {
           context.redirect("/logout");
         }
       });
-   
+
     return { query: context.query, data };
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : View rewards",
       meta: [
-        { hid: 'description', name: 'description', content: 'Search for specific rewards' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Search for specific rewards"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -500,13 +523,10 @@ export default {
           vue_context.$router.redirect("/logout");
         }
       });
-      $('[data-toggle="popover"]').popover();
+    $('[data-toggle="popover"]').popover();
     next();
   },
   methods: {
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
     navigateTo(index) {
       var element = this.$refs["acts_come_here"];
       var top = element.offsetTop;
@@ -543,21 +563,18 @@ export default {
       // console.log(this.query.type);
       this.$router.push(`/rewards?type=${this.query.type}`);
     },
-    upload_type_changed() {
-      // console.log(this.upload_type);
-    },
-    viewReward(id){
+    viewReward(id) {
       // alert(id);
-      this.$router.push(`rewards/${id}`)
+      this.$router.push(`rewards/${id}`);
     },
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
       else this.$set(this.data.acts[index], "edit", false);
     },
-    rewardDetails(id){
+    rewardDetails(id) {
       // alert(id);
-      this.$router.push(`rewards/${id}/details`)
+      this.$router.push(`rewards/${id}/details`);
     },
     delete_act(index) {
       if (!this.data.acts[index].delete)
@@ -607,9 +624,9 @@ export default {
       });
       //Get new state
       let new_state;
-      if (this.data.acts[index].previous_data.state == 'AVAILABLE')
-        new_state = 'NOT_AVAILABLE';
-      else new_state = 'AVAILABLE';
+      if (this.data.acts[index].previous_data.state == "AVAILABLE")
+        new_state = "NOT_AVAILABLE";
+      else new_state = "AVAILABLE";
       //Change state of act
       this.$set(this.data.acts[index], "state", new_state);
       //Make request to change state of act
@@ -635,8 +652,7 @@ export default {
           });
         });
     },
-    async change_act_state_by_manager(index)
-    {
+    async change_act_state_by_manager(index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -674,163 +690,13 @@ export default {
           });
         });
     },
-    async save_act(index) {
-     
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Get new name, description and reward points
-      const name = document.getElementById("act_name" + index).value;
-      const description = document.getElementById("act_description" + index)
-        .value;
-      const value = document.getElementById("act_reward_points" + index).value;
-      const amount = document.getElementById("act_amount" + index).value;
-      const enabled_state = this.data.acts[index].enabled;
-      
-      //Save previous name, description and reward points and enabled_state
-      this.$set(this.data.acts[index], "previous_data", {
-        name: this.data.acts[index].name,
-        description: this.data.acts[index].description,
-        value: this.data.acts[index].value,
-        amount: this.data.acts[index].amount,
-        enabled: enabled_state
-      });
-      
-      //Update to new name, desription and reward points
-      this.$set(this.data.acts[index], "name", name);
-      this.$set(this.data.acts[index], "description", description);
-      this.$set(this.data.acts[index], "value", value);
-      this.$set(this.data.acts[index], "amount", amount);
-      
-      this.data.acts[index].enabled = false;
-      //Remove input fields
-      this.edit_act(index);
-      //Edit this act
-      const params = new URLSearchParams();
-
-      params.append("name", name);
-      params.append("description", description);
-      params.append("value", value);
-      params.append("amount", amount);
-
-      await axios
-        .put(`/api/rewards/${vue_context.data.acts[index]._id}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, revert to old name and description
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "name",
-            vue_context.data.acts[index].previous_data.name
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "description",
-            vue_context.data.acts[index].previous_data.description
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "value",
-            vue_context.data.acts[index].previous_data.value
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "amount",
-            vue_context.data.acts[index].previous_data.amount
-          );
-
-          //Revert to previous state
-          vue_context.$set(
-            vue_context.data.acts[index].enabled,
-            "state",
-            vue_context.data.acts[index].previous_data.enabled
-          );
-
-          izitoast.error({
-            title: "Error",
-            message: `Sorry, the reward could not be edited`,
-            position: "topRight"
-          });
-        });
-    },
-    async addAct() {
-      // alert("Hello World");
-      //Send act
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      const params = new URLSearchParams();
-
-      params.append("name", this.add_act.name);
-      params.append("description", this.add_act.description);
-      params.append("value", this.add_act.value);
-      params.append("amount", this.add_act.amount);
-     
-      await axios
-        .post(`/api/rewards`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .then(function(res) {
-          vue_context.status_state = "Success";
-          vue_context.status_message = res.data.message;
-          vue_context.add_act.name = "";
-          vue_context.add_act.description = "";
-          vue_context.add_act.value = "";
-          vue_context.add_act.amount = "";
-        })
-        .catch(function(err) {
-          vue_context.status_state = "Error";
-          vue_context.status_message = err.response.data.message;
-
-        });
-      
-    },
     async search() {
-      
       this.$router.push(
         `/rewards?type=${this.query.type}&sort=${this.query.sort}&order=${
           this.query.order
         }&search=${vue_context.query.search}
         `
       );
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-
-        //Else
-      }
     }
   }
 };

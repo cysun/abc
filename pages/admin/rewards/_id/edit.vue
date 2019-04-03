@@ -242,39 +242,6 @@ export default {
           });
         });
     },
-    async deleteTag(tag_index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Save tag
-      const saved_tag = this.data.act.tags[tag_index];
-      const tag_id = this.data.act.tags[tag_index]._id;
-      //remove tag from screen
-      this.data.act.tags.splice(tag_index, 1);
-      //Make request to delete tag
-      await axios
-        .delete(`/api/acts/${vue_context.data.act._id}/tag/${tag_id}`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, place tag back
-          vue_context.data.act.tags.splice(tag_index, 0, saved_tag);
-          //Show error
-          izitoast.error({
-            title: "Error",
-            message: err.response.data.message,
-            position: "topRight"
-          });
-        });
-    },
-    start_time_changed(event) {
-      console.log(event);
-    },
-    end_time_changed(event) {
-      console.log(event);
-    },
     async editAct() {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");

@@ -30,8 +30,7 @@ export default {
   created: function() {
     vue_context = this;
   },
-  async mounted() {
-  },
+  async mounted() {},
   async asyncData(context) {
     //Redirect to main page
     if (!context.params.id) context.redirect("/");
@@ -55,18 +54,22 @@ export default {
         })
         .catch(function(err) {
           if (err.response.status == 401) {
-          context.redirect("/logout");
-        }
+            context.redirect("/logout");
+          }
         });
     }
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : Verify User",
       meta: [
-        { hid: 'description', name: 'description', content: 'Verify the identity of a user' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Verify the identity of a user"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -81,41 +84,6 @@ export default {
       page: "verify_account"
     };
   },
-  methods: {
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-      }
-    }
-  }
+  methods: {}
 };
 </script>

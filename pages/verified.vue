@@ -39,10 +39,8 @@ export default {
   created: function() {
     vue_context = this;
   },
-  async mounted() {
-  },
-  async asyncData(context) {
-  },
+  async mounted() {},
+  async asyncData(context) {},
   data() {
     return {
       title: "Account Verified",
@@ -55,12 +53,17 @@ export default {
       logged_in: false,
       page: "verify_account"
     };
-  },  
+  },
   head() {
     return {
       title: "Asset Building Clinic : You have been verified",
       meta: [
-        { hid: 'description', name: 'description', content: 'You have been successfully verified. You will be logged in shortly' }
+        {
+          hid: "description",
+          name: "description",
+          content:
+            "You have been successfully verified. You will be logged in shortly"
+        }
       ],
       meta: [
         {
@@ -70,41 +73,6 @@ export default {
       ]
     };
   },
-  methods: {
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-      }
-    }
-  }
+  methods: {}
 };
 </script>

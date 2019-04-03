@@ -13,11 +13,7 @@
           <div class="col-lg-12 blog-sp">
             <article style="margin-bottom: 10px" class="blog-x row">
               <div v-if="data.act.image" class="blog-img w3-agile-grid">
-                  <img
-                    :src="`/api/rewards/${$route.params.id}/image`"
-                    alt
-                    class="img-fluid"
-                  >
+                <img :src="`/api/rewards/${$route.params.id}/image`" alt class="img-fluid">
               </div>
               <div class="blog_info">
                 <h5>
@@ -43,7 +39,9 @@
                   ></a>
                 </p>
 
-                <div><p v-if="!data.edit" v-html="data.act.description"></p></div>
+                <div>
+                  <p v-if="!data.edit" v-html="data.act.description"></p>
+                </div>
                 <textarea
                   id="act_description"
                   v-if="data.edit"
@@ -109,15 +107,15 @@
                       </div>
                       <input type="hidden" id="dtp_input1" value>
                       <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                       </script>
                     </div>
                   </div>
@@ -147,29 +145,77 @@
                   >{{proof.original_name}}</a>
                 </div>
                 <br>
-                
-                <form id="smileys" v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review" @submit.prevent="submitRating">
-                  <span class="align-top">{{$t('rate_the_reward')}}: </span>
-  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
-	<input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
-	<input type="radio" name="smiley" value="3" class="neutral" v-model="reward_rating">
-	<input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
-  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
-  <textarea class="form-control" v-model="reward_comments" :placeholder="$t('additional_comments_about_the_reward')"></textarea>
-    
-<br>
-                  <span class="align-top">{{$t('rate_the_reward_provider')}}: </span>
-  <input type="radio" name="smiley1" value="1" class="devil" v-model="reward_provider_rating">
-	<input type="radio" name="smiley1" value="2" class="sad" v-model="reward_provider_rating">
-	<input type="radio" name="smiley1" value="3" class="neutral" v-model="reward_provider_rating">
-	<input type="radio" name="smiley1" value="4" class="happy" v-model="reward_provider_rating">
-  <input type="radio" name="smiley1" value="5" class="love" v-model="reward_provider_rating">
-  <textarea class="form-control" v-model="reward_provider_comments" :placeholder="$t('additional_comments_about_the_reward_provider')"></textarea>
-  <br>
-<div class='text-center'><input class='btn btn-primary' type='submit' :value="$t('submit_rating')"></div>    
-</form>
 
+                <form
+                  id="smileys"
+                  v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review"
+                  @submit.prevent="submitRating"
+                >
+                  <span class="align-top">{{$t('rate_the_reward')}}:</span>
+                  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
+                  <input
+                    type="radio"
+                    name="smiley"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_rating"
+                  >
+                  <input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
+                  <textarea
+                    class="form-control"
+                    v-model="reward_comments"
+                    :placeholder="$t('additional_comments_about_the_reward')"
+                  ></textarea>
 
+                  <br>
+                  <span class="align-top">{{$t('rate_the_reward_provider')}}:</span>
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="1"
+                    class="devil"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="2"
+                    class="sad"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="4"
+                    class="happy"
+                    v-model="reward_provider_rating"
+                  >
+                  <input
+                    type="radio"
+                    name="smiley1"
+                    value="5"
+                    class="love"
+                    v-model="reward_provider_rating"
+                  >
+                  <textarea
+                    class="form-control"
+                    v-model="reward_provider_comments"
+                    :placeholder="$t('additional_comments_about_the_reward_provider')"
+                  ></textarea>
+                  <br>
+                  <div class="text-center">
+                    <input class="btn btn-primary" type="submit" :value="$t('submit_rating')">
+                  </div>
+                </form>
 
                 <div
                   v-if="data.act.enabled && !data.rewards"
@@ -194,50 +240,75 @@
                   >
                 </div>
                 <br>
-                <div class="row" v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.manager)">
+                <div
+                  class="row"
+                  v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.manager)"
+                >
                   <div class="col-md-7">
                     <span
                       v-if="data.roles && data.roles.manager && !data.roles.administrator"
                       class="badge badge-info"
                     >{{data.act.state ? $t('available') : $t('not_available')}}</span>
-                    <span v-if="data.act.reward_provider.id == data.user.id || data.roles.administrator">
+                    <span
+                      v-if="data.act.reward_provider.id == data.user.id || data.roles.administrator"
+                    >
+                      <a
+                        tabindex="0"
+                        style="cursor: pointer"
+                        class="badge badge-info"
+                        @click="change_act_state(index)"
+                        v-if="data.act.state == 'AVAILABLE'"
+                      >{{$t('available')}}</a>
+                      <span
+                        @click="change_act_state(index)"
+                        v-if="data.act.state == 'NOT_AVAILABLE'"
+                        class="badge badge-info"
+                        style="cursor: pointer"
+                      >{{$t('not_available')}}</span>
+                    </span>
+                    <span
+                      v-if="!data.roles || !data.roles.manager"
+                      class="badge badge-info"
+                    >{{ data.act.enabled ? $t('enabled'): $t('disabled') }}</span>
                     <a
                       tabindex="0"
-                      style="cursor: pointer"
-                      class="badge badge-info"
-                      @click="change_act_state(index)"
-                      v-if="data.act.state == 'AVAILABLE'"
-                    >{{$t('available')}}</a>
-                    <span
-                      @click="change_act_state(index)"
-                      v-if="data.act.state == 'NOT_AVAILABLE'"
-                      class="badge badge-info"
-                      style="cursor: pointer"
-                    >{{$t('not_available')}}</span>
-                    </span>
-                    <span v-if="!data.roles || !data.roles.manager" class="badge badge-info">{{ data.act.enabled ? $t('enabled'):  $t('disabled') }}</span>
-                    <a
-                    tabindex="0"
-                    v-if="data.roles && data.roles.manager"
+                      v-if="data.roles && data.roles.manager"
                       class="badge badge-info"
                       @click="change_act_state_by_manager()"
                       style="cursor: pointer"
                     >{{data.act.enabled ? "Enabled" : "Disabled"}}</a>
                   </div>
-                  <div class="col-md-5" v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)">
+                  <div
+                    class="col-md-5"
+                    v-if="data.act.reward_provider.id == data.user.id || ( data.roles && data.roles.administrator)"
+                  >
                     <span v-if="!data.delete">
                       <nuxt-link :to="`/rewards/${data.act._id}/edit`">
-                        <button
-                          class="btn btn-primary"
-                        >{{$t('edit')}}</button>
+                        <button class="btn btn-primary">{{$t('edit')}}</button>
                       </nuxt-link>
                       <!-- <button v-if="!data.edit" @click="edit_act" class="btn btn-primary">{{$t('edit')}}</button> -->
-                      <button v-if="data.edit" @click="save_act" class="btn btn-primary">{{$t('save')}}</button>
-                      <button v-if="data.edit" @click="edit_act" class="btn btn-danger">{{$t('cancel')}}</button>
+                      <button
+                        v-if="data.edit"
+                        @click="save_act"
+                        class="btn btn-primary"
+                      >{{$t('save')}}</button>
+                      <button
+                        v-if="data.edit"
+                        @click="edit_act"
+                        class="btn btn-danger"
+                      >{{$t('cancel')}}</button>
                     </span>
                     <span v-if="!data.edit">
-                      <button v-if="!data.delete" @click="delete_act" class="btn btn-danger">{{$t('delete')}}</button>
-                      <button v-if="data.delete" @click="delete_act" class="btn btn-primary">{{$t('cancel')}}</button>
+                      <button
+                        v-if="!data.delete"
+                        @click="delete_act"
+                        class="btn btn-danger"
+                      >{{$t('delete')}}</button>
+                      <button
+                        v-if="data.delete"
+                        @click="delete_act"
+                        class="btn btn-primary"
+                      >{{$t('cancel')}}</button>
                       <button
                         v-if="data.delete"
                         @click="confirm_delete_act"
@@ -321,9 +392,9 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
-    $('#smileys input').on('click', function() {
-	$('#result').html($(this).val());
-});
+    $("#smileys input").on("click", function() {
+      $("#result").html($(this).val());
+    });
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
     });
@@ -368,17 +439,24 @@ export default {
       data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
     }
     if (data.rewards)
-    data.rewards.rewards[0].state = data.rewards.rewards[0].state.replace("_", " ");
+      data.rewards.rewards[0].state = data.rewards.rewards[0].state.replace(
+        "_",
+        " "
+      );
     // console.log(data);
     return { data };
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : View details about reward",
       meta: [
-        { hid: 'description', name: 'description', content: 'View details about reward' }
+        {
+          hid: "description",
+          name: "description",
+          content: "View details about reward"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -439,10 +517,9 @@ export default {
     next();
   },
   methods: {
-    async collectedReward(){
+    async collectedReward() {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
-      
 
       //Change state to "Completed"
       this.data.rewards.rewards[0].state = "COMPLETED";
@@ -469,10 +546,10 @@ export default {
           //   vue_context.$router.redirect("/logout");
           // }
           //If error
-      //Revert state
-      //If error, revert to "ON GOING";
-      vue_context.data.rewards.rewards[0].state = "ON GOING";
-      //Display notification of error
+          //Revert state
+          //If error, revert to "ON GOING";
+          vue_context.data.rewards.rewards[0].state = "ON GOING";
+          //Display notification of error
           izitoast.error({
             title: "Error",
             message: err.response.data.message,
@@ -487,7 +564,7 @@ export default {
         rewards: [{ state: "ON GOING" }]
       };
       this.data.rewards = rewards;
-      
+
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
       //Make request to change state on server
@@ -508,16 +585,17 @@ export default {
           //Display permanent notice of reward requested
 
           //Reduce reward amount by value of reward
-          vue_context.data.points.points = vue_context.data.points.points - vue_context.data.act.value
+          vue_context.data.points.points =
+            vue_context.data.points.points - vue_context.data.act.value;
         })
         .catch(function(err) {
           // if (err.response.status == 400) {
           //   vue_context.$router.redirect("/logout");
           // }
           //If error
-      //Revert state
-      vue_context.data.rewards = null
-      //Display notification of error
+          //Revert state
+          vue_context.data.rewards = null;
+          //Display notification of error
           izitoast.error({
             title: "Error",
             message: err.response.data.message,
@@ -526,86 +604,15 @@ export default {
           // console.log(err.response.data.message);
         });
     },
-    fileChanged(event) {
-      this.files = event.target.files;
-      // console.log(this.files);
-    },
-    async uploadProof() {
-      if (!this.files || this.files.length == 0) return;
-      // console.log(this.files.length);
-      // console.log("Hello World");
-
-      //Save current state
-      this.data.current_state = this.data.proofs.acts[0].state;
-      //Change state to under review
-      this.data.proofs.acts[0].state = "UNDER REVIEW";
-
-      const formData = new FormData();
-      for (let i = 0; i < this.files.length; i++)
-        formData.append("files", this.files[i], this.files[i].name);
-
-      await axios
-        .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
-        .then(function(res) {
-          //Redirect to verification page
-          // vue_context.$nuxt.$loading.finish();
-          // vue_context.$router.push({
-          //   path: "/verify_account"
-          // });
-          if (vue_context.data.proofs.acts[0].proof_of_completion)
-            vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
-              res.data
-            );
-          else
-            vue_context.$set(
-              vue_context.data.proofs.acts[0],
-              "proof_of_completion",
-              res.data
-            );
-          document.getElementById("file_input").value = null;
-        })
-        .catch(function(err) {
-          //If error
-          //Return state to original value
-          vue_context.data.proofs.acts[0].state =
-            vue_context.data.current_state;
-
-          // vue_context.$nuxt.$loading.finish();
-          // if (err.response) vue_context.error = err.response.data.message;
-        });
-    },
-    navigateTo(index) {
-      var element = this.$refs["acts_come_here"];
-      var top = element.offsetTop;
-
-      scrollToElement(element);
-      // window.scrollTo(0, top);
-
-      this.$router.push(
-        `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}&page=${index}
-        `
-      );
-    },
-    previous() {
-      // console.log(this.data.query.page - 1)
-      this.navigateTo(this.data.query.page - 1);
-    },
-    next() {
-      // console.log(parseInt(this.data.query.page) + 1)
-      this.navigateTo(parseInt(this.data.query.page) + 1);
-    },
-    submitRating(){
+    submitRating() {
       //If reward or reward provider rating is 0, error
-      if (this.reward_rating == 0 || this.reward_provider_rating == 0)
-      {
+      if (this.reward_rating == 0 || this.reward_provider_rating == 0) {
         izitoast.error({
-            title: "Error",
-            message: "You must rate the reward and reward provider",
-            position: "topRight"
-          });
-          return;
+          title: "Error",
+          message: "You must rate the reward and reward provider",
+          position: "topRight"
+        });
+        return;
       }
       //Remove the form from the page
       this.data.review = true;
@@ -618,7 +625,6 @@ export default {
       params.append("reward_comments", this.reward_comments);
       params.append("reward_provider_rating", this.reward_provider_rating);
       params.append("reward_provider_comments", this.reward_provider_comments);
-
 
       axios
         .put(`/api/rewards/${vue_context.data.act._id}/review`, params, {
@@ -636,34 +642,16 @@ export default {
           });
         })
         .catch(function(err) {
-                //If error,
-      //Place the form back
-      vue_context.data.review = null;
-      //Give error
+          //If error,
+          //Place the form back
+          vue_context.data.review = null;
+          //Give error
           izitoast.error({
             title: "Error",
             message: "Sorry, your review could not be sent",
             position: "topRight"
           });
         });
-
-    },
-    reset() {
-      this.query.order = "";
-      this.query.page = 1;
-      this.query.search = "";
-      this.query.sort = "";
-      // var element = this.$refs["acts_come_here"];
-
-      // scrollToElement(element);
-      this.$router.push(`/acts?type=${this.query.type}`);
-    },
-    type_changed() {
-      // console.log(this.query.type);
-      this.$router.push(`/acts?type=${this.query.type}`);
-    },
-    upload_type_changed() {
-      // console.log(this.upload_type);
     },
     edit_act() {
       if (!this.data.edit) this.$set(this.data, "edit", true);
@@ -705,50 +693,7 @@ export default {
           });
         });
     },
-    async deleteProof(index, id) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Save the current state of the proof
-      if (!this.data.proofs.acts[0].previous_proof)
-        this.$set(this.data.proofs.acts[0], "previous_proof", {
-          [index]: this.data.proofs.acts[0].proof_of_completion[index]
-        });
-      else
-        this.$set(
-          this.data.proofs.acts[0].previous_proof,
-          index,
-          this.data.proofs.acts[0].proof_of_completion[index]
-        );
-
-      //Remove the proof from the screen
-      this.data.proofs.acts[0].proof_of_completion.splice(index, 1);
-      const encoded_id = btoa(id);
-
-      //Send request to remove the proof from the database
-      await axios
-        .delete(`/api/acts/proof/${encoded_id}`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If something goes wrong, put the proof back
-          vue_context.data.proofs.acts[0].proof_of_completion.splice(
-            index,
-            0,
-            vue_context.data.proofs.acts[0].previous_proof[index]
-          );
-          //Tell the user that the act could not be deleted
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the proof could not be deleted",
-            position: "topRight"
-          });
-        });
-    },
-    async change_act_state_by_manager()
-    {
+    async change_act_state_by_manager() {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -758,8 +703,7 @@ export default {
       });
       //Get new state
       let new_state;
-      if (this.data.act.previous_data.enabled == true)
-        new_state = false;
+      if (this.data.act.previous_data.enabled == true) new_state = false;
       else new_state = true;
       //Change state of act
       this.$set(this.data.act, "enabled", new_state);
@@ -823,169 +767,6 @@ export default {
             position: "topRight"
           });
         });
-    },
-    async save_act() {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Get new name, description and reward points
-      const name = document.getElementById("act_name").value;
-      const description = document.getElementById("act_description").value;
-      const value = document.getElementById("act_reward_points").value;
-      const amount = document.getElementById("act_amount").value;
-      const enabled_state = this.data.act.enabled;
-      //If this is an event, get new start and end time too
-      let start_time, end_time;
-
-      //Save previous name, description and reward points and enabled_state
-      this.$set(this.data.act, "previous_data", {
-        name: this.data.act.name,
-        description: this.data.act.description,
-        value: this.data.act.value,
-        amount: this.data.act.amount,
-        enabled: enabled_state
-      });
-      
-      //Update to new name, desription and reward points
-      this.$set(this.data.act, "name", name);
-      this.$set(this.data.act, "description", description);
-      this.$set(this.data.act, "value", value);
-      this.$set(this.data.act, "amount", amount);
-      //If this is an event
-      
-      //Remember to disable the act
-      // this.$set(this.data.act.enabled, "state", false);
-      this.data.act.enabled = false;
-      //Remove input fields
-      this.edit_act();
-      //Edit this act
-      const params = new URLSearchParams();
-
-      params.append("name", name);
-      params.append("description", description);
-      params.append("value", value);
-      params.append("amount", amount);
-
-      await axios
-        .put(`/api/rewards/${vue_context.data.act._id}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, revert to old name and description
-          vue_context.$set(
-            vue_context.data.act,
-            "name",
-            vue_context.data.act.previous_data.name
-          );
-          vue_context.$set(
-            vue_context.data.act,
-            "description",
-            vue_context.data.act.previous_data.description
-          );
-          vue_context.$set(
-            vue_context.data.act,
-            "value",
-            vue_context.data.act.previous_data.value
-          );
-          vue_context.$set(
-            vue_context.data.act,
-            "amount",
-            vue_context.data.act.previous_data.amount
-          );
-          //Revert to previous state
-          vue_context.data.act.enabled =
-            vue_context.data.act.previous_data.enabled;
-
-          //If this is an event, revert to old start and end times
-          izitoast.error({
-            title: "Error",
-            message: `Sorry, the reward could not be edited`,
-            position: "topRight"
-          });
-        });
-    },
-    async addAct() {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      const params = new URLSearchParams();
-
-      params.append("name", this.add_act.name);
-      params.append("description", this.add_act.description);
-      params.append("reward_points", this.add_act.reward_points);
-      if (this.upload_type == "event") {
-        params.append(
-          "start_time",
-          // new Date(document.getElementById("start_time").value + 'Z')
-          new Date(document.getElementById("start_time").value)
-        );
-        params.append(
-          "end_time",
-          // new Date(document.getElementById("end_time").value + 'Z')
-          new Date(document.getElementById("end_time").value)
-        );
-      }
-      await axios
-        .post(`/api/acts/${vue_context.upload_type}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .then(function(res) {
-          // vue_context.data = res.data;
-          // console.log(res);
-          vue_context.status_state = "Success";
-          vue_context.status_message = res.data.message;
-          vue_context.add_act.name = "";
-          vue_context.add_act.description = "";
-          document.getElementById("end_time").value = "";
-          document.getElementById("start_time").value = "";
-          vue_context.add_act.reward_points = 0;
-        })
-        .catch(function(err) {
-          vue_context.status_state = "Error";
-          vue_context.status_message = err.response.data.message;
-        });
-    },
-    async search() {
-      this.$router.push(
-        `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}
-        `
-      );
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-      }
     }
   }
 };
@@ -1000,13 +781,14 @@ form#smileys input[type="radio"] {
   cursor: pointer;
   transition: border 0.2s ease;
   -webkit-filter: grayscale(100%);
-          filter: grayscale(100%);
+  filter: grayscale(100%);
   margin: 0 0px;
   transition: all 0.2s ease;
 }
-form#smileys input[type="radio"]:hover, form#smileys input[type="radio"]:checked {
+form#smileys input[type="radio"]:hover,
+form#smileys input[type="radio"]:checked {
   -webkit-filter: grayscale(0);
-          filter: grayscale(0);
+  filter: grayscale(0);
 }
 form#smileys input[type="radio"]:focus {
   outline: 0;
@@ -1031,8 +813,6 @@ form#smileys input[type="radio"].love {
   background: url("~assets/images/smileys/heart.svg") center;
   background-size: cover;
 }
-
-
 
 .mtt {
   position: fixed;

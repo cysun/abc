@@ -68,16 +68,11 @@ export default {
   async mounted() {
     izitoast = require("izitoast");
   },
-  async fetch(context) {},
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
-    if (!context.query.sort) context.query.sort = "";
-    if (!context.query.search) context.query.search = "";
-    if (!context.query.order) context.query.order = "";
     if (!context.query.page) context.query.page = 1;
-    if (!context.query.type) context.query.type = "OPEN";
 
     let data;
     await axios
@@ -110,7 +105,7 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "View special details about your reward"
+          content: "View this act's reviews"
         }
       ]
     };
@@ -145,33 +140,15 @@ export default {
     const token = this.$cookies.get("token");
     const refresh_token = this.$cookies.get("refresh_token");
 
-    if (!to.query.sort) to.query.sort = "";
-    if (!to.query.search) to.query.search = "";
-    if (!to.query.order) to.query.order = "";
     if (!to.query.page) to.query.page = 1;
-    if (!to.query.type) to.query.type = "OPEN";
 
     let data;
     await axios
-      .get(
-        `/api/rewards/${this.$route.params.id}/details?type=${
-          to.query.type
-        }&sort=${to.query.sort}&order=${to.query.order}&search=${
-          to.query.search
-        }&page=${to.query.page}`,
-        {
-          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
-        }
-      )
+      .get(`/api/acts/${this.$route.params.id}/details?page=${to.query.page}`, {
+        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+      })
       .then(function(res) {
         data = res.data;
-        //Loop through data and format date
-        if (to.query.type != "REVIEWS")
-          data.data.forEach(element => {
-            element.rewards[0].time = moment(element.rewards[0].time).format(
-              "MMMM Do YYYY, h:mm a"
-            );
-          });
       })
       .catch(function(err) {
         if (err.response.status == 401) {
@@ -186,452 +163,18 @@ export default {
     next();
   },
   methods: {
-    change_state(index, state) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      //Save current row
-      if (!this.saved_acts)
-        this.saved_acts = { [index]: this.data.acts[index] };
-      else this.saved_acts[index] = this.data.acts[index];
-      //If this is the 'ALL' page
-      if (this.data.type == "ALL")
-        //Change state
-        this.data.acts[index].enabled = !state;
-      // this.$set(this.data.acts[index].enabled, "state", !state);
-
-      //Display error
-      //Make request to change state
-      axios
-        .put(
-          `/api/rewards/${vue_context.data.acts[index]._id}/enable/${!state}`,
-          {
-            headers: {
-              Cookie: `token=${token}; refresh_token=${refresh_token};`
-            }
-          }
-        )
-        .then(function(res) {})
-        .catch(function(err) {
-          //If error
-          //If all page
-          if (vue_context.data.type == "ALL")
-            //Revert state
-            this.data.acts[index].enabled = state;
-          //Else
-          else {
-            //Return the row
-            vue_context.data.acts.splice(
-              index,
-              0,
-              vue_context.saved_acts[index]
-            );
-          }
-
-          //Tell the user that the act could not be altered
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the change could not be saved",
-            position: "topRight"
-          });
-        });
-      //If error,
-      //revert state
-      // console.log(index, !state)
-
-      if (this.data.type !== "ALL") {
-        //If not, remove the row
-        this.data.acts.splice(index, 1);
-      }
-    },
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
-    navigateTo(index) {
-      var element = this.$refs["acts_come_here"];
-      var top = element.offsetTop;
-
-      scrollToElement(element);
-      // window.scrollTo(0, top);
-
-      this.$router.push(
-        `/manage/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
-          this.query.order
-        }&search=${vue_context.query.search}&page=${index}
-        `
-      );
-    },
     previous() {
-      // console.log(this.data.query.page - 1)
-      this.navigateTo(this.data.query.page - 1);
+      this.$router.push(
+        `/acts/${this.$route.params.id}/details?page=${this.data.query.page -
+          1}`
+      );
     },
     next() {
-      // console.log(parseInt(this.data.query.page) + 1)
-      this.navigateTo(parseInt(this.data.query.page) + 1);
-    },
-    reset() {
-      this.query.order = "";
-      this.query.page = 1;
-      this.query.search = "";
-      this.query.sort = "";
-      // var element = this.$refs["acts_come_here"];
-
-      // scrollToElement(element);
       this.$router.push(
-        `/rewards/${this.$route.params.id}/details?type=${this.query.type}`
+        `/acts/${this.$route.params.id}/details?page=${1 +
+          this.data.query.page}`
       );
     },
-    type_changed() {
-      // console.log(this.query.type);
-      this.$router.push(
-        `/rewards/${this.$route.params.id}/details?type=${this.query.type}`
-      );
-    },
-    upload_type_changed() {
-      // console.log(this.upload_type);
-    },
-    edit_act(index) {
-      if (!this.data.acts[index].edit)
-        this.$set(this.data.acts[index], "edit", true);
-      else this.$set(this.data.acts[index], "edit", false);
-    },
-    delete_act(index) {
-      if (!this.data.acts[index].delete)
-        this.$set(this.data.acts[index], "delete", true);
-      else this.$set(this.data.acts[index], "delete", false);
-    },
-    showReward() {
-      this.$router.push("/rewards/" + this.$route.params.id);
-    },
-    async confirmCollection(index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      //Save row
-      this.deleted_acts[index] = this.data.data[index];
-      //Remove from screen
-      this.data.data.splice(index, 1);
-      //Send request to confirm collection
-      this.data.sum = this.data.sum + this.data.reward.value;
-      //Add the value of this reward to the accumulated sum
-      await axios
-        .put(
-          `/api/rewards/${vue_context.$route.params.id}/user/${
-            vue_context.deleted_acts[index]._id
-          }/collected`,
-          {
-            headers: {
-              Cookie: `token=${token}; refresh_token=${refresh_token};`
-            }
-          }
-        )
-        .catch(function(err) {
-          //If error
-          //Remove the value of this reward from the accumulated sum
-          vue_context.data.sum =
-            vue_context.data.sum - vue_context.data.reward.value;
-          //Place on screen
-          vue_context.data.data.splice(
-            index,
-            0,
-            vue_context.deleted_acts[index]
-          );
-          //Display error
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the request could not be sent",
-            position: "topRight"
-          });
-        });
-    },
-    async confirm_delete_act(index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Store act and it's current index
-      this.$set(this.deleted_acts, index, this.data.acts[index]);
-      // this.deleted_acts.push({act: this.data.acts[index], index: index});
-      //Remove act from array
-      this.data.acts.splice(index, 1);
-      //Make request to delete act
-
-      await axios
-        .put(`/api/acts/${vue_context.deleted_acts[index]._id}/delete`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, place act back
-          vue_context.data.acts.splice(
-            index,
-            0,
-            vue_context.deleted_acts[index]
-          );
-          delete_act(index);
-          //Tell the user that the act could not be deleted
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the act could not be deleted",
-            position: "topRight"
-          });
-        });
-      delete this.deleted_acts[index];
-    },
-    async change_act_state(index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Store previous state of act
-      this.$set(this.data.acts[index], "previous_data", {
-        state: this.data.acts[index].state
-      });
-      //Get new state
-      let new_state;
-      if (this.data.acts[index].previous_data.state == "AVAILABLE")
-        new_state = "NOT_AVAILABLE";
-      else new_state = "AVAILABLE";
-      //Change state of act
-      this.$set(this.data.acts[index], "state", new_state);
-      //Make request to change state of act
-
-      await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}/state`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, revert state of act
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "state",
-            vue_context.data.acts[index].previous_data.state
-          );
-          //Tell the user that the act could not be altered
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the act state could not be altered",
-            position: "topRight"
-          });
-        });
-    },
-    async save_act(index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Get new name, description and reward points
-      const name = document.getElementById("act_name" + index).value;
-      const description = document.getElementById("act_description" + index)
-        .value;
-      const reward_points = document.getElementById("act_reward_points" + index)
-        .value;
-      const enabled_state = this.data.acts[index].enabled.state;
-      //If this is an event, get new start and end time too
-      let start_time, end_time;
-
-      if (this.data.acts[index].__t == "Event") {
-        start_time = document.getElementById("act_start_time" + index).value;
-        end_time = document.getElementById("act_end_time" + index).value;
-      }
-      //Save previous name, description and reward points and enabled_state
-      this.$set(this.data.acts[index], "previous_data", {
-        name: this.data.acts[index].name,
-        description: this.data.acts[index].description,
-        reward_points: this.data.acts[index].reward_points,
-        enabled: enabled_state
-      });
-      //If this is an event, save previous start and end times
-      if (this.data.acts[index].__t == "Event") {
-        this.$set(
-          this.data.acts[index].previous_data,
-          "start_time",
-          this.data.acts[index].formated_start_time
-        );
-        this.$set(
-          this.data.acts[index].previous_data,
-          "end_time",
-          this.data.acts[index].formated_end_time
-        );
-      }
-
-      //Update to new name, desription and reward points
-      this.$set(this.data.acts[index], "name", name);
-      this.$set(this.data.acts[index], "description", description);
-      this.$set(this.data.acts[index], "reward_points", reward_points);
-      //If this is an event
-      //Update to new start and end times
-      if (this.data.acts[index].__t == "Event") {
-        this.$set(
-          this.data.acts[index],
-          "formated_start_time",
-          moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
-        );
-        this.$set(
-          this.data.acts[index],
-          "formated_end_time",
-          moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
-        );
-      }
-      //Remember to disable the act
-      this.$set(this.data.acts[index].enabled, "state", false);
-      //Remove input fields
-      this.edit_act(index);
-      //Edit this act
-      const params = new URLSearchParams();
-
-      params.append("name", name);
-      params.append("description", description);
-      params.append("reward_points", reward_points);
-
-      //If this is an event, edit its start and end times
-      if (this.data.acts[index].__t == "Event") {
-        params.append("start_time", start_time);
-        params.append("end_time", end_time);
-      }
-
-      await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If error, revert to old name and description
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "name",
-            vue_context.data.acts[index].previous_data.name
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "description",
-            vue_context.data.acts[index].previous_data.description
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "reward_points",
-            vue_context.data.acts[index].previous_data.reward_points
-          );
-
-          //Revert to previous state
-          vue_context.$set(
-            vue_context.data.acts[index].enabled,
-            "state",
-            vue_context.data.acts[index].previous_data.enabled
-          );
-
-          //If this is an event, revert to old start and end times
-          if (vue_context.data.acts[index].__t == "Event") {
-            vue_context.$set(
-              vue_context.data.acts[index],
-              "formated_start_time",
-              vue_context.data.acts[index].previous_data.start_time
-            );
-            vue_context.$set(
-              vue_context.data.acts[index],
-              "formated_end_time",
-              vue_context.data.acts[index].previous_data.end_time
-            );
-          }
-
-          //Tell the user that the act could not be edited
-          let type_of_act = "act";
-          if (vue_context.data.acts[index].__t == "Event")
-            type_of_act = "event";
-          izitoast.error({
-            title: "Error",
-            message: `Sorry, the ${type_of_act} could not be edited`,
-            position: "topRight"
-          });
-        });
-    },
-    async addAct() {
-      // alert("Hello World");
-      //Send act
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      const params = new URLSearchParams();
-
-      params.append("name", this.add_act.name);
-      params.append("description", this.add_act.description);
-      params.append("reward_points", this.add_act.reward_points);
-      if (this.upload_type == "event") {
-        params.append(
-          "start_time",
-          // new Date(document.getElementById("start_time").value + 'Z')
-          new Date(document.getElementById("start_time").value)
-        );
-        params.append(
-          "end_time",
-          // new Date(document.getElementById("end_time").value + 'Z')
-          new Date(document.getElementById("end_time").value)
-        );
-      }
-      await axios
-        .post(`/api/acts/${vue_context.upload_type}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .then(function(res) {
-          // vue_context.data = res.data;
-          // console.log(res);
-          vue_context.status_state = "Success";
-          vue_context.status_message = res.data.message;
-          vue_context.add_act.name = "";
-          vue_context.add_act.description = "";
-          document.getElementById("end_time").value = "";
-          document.getElementById("start_time").value = "";
-          vue_context.add_act.reward_points = 0;
-        })
-        .catch(function(err) {
-          vue_context.status_state = "Error";
-          vue_context.status_message = err.response.data.message;
-        });
-      //If error, display error
-      //If success, display success message with hint of manager's final say
-      //Then clear the form
-    },
-    async search() {
-      this.$router.push(
-        `/rewards/${this.$route.params.id}/details?type=${
-          this.query.type
-        }&sort=${this.query.sort}&order=${this.query.order}&search=${
-          vue_context.query.search
-        }
-        `
-      );
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-      }
-    }
   }
 };
 </script>
