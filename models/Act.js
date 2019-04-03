@@ -55,37 +55,7 @@ let actSchema = new mongoose.Schema({
   //   type: String,
   //   required: true
   // },
-  reviews: [
-    {
-      id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        sparse: true
-      },
-      first_name: {
-        type: String,
-        required: true,
-        sparse: true
-      },
-      last_name: {
-        type: String,
-        required: true,
-        sparse: true
-      },      
-      reward_rating: {
-        type: Number,
-        required: true,
-        min: 1,
-        max: 5
-      },
-      reward_comments: String,
-      time: {
-        type: Date,
-        default: Date.now
-      }
-    }
-  ],
+
   reward_points: {
     type: Number,
     required: true,
@@ -357,6 +327,18 @@ let actSchema = new mongoose.Schema({
         },
         reviewer_name: String,
         time_of_review: {
+          type: Date,
+          default: Date.now
+        }
+      },
+      user_review_of_act: {
+        act_rating: {
+          type: Number,
+          min: 1,
+          max: 5
+        },
+        act_comments: String,
+        time: {
           type: Date,
           default: Date.now
         }
@@ -727,8 +709,8 @@ actSchema.statics.initialize = async function(data) {
   act.reward_points = reward_points;
   if (data.amount == "") data.amount = -1;
   act.amount = data.amount;
-  act.repeatable = data.repeatable
-  act.importance = data.importance
+  act.repeatable = data.repeatable;
+  act.importance = data.importance;
   act.act_provider = {
     id: data.provider.id,
     first_name: data.provider.first_name,

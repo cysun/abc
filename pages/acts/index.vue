@@ -96,8 +96,18 @@
               </div>
               <div class="blog_info">
                 <h5>
+                  <a
+                  style='cursor: pointer'
+                    tabindex="0"
+                    v-if="!act.edit && act.act_provider.id == data.user.id && data.type != 'COMPLETED'"
+                    data-toggle="popover"
+                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/acts/' + act._id + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/acts/' + act._id + '/details\'>Reviews' + '' + '</a>'"
+                    data-trigger="focus"
+                    data-html="true"
+                  >{{act.name}}</a>    
                   <nuxt-link v-if="!act.edit && data.type == 'COMPLETED'" :to="{path: 'acts/' + act.completed_users._id + '/complete'}">{{act.name}}</nuxt-link>
-                  <nuxt-link v-if="!act.edit && data.type != 'COMPLETED'" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
+                  <!-- <nuxt-link v-if="!act.edit && data.type != 'COMPLETED'" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link> -->
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -403,6 +413,31 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
+
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
+    });
+
+    $(document).on("click", ".view_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.viewReward(id);
+    });
+    $(document).on("click", ".more_details_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.rewardDetails(id);
+    });
   },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
@@ -558,6 +593,12 @@ export default {
     },
     next() {
       this.navigateTo(parseInt(this.data.query.page) + 1);
+    },
+    viewReward(id){
+      this.$router.push(`acts/${id}`)
+    },
+    rewardDetails(id){
+      this.$router.push(`acts/${id}/details`)
     },
     reset() {
       this.query.order = "";

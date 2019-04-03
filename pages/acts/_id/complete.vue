@@ -49,7 +49,7 @@
                 <!-- <div>
                   <h3>How to submit evidences</h3>
                   <p v-html="data.act.how_to_submit_evidences"></p>
-                </div> -->
+                </div>-->
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span
@@ -110,15 +110,15 @@
                       </div>
                       <input type="hidden" id="dtp_input1" value>
                       <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                       </script>
                     </div>
                   </div>
@@ -127,7 +127,7 @@
                   <span
                     class="badge badge-warning"
                   >{{$t('reason_for_rejection')}}: {{data.proofs.acts[0].comments}}</span>
-                </div> -->
+                </div>-->
                 <div
                   style="margin-bottom: 5px"
                   v-for="(proof, index) in data.proofs.completed_users[0].proof_of_completion"
@@ -142,12 +142,35 @@
                     data-trigger="focus"
                     data-html="true"
                     style="cursor: pointer"
-                  >{{proof.original_name}}</a> -->
-                  <a
-                    :href="`/api/acts/proof/${proof._id}`"
-                  >{{proof.original_name}}</a>
+                  >{{proof.original_name}}</a>-->
+                  <a :href="`/api/acts/proof/${proof._id}`">{{proof.original_name}}</a>
                 </div>
                 <br>
+
+                <form
+                  id="smileys"
+                  v-if="!data.proofs.completed_users[0].user_review_of_act.act_rating && !data.proofs.completed_users[0].user_review_of_act.act_comments"
+                  @submit.prevent="submitRating"
+                >
+                  <span class="align-top">Rate the act:</span>
+                  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
+                  <input
+                    type="radio"
+                    name="smiley"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_rating"
+                  >
+                  <input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
+                  <textarea
+                    class="form-control"
+                    v-model="reward_comments"
+                    placeholder="Additional comments about the act"
+                  ></textarea>
+                  <div class='text-center'><input class='btn btn-primary' type='submit' :value="$t('submit_rating')"></div>
+                </form>
 
                 <!-- <form
                   id="smileys"
@@ -218,7 +241,7 @@
                   <div class="text-center">
                     <input class="btn btn-primary" type="submit" :value="$t('submit_rating')">
                   </div>
-                </form> -->
+                </form>-->
 
                 <!-- <div
                   v-if="data.act.enabled.state && data.act.state == 'AVAILABLE' && data.proofs.acts[0].state !== 'COMPLETED'"
@@ -238,7 +261,7 @@
                     :value="$t('upload_proof_of_completion')"
                     class="btn btn-primary"
                   >
-                </div> -->
+                </div>-->
                 <div
                   class="row"
                   v-if="data.act.act_provider.id == data.user.id || (data.roles && data.roles.manager)"
@@ -426,7 +449,7 @@ export default {
       })
       .then(function(res) {
         data = res.data;
-        console.log(data.proofs.completed_users[0].proof_of_completion)
+        console.log(data.proofs.completed_users[0].proof_of_completion);
         //Loop through data and format date
         if (data.act.__t == "Event") {
           data.act.formated_start_time = moment(data.act.start_time).format(
@@ -495,7 +518,9 @@ export default {
         reward_points: "",
         start_time: "",
         end_time: ""
-      }
+      },
+      reward_rating: 0,
+      reward_comments: "",
     };
   },
   methods: {
@@ -943,6 +968,57 @@ export default {
         `
       );
     },
+    submitRating(){
+      //If reward or reward provider rating is 0, error
+      if (this.reward_rating == 0)
+      {
+        izitoast.error({
+            title: "Error",
+            message: "You must rate the act before submitting",
+            position: "topRight"
+          });
+          return;
+      }
+      //Remove the form from the page
+      this.$set(this.data.proofs.completed_users[0], 'user_review_of_act', {act_rating: 1});
+      // this.data.proofs.completed_users[0].user_review_of_act.act_rating = 1;
+      //Send rating
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      const params = new URLSearchParams();
+      params.append("reward_rating", this.reward_rating);
+      params.append("reward_comments", this.reward_comments);
+
+      axios
+        .put(`/api/acts/${this.$route.params.id}/review`, params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          //If successful
+          //Show success message
+          izitoast.success({
+            title: "Thank you",
+            message: "Your review has been received",
+            position: "topRight"
+          });
+        })
+        .catch(function(err) {
+                //If error,
+      //Place the form back
+      // vue_context.data.proofs.completed_users[0].user_review_of_act.act_rating = null;
+      vue_context.$set(vue_context.data.proofs.completed_users[0], 'user_review_of_act', {act_rating: null});
+      //Give error
+          izitoast.error({
+            title: "Error",
+            message: "Sorry, your review could not be sent",
+            position: "topRight"
+          });
+        });
+
+    },
     register() {
       //Check if there an empty input field
       //If so, display error
@@ -977,3 +1053,64 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+form#smileys input[type="radio"] {
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  transition: border 0.2s ease;
+  -webkit-filter: grayscale(100%);
+          filter: grayscale(100%);
+  margin: 0 0px;
+  transition: all 0.2s ease;
+}
+form#smileys input[type="radio"]:hover, form#smileys input[type="radio"]:checked {
+  -webkit-filter: grayscale(0);
+          filter: grayscale(0);
+}
+form#smileys input[type="radio"]:focus {
+  outline: 0;
+}
+form#smileys input[type="radio"].devil {
+  background: url("~assets/images/smileys/devil.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].sad {
+  background: url("~assets/images/smileys/sad.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].neutral {
+  background: url("~assets/images/smileys/meh.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].happy {
+  background: url("~assets/images/smileys/smile.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].love {
+  background: url("~assets/images/smileys/heart.svg") center;
+  background-size: cover;
+}
+
+
+
+.mtt {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  color: #999;
+  text-decoration: none;
+}
+.mtt span {
+  color: #e74c3c;
+}
+.mtt:hover {
+  color: #666;
+}
+.mtt:hover span {
+  color: #c0392b;
+}
+</style>

@@ -21,13 +21,13 @@ const cheerio = require("cheerio");
 const fs_read_file = util.promisify(fs.readFile);
 const fs_delete_file = util.promisify(fs.unlink);
 const atob = require("atob");
-const mv = require('mv');
+const mv = require("mv");
 const fs_rename_file = util.promisify(mv);
 // const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
 const mailTest = require("../../mail_test");
-const os = require('os');
+const os = require("os");
 const moment = require("moment");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
@@ -271,6 +271,72 @@ router.put("/:act_id/user/:user_id/disapprove", async function(req, res, next) {
     );
   } finally {
     session.endSession();
+  }
+});
+
+//Show users relationships with act
+router.get("/:id/details", async function(req, res, next) {
+  try {
+    let page = parseInt(sanitize(req.query.page));
+    let offset = (page - 1) * 10;
+
+    results = Act.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+      { $unwind: "$completed_users" },
+      {
+        $match: {
+          "completed_users.user_review_of_act.act_rating": { $exists: true }
+        }
+      },
+      { $project: { completed_users: true } },
+      { $sort: { "completed_users.user_review_of_act.time": -1 } },
+      { $skip: offset },
+      { $limit: 10 },
+      {
+        $group: {
+          _id: null,
+          reviews: { $push: "$completed_users" }
+        }
+      },
+      { $project: { _id: false } }
+    ]);
+
+    count = Act.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+      { $unwind: "$completed_users" },
+      {
+        $match: {
+          "completed_users.user_review_of_act.act_rating": { $exists: true }
+        }
+      },
+      { $project: { completed_users: true } },
+      { $sort: { "completed_users.user_review_of_act.time": -1 } },
+      { $count: "count" }
+    ]);
+
+    const promises = [results, count];
+    // let results, count, points
+    let returned_results, pages, sum;
+    await Promise.all(promises).then(function(values) {
+        if (values[0][0]) returned_results = values[0][0].reviews;
+        else returned_results = [];
+        if (values[1][0]) count = values[1][0].count;
+        else count = 0;
+        pages = Math.ceil(count / 10);
+    });
+    logger.info(
+      `${req.user.id} successfully got reward ${req.params.id} relationships`
+    );
+    res.json({
+      data: returned_results,
+      count: pages,
+      roles: req.roles
+    });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(
+      `${req.user.id} failed to get reward ${req.params.id} relationships`
+    );
   }
 });
 
@@ -677,7 +743,9 @@ router.post("/:id/complete", upload.array("files"), async function(
     if (req.files) {
       for (let i = 0; i < req.files.length; i++) {
         if (fs.existsSync(os.tmpdir() + "\\" + req.files[i].filename))
-          this_promises.push(fs_delete_file(os.tmpdir() + "\\" + req.files[i].filename));
+          this_promises.push(
+            fs_delete_file(os.tmpdir() + "\\" + req.files[i].filename)
+          );
       }
       await Promise.all(this_promises);
     }
@@ -685,6 +753,29 @@ router.post("/:id/complete", upload.array("files"), async function(
     next(createError(400, err.message));
   } finally {
     session.endSession();
+  }
+});
+
+router.put("/:id/review", async function(req, res, next) {
+  try {
+    const user_review_of_act = {
+      act_rating: parseInt(req.body.reward_rating),
+      act_comments: req.body.reward_comments,
+      time: Date.now()
+    };
+
+    await Act.findOneAndUpdate(
+      { "completed_users._id": mongoose.Types.ObjectId(req.params.id) },
+      { $set: { "completed_users.$.user_review_of_act": user_review_of_act } }
+    );
+
+    logger.info(`${req.user.id} successfully reviewed act ${req.params.id}`);
+    //Return success message
+    res.json({ message: "Success" });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to review act ${req.params.id}`);
   }
 });
 

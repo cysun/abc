@@ -144,6 +144,7 @@ let userSchema = new mongoose.Schema({
           }
         }
       ]
+
       // completed_time: Date,
       // proof_of_completion: {
       //     type: String,
