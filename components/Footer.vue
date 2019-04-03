@@ -8,21 +8,9 @@
           <div class="row mt-4">
             <div class="col-md-6">
               <h3 class="text-capitalize mb-3">{{$t('connect_with_us')}}</h3>
-              <!-- <p>
-                <span class="fab fa-twitter"></span> twitter/@my_website
-              </p>
-              <p>
-                <span class="fab fa-instagram"></span> instagram/@my_website
-              </p>
-              <p>
-                <span class="fab fa-youtube mb-4"></span> youtube/@my_website
-              </p> -->
               <a href="#" class="facebook mr-2">
                 <span class="fab mr-1 fa-facebook-f"></span> Facebook
               </a>
-              <!-- <a href="#" class="twitter">
-                <span class="fab mr-1 fa-twitter"></span> Twitter
-              </a> -->
             </div>
             <div class="col-md-6 mt-md-0 mt-5">
               <h3 class="text-capitalize mb-3">{{$t('head_quarters')}}</h3>
@@ -36,12 +24,6 @@
                 <p>
                   <i class="fas mr-1 fa-clock"></i> {{$t('time')}}: By appointment
                 </p>
-                <!-- <p>
-                  <i class="fas mr-1 fa-phone"></i> +12 445 8976 2334
-                </p>
-                <p>
-                  <i class="fas mr-1 fa-fax"></i> +11 887 8976 2334
-                </p> -->
                 <p>
                   <i class="fas mr-1 fa-envelope-open"></i>
                   <a :href="`mailto:${email_address}`">{{email_address}}</a>

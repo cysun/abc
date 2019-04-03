@@ -739,12 +739,6 @@ export default {
             0,
             vue_context.data.proofs.acts[0].previous_proof[index]
           );
-          // delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
           //Tell the user that the act could not be deleted
           izitoast.error({
             title: "Error",
@@ -752,17 +746,6 @@ export default {
             position: "topRight"
           });
         });
-
-      // return;
-
-      // //Store act and it's current index
-      // this.$set(this.deleted_acts, index, this.data.acts[index]);
-      // // this.deleted_acts.push({act: this.data.acts[index], index: index});
-      // //Remove act from array
-      // this.data.acts.splice(index, 1);
-      // //Make request to delete act
-
-      // delete this.deleted_acts[index];
     },
     async change_act_state_by_manager()
     {
@@ -842,20 +825,6 @@ export default {
         });
     },
     async save_act() {
-      // izitoast.show({
-      //   title: "Hey",
-      //   color: 'red',
-      //   message: "What would you like to add?",
-      //   position: 'topRight',
-      //   icon: 'fa fa-heart'
-      // });
-
-      // izitoast.error({
-      //   title: "Error",
-      //   message: "Illegal operation",
-      //   position: 'topRight'
-      // });
-
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -868,10 +837,6 @@ export default {
       //If this is an event, get new start and end time too
       let start_time, end_time;
 
-      // if (this.data.act.__t == "Event") {
-      //   start_time = document.getElementById("act_start_time").value;
-      //   end_time = document.getElementById("act_end_time").value;
-      // }
       //Save previous name, description and reward points and enabled_state
       this.$set(this.data.act, "previous_data", {
         name: this.data.act.name,
@@ -880,44 +845,14 @@ export default {
         amount: this.data.act.amount,
         enabled: enabled_state
       });
-      //If this is an event, save previous start and end times
-      // if (this.data.act.__t == "Event") {
-      //   this.$set(
-      //     this.data.act.previous_data,
-      //     "start_time",
-      //     this.data.act.formated_start_time
-      //   );
-      //   this.$set(
-      //     this.data.act.previous_data,
-      //     "end_time",
-      //     this.data.act.formated_end_time
-      //   );
-      // }
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
-      //     start_time: this.data.acts[index].formated_start_time,
-      //     end_time: this.data.acts[index].formated_end_time
-      //   });
-      // }
+      
       //Update to new name, desription and reward points
       this.$set(this.data.act, "name", name);
       this.$set(this.data.act, "description", description);
       this.$set(this.data.act, "value", value);
       this.$set(this.data.act, "amount", amount);
       //If this is an event
-      //Update to new start and end times
-      // if (this.data.act.__t == "Event") {
-      //   this.$set(
-      //     this.data.act,
-      //     "formated_start_time",
-      //     moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      //   this.$set(
-      //     this.data.act,
-      //     "formated_end_time",
-      //     moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
-      //   );
-      // }
+      
       //Remember to disable the act
       // this.$set(this.data.act.enabled, "state", false);
       this.data.act.enabled = false;
@@ -930,12 +865,6 @@ export default {
       params.append("description", description);
       params.append("value", value);
       params.append("amount", amount);
-
-      //If this is an event, edit its start and end times
-      // if (this.data.act.__t == "Event") {
-      //   params.append("start_time", start_time);
-      //   params.append("end_time", end_time);
-      // }
 
       await axios
         .put(`/api/rewards/${vue_context.data.act._id}`, params, {
@@ -965,34 +894,11 @@ export default {
             "amount",
             vue_context.data.act.previous_data.amount
           );
-
           //Revert to previous state
-          // vue_context.$set(
-          //   vue_context.data.act.enabled,
-          //   "state",
-          //   vue_context.data.act.previous_data.enabled
-          // );
           vue_context.data.act.enabled =
             vue_context.data.act.previous_data.enabled;
 
           //If this is an event, revert to old start and end times
-          // if (vue_context.data.act.__t == "Event") {
-          //   vue_context.$set(
-          //     vue_context.data.act,
-          //     "formated_start_time",
-          //     vue_context.data.act.previous_data.start_time
-          //   );
-          //   vue_context.$set(
-          //     vue_context.data.act,
-          //     "formated_end_time",
-          //     vue_context.data.act.previous_data.end_time
-          //   );
-          // }
-
-          //Tell the user that the act could not be edited
-          // let type_of_act = "act";
-          // if (vue_context.data.act.__t == "Event")
-          //   type_of_act = "event";
           izitoast.error({
             title: "Error",
             message: `Sorry, the reward could not be edited`,
@@ -1001,8 +907,6 @@ export default {
         });
     },
     async addAct() {
-      // alert("Hello World");
-      //Send act
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
       const params = new URLSearchParams();
@@ -1042,15 +946,7 @@ export default {
         .catch(function(err) {
           vue_context.status_state = "Error";
           vue_context.status_message = err.response.data.message;
-
-          // if (err.response.status == 400) {
-          //   vue_context.$router.redirect("/logout");
-          // }
-          // console.log(err.response.data.message);
         });
-      //If error, display error
-      //If success, display success message with hint of manager's final say
-      //Then clear the form
     },
     async search() {
       this.$router.push(
@@ -1066,20 +962,6 @@ export default {
       if (!this.first_name || !this.last_name || !this.email || !this.password)
         this.error = "All fields must be present";
       else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -1103,17 +985,9 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) vue_context.error = err.response.data.message;
           });
-
-        //Else
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
 

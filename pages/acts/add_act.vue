@@ -35,18 +35,10 @@
                   :placeholder="$t('name')"
                   required
                 >
-                <!-- <textarea
-                  rows="10"
-                  class="form-control"
-                  name="description"
-                  :placeholder="$t('description')"
-                  required
-                ></textarea>-->
+                
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <br>
-                <!-- <label for="summernote1">How to submit evidences</label>
-                <textarea id="summernote1" name="editordata"></textarea> -->
                 <div v-if="upload_type == 'event'" class="control-group">
                   <label for="start_time">Start time</label>
                   <div
@@ -165,15 +157,7 @@
                     <i class="icon-th"></i>
                   </span>
                 </div>
-                <!-- <input
-                  class="form-control"
-                  type="text"
-                  name="expiration_date"
-                  placeholder="Expiration date"
-                  v-model="add_act.expiration_date"
-                >-->
-                <!-- <label for="file">Image should be 1600 X 800</label>
-                <input class="form-control" id="file" type="file" name="file">-->
+                
                 <div class="button">
                   <input
                     class="form-control"
@@ -226,14 +210,7 @@ export default {
           ["insert", ["link", "picture"]],
           ["misc", ["fullscreen", "codeview", "help"]]
         ]
-        // callbacks: {
-        //   onImageUpload: function(files) {
-        //     // upload image to server and create imgNode...
-        //     // $("#summernote").summernote('insertNode', imgNode);
-        //     $('#summernote').summernote('insertText', "<p>Hello World</p>");
-        //     console.log(files);
-        //   }
-        // }
+        
       });
       $("#summernote1").summernote({
         placeholder: "How to submit evidences",
@@ -807,53 +784,6 @@ export default {
             document.getElementById("start_time").value = "";
           } else document.getElementById("expiration_date").value = "";
 
-          // // console.log(vue_context.query.type);
-          // //If not admin
-          // if (!vue_context.data.roles.administrator) {
-          //   //If not in My acts
-          //   if (vue_context.query.type != "MY_ACTS") {
-          //     //Navigate to my acts
-          //     vue_context.query.type = "MY_ACTS";
-          //     vue_context.$router.push(`/acts?type=MY_ACTS`);
-          //   } else {
-          //     //If already in my acts
-          //     //Add this new act to top of page
-          //     vue_context.data.acts.splice(0, 0, res.data);
-          //   }
-          // } else {
-          //   //If admin,
-          //   //If not in available
-          //   if (vue_context.query.type != "AVAILABLE") {
-          //     //Navigate to available
-          //     vue_context.query.type = "AVAILABLE";
-          //     vue_context.$router.push(`/acts?type=AVAILABLE`);
-          //   } else {
-          //     //If in available
-          //     //Add this new act to top of page
-          //     //If this is an event
-          //     //Format the start and end time first
-
-          //     if (vue_context.upload_type == "event") {
-          //       res.data.formated_start_time = moment(
-          //         res.data.start_time
-          //       ).format("MMMM Do YYYY, h:mm:ss a");
-          //       ("MMMM Do YYYY, h:mm:ss a");
-          //       res.data.formated_end_time = moment(res.data.end_time).format(
-          //         "MMMM Do YYYY, h:mm:ss a"
-          //       );
-          //       ("MMMM Do YYYY, h:mm:ss a");
-
-          //       res.data.start_time = moment(res.data.start_time).format(
-          //         moment.HTML5_FMT.DATETIME_LOCAL
-          //       );
-          //       res.data.end_time = moment(res.data.end_time).format(
-          //         moment.HTML5_FMT.DATETIME_LOCAL
-          //       );
-          //     }
-
-          //     vue_context.data.acts.splice(0, 0, res.data);
-          //   }
-          // }
           good_ending = true;
         })
         .catch(function(err) {

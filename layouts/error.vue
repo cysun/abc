@@ -11,12 +11,6 @@
         <li>
           <nuxt-link class="hvr-sweep-to-bottom" to="/contact">Contact Us</nuxt-link>
         </li>
-        <!-- <li>
-          <a href="index.html" class="hvr-sweep-to-bottom">Services</a>
-        </li>
-        <li>
-          <a href="index.html" class="hvr-sweep-to-bottom">Mail Us</a>
-        </li> -->
       </ul>
     </div>
     <h1>404</h1>
@@ -53,24 +47,5 @@
 <script>
 export default {
   layout: "error_layout"
-  // props: ['error']
 };
 </script>
-
-<style scoped>
-/* .title
-{
-  margin-top: 15px;
-  font-size: 5em;
-}
-.info
-{
-  font-weight: 300;
-  color: #9aabb1;
-  margin: 0;
-}
-.button
-{
-  margin-top: 50px;
-} */
-</style>

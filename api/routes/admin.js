@@ -6,17 +6,10 @@ const Reward = require("../../models/Reward");
 const Event_Act = require("../../models/Event");
 var createError = require("http-errors");
 const multer = require("multer");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const secret = require("../../secret");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const sanitize = require("sanitize-html");
 const util = require("util");
-const fs_delete_file = util.promisify(fs.unlink);
-const atob = require("atob");
-const fs_rename_file = util.promisify(fs.rename);
-const mail = require("../../mail");
 const os = require('os');
 const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
@@ -95,15 +88,11 @@ router.get("/acts/:id/users/:page", async function(req, res, next) {
   try {
     //Return act details
 
-    // let type = Act;
-    // if (req.query.type == "event") type = Event_Act;
     // //Only admin can get here
     if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
     //Return acts with respect to search, sort, order
     let search;
-    // if (req.query.search)
-    //   search = { $text: { $search: sanitize(req.query.search) } };
 
     if (!req.query.search) search = "";
     else search = sanitize(req.query.search);
@@ -133,52 +122,10 @@ router.get("/acts/:id/users/:page", async function(req, res, next) {
       type = "$rejected_users";
     }
 
-    // //Handle invalid act order category
-    // if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
-    //   order = 1;
-
-    // let offset = (page - 1) * 10;
-
-    // let results;
-    // let count;
-    // results = type
-    //   .find(search, {
-    //     name: true,
-    //     // description: true,
-    //     enabled: true,
-    //     creation_date: true,
-    //     state: true,
-    //     deleted: true,
-    //     act_provider: true
-    //   })
-    //   .sort({ [sort]: order })
-    //   .skip(offset)
-    //   .limit(10)
-    //   .lean();
-
-    // count = type.find(search).countDocuments();
-
-    // const promises = [results, count];
-    // let returned_results, pages;
-    // await Promise.all(promises).then(function(values) {
-    //   returned_results = values[0];
-    //   count = values[1];
-    //   pages = Math.ceil(count / 10);
-    // });
-
     const page = req.params.page;
     const skip = (page - 1) * 10;
     //Get act details (completed users)
 
-    // const users = await Act.find(
-    //   { _id: mongoose.Types.ObjectId(req.params.id) },
-    //   {
-    //     completed_users: true,
-    //     _id: false
-    //   }
-    // )
-    //   .skip(skip)
-    //   .limit(10);
     const type_last_name = type.substring(1) + ".last_name";
     const sort_type = type.substring(1) + "." + sort;
 
@@ -248,60 +195,10 @@ router.get("/users/:id/acts/:page", async function(req, res, next) {
     if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
       order = 1;
 
-    // if (type == "COMPLETED") {
-    //   type = "$completed_users";
-    // } else if (type == "UNDER_REVIEW") {
-    //   type = "$users_under_review";
-    // } else if (type == "REJECTED") {
-    //   type = "$rejected_users";
-    // }
-
-    // //Handle invalid act order category
-    // if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
-    //   order = 1;
-
-    // let offset = (page - 1) * 10;
-
-    // let results;
-    // let count;
-    // results = type
-    //   .find(search, {
-    //     name: true,
-    //     // description: true,
-    //     enabled: true,
-    //     creation_date: true,
-    //     state: true,
-    //     deleted: true,
-    //     act_provider: true
-    //   })
-    //   .sort({ [sort]: order })
-    //   .skip(offset)
-    //   .limit(10)
-    //   .lean();
-
-    // count = type.find(search).countDocuments();
-
-    // const promises = [results, count];
-    // let returned_results, pages;
-    // await Promise.all(promises).then(function(values) {
-    //   returned_results = values[0];
-    //   count = values[1];
-    //   pages = Math.ceil(count / 10);
-    // });
-
     const page = req.params.page;
     const skip = (page - 1) * 10;
     //Get act details (completed users)
 
-    // const users = await Act.find(
-    //   { _id: mongoose.Types.ObjectId(req.params.id) },
-    //   {
-    //     completed_users: true,
-    //     _id: false
-    //   }
-    // )
-    //   .skip(skip)
-    //   .limit(10);
     const name = "populated_act.name";
     const type_last_name = type.substring(1) + ".last_name";
     let sort_type;
@@ -359,15 +256,17 @@ router.get("/users/:id/acts/:page", async function(req, res, next) {
   }
 });
 
+//Give/Remove user points
 router.put("/users/:id/points/:points", async function(req, res, next) {
   try {
     await User.findByIdAndUpdate(req.params.id, {
       $inc: { points: req.params.points }
     });
     res.json({ Success: "Success" });
+    logger.info(`${req.user.id} successfully gave user ${req.params.id} points`);
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to get acts`);
+    logger.error(`${req.user.id} failed to give user ${req.params.id} points`);
   }
 });
 
@@ -469,9 +368,7 @@ router.get("/", async function(req, res, next) {
     next_year += 1;
   }
   //Get first days in both months
-  // const lower_date = `${this_year}-${this_month}-1`;
-  // const upper_date = `${next_year}-${next_month}-1`;
-
+  
   lower_date = new Date(this_year, this_month, 1);
   upper_date = new Date(next_year, next_month, 1);
 
@@ -620,7 +517,6 @@ router.get("/", async function(req, res, next) {
     total_acts,
     total_rewards
   });
-  // res.render('admin', { layout: 'admin_layout', title: "Admin dashboard", user: req.user, error: req.query.error, users: users });
 });
 
 module.exports = router;

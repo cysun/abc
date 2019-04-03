@@ -1,6 +1,5 @@
 require("dotenv").load();
 
-const globals = require("../globals");
 const secret = require("../secret");
 const User = require("../models/User");
 const express = require("express");
@@ -208,9 +207,6 @@ app.use(function(err, req, res, next) {
   if (err.status == 404) res.json({ message: "API endpoint not found" });
   else {
     res.json({ message: err.message });
-    //Redirect to the calling page with the error message in the url
-    // req.flash('body', req.body);
-    // res.redirect(url.parse(req.headers.referer).pathname + '?error=' + err.message);
   }
 
   if (req.user) {

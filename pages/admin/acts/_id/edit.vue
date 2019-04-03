@@ -23,13 +23,7 @@
                   >
                   <label for="description">{{$t('description')}}</label>
                   <textarea id="summernote" name="editordata"></textarea>
-                  <!-- <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    :placeholder="$t('description')"
-                    v-model="data.act.description"
-                  > -->
+                  
                   <label for="reward_points">{{$t('Reward_points')}}</label>
                   <input
                     type="text"
@@ -102,9 +96,7 @@
                 <label for="repeatable">Repeatable</label>
                   <h3>{{$t('tags')}}</h3>
                   <div>
-                    <!-- <span v-for="(tag, index) in data.act.tags">
-                      <span style="margin-right: 2px" class="badge badge-secondary">{{tag.name}}</span>
-                    </span>-->
+                    
                     <a
                       v-for="(tag, index) in data.act.tags"
                       tabindex="0"
@@ -380,11 +372,7 @@ export default {
       if (this.new_tags) params.append("tags", this.new_tags);
 
       // //If this is an event, edit its start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   params.append("start_time", start_time);
-      //   params.append("end_time", end_time);
-      // }
-
+     
       await axios
         .put(`/api/acts/${vue_context.data.act._id}`, params, {
           headers: {
@@ -421,14 +409,6 @@ export default {
       .then(function(res) {
         data = res.data;
 
-        // if (data.act.__t == "Event") {
-        //   data.act.start_time = moment(data.act.start_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        //   data.act.end_time = moment(data.act.end_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        // }
         if (data.act.__t == "Event") {
           data.act.start_time = data.act.start_time.substring(
             0,

@@ -2,13 +2,8 @@ const { Router } = require("express");
 const User = require("../../models/User");
 var createError = require("http-errors");
 const multer = require("multer");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const secret = require("../../secret");
 const globals = require("../../globals");
-const fs = require("fs");
 const os = require('os');
-const mail = require("../../send_mail");
 const sanitize = require("sanitize-html");
 const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
@@ -81,10 +76,7 @@ router.get("/", async function(req, res, next) {
 //Edit user
 router.get("/:id/edit", async function(req, res, next) {
   try {
-    // let users = await User.findById(req.params.id);
-    // users.forEach(element => {
-    //     element.creation_date = element.creation_date.toLocaleDateString("en-US", options);
-    // });
+    
     const user = await User.findById(req.params.id);
     const roles = {};
     if (user) {

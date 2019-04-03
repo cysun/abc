@@ -7,17 +7,15 @@ const Act = require("../../models/Act");
 const Reward = require("../../models/Reward");
 const Subscriber = require("../../models/Subscriber");
 const jwt = require("jsonwebtoken");
-const globals = require("../../globals");
 const FileSchema = require("../../models/File");
 const mail = require("../../send_mail");
 const fs = require("fs");
-const os = require('os');
+const os = require("os");
 const secret = require("../../secret");
 const uuidv4 = require("uuid/v4");
 var upload = multer({
   dest: os.tmpdir()
 });
-const mongoose = require("mongoose");
 const util = require("util");
 const fs_delete_file = util.promisify(fs.unlink);
 const logger = require("../../logger").winston;
@@ -85,6 +83,7 @@ router.post("/contact", async function(req, res, next) {
   try {
     await mail.contactUs(req.body);
     res.json({ message: "Success" });
+    logger.info(`A message was successfully sent from the contact us form`);
   } catch (err) {
     next(createError(400, err.message));
     logger.error(
@@ -115,6 +114,9 @@ router.post("/forgot_password", async function(req, res, next) {
     }
     //Send success message
     res.json({ message: "Success" });
+    logger.info(
+      `Password reset instructions were sent to ${req.body.email}`
+    );
   } catch (err) {
     next(createError(400, err.message));
     logger.error(
@@ -156,6 +158,11 @@ router.post("/reset_password", async function(req, res, next) {
       await user.save();
       //Return success message
       res.json({ message: "Success" });
+      logger.info(
+        `Password was reset for this reset token: ${
+          req.body.reset_password
+        }`
+      );
     }
   } catch (err) {
     next(createError(400, err.message));
@@ -241,7 +248,8 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     //If the user is already logged in and this is not the admin, give error
     if (req.user && !req.roles.administrator)
       throw new Error(res.__("you_must_be_logged_out"));
-    if (req.file) req.body.profile_picture = os.tmpdir() + "\\" + req.file.filename;
+    if (req.file)
+      req.body.profile_picture = os.tmpdir() + "\\" + req.file.filename;
     let user = await User.initialize(req.body);
 
     // await user.save();

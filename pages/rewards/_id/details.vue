@@ -46,12 +46,6 @@
                 <option value="OPEN" :selected="!query.type == 'OPEN'">{{$t('open_transactions')}}</option>
                 <option value="CLOSED" :selected="!query.type == 'CLOSED'">{{$t('closed_transactions')}}</option>
                 <option value="REVIEWS" :selected="!query.type == 'REVIEWS'">{{$t('user_reviews')}}</option>
-                <!-- <option disabled v-if="data.roles && data.roles.act_poster">──────────</option>
-                <option
-                  v-if="data.roles && data.roles.act_poster"
-                  value="MY_ACTS"
-                  :selected="!query.type == 'MY_ACTS'"
-                >{{$t('my_acts')}}</option> -->
               </select>
             </span>
             <button
@@ -153,24 +147,9 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
-
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
   async fetch(context) {},
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    // console.log("I ran");
-    // console.log();
-    //Get acts
-    // console.log("I ran");
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -179,11 +158,7 @@ export default {
     if (!context.query.order) context.query.order = "";
     if (!context.query.page) context.query.page = 1;
     if (!context.query.type) context.query.type = "OPEN";
-
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
       .get(
         `/api/rewards/${context.route.params.id}/details?type=${
@@ -196,13 +171,6 @@ export default {
         }
       )
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
         //Loop through data and format date
         if (context.query.type != "REVIEWS")
@@ -216,17 +184,7 @@ export default {
         if (err.response.status == 401) {
           context.redirect("/logout");
         }
-
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
-    // console.log(data);
     data.query = context.query;
     data.requested = "requested";
     if (data.query.type == "CLOSED") data.requested = "collected";
@@ -322,8 +280,6 @@ export default {
       if (this.data.type == "ALL")
         //Change state
         this.data.acts[index].enabled = !state;
-      // this.$set(this.data.acts[index].enabled, "state", !state);
-
       //Display error
       //Make request to change state
       axios
@@ -336,26 +292,11 @@ export default {
           }
         )
         .then(function(res) {
-          // //If successful
-          // //Show success message
-          // izitoast.success({
-          //   title: "Success",
-          //   message: "The act was successfully deleted",
-          //   position: "topRight"
-          // });
-          // //Navigate (replace) to previous page
-          // vue_context.$router.go(-1);
         })
         .catch(function(err) {
           //If error
           //If all page
           if (vue_context.data.type == "ALL")
-            //Revert state
-            // vue_context.$set(
-            //   vue_context.data.acts[index].enabled,
-            //   "state",
-            //   state
-            // );
             this.data.acts[index].enabled = state;
           //Else
           else {
@@ -374,10 +315,7 @@ export default {
             position: "topRight"
           });
         });
-      //If error,
-      //revert state
-      // console.log(index, !state)
-
+      
       if (this.data.type !== "ALL") {
         //If not, remove the row
         this.data.acts.splice(index, 1);
@@ -507,11 +445,6 @@ export default {
             vue_context.deleted_acts[index]
           );
           delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
           //Tell the user that the act could not be deleted
           izitoast.error({
             title: "Error",
@@ -560,20 +493,6 @@ export default {
         });
     },
     async save_act(index) {
-      // izitoast.show({
-      //   title: "Hey",
-      //   color: 'red',
-      //   message: "What would you like to add?",
-      //   position: 'topRight',
-      //   icon: 'fa fa-heart'
-      // });
-
-      // izitoast.error({
-      //   title: "Error",
-      //   message: "Illegal operation",
-      //   position: 'topRight'
-      // });
-
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
 
@@ -611,12 +530,7 @@ export default {
           this.data.acts[index].formated_end_time
         );
       }
-      // if (this.data.acts[index].__t == "Event") {
-      //   this.$set(this.data.acts[index].previous_data, "start_time", this.data.acts[index].formated_start_time{
-      //     start_time: this.data.acts[index].formated_start_time,
-      //     end_time: this.data.acts[index].formated_end_time
-      //   });
-      // }
+     
       //Update to new name, desription and reward points
       this.$set(this.data.acts[index], "name", name);
       this.$set(this.data.acts[index], "description", description);
@@ -751,44 +665,12 @@ export default {
           vue_context.status_state = "Error";
           vue_context.status_message = err.response.data.message;
 
-          // if (err.response.status == 400) {
-          //   vue_context.$router.redirect("/logout");
-          // }
-          // console.log(err.response.data.message);
         });
       //If error, display error
       //If success, display success message with hint of manager's final say
       //Then clear the form
     },
     async search() {
-      // this.$nuxt.$loading.start();
-
-      // const token = this.$cookies.get("token");
-      // const refresh_token = this.$cookies.get("refresh_token");
-      // await axios
-      //   .get(
-      //     `/api/acts?type=${vue_context.query.type}&sort=${
-      //       vue_context.query.sort
-      //     }&order=${vue_context.query.order}&search=${
-      //       vue_context.query.search
-      //     }`,
-      //     {
-      //       headers: {
-      //         Cookie: `token=${token}; refresh_token=${refresh_token};`
-      //       }
-      //     }
-      //   )
-      //   .then(function(res) {
-      //     vue_context.data = res.data;
-      //   })
-      //   .catch(function(err) {
-      //     if (err.response.status == 400) {
-      //       vue_context.$router.redirect("/logout");
-      //     }
-      //   });
-
-      // vue_context.$nuxt.$loading.finish();
-
       this.$router.push(
         `/rewards/${this.$route.params.id}/details?type=${
           this.query.type
@@ -804,20 +686,6 @@ export default {
       if (!this.first_name || !this.last_name || !this.email || !this.password)
         this.error = "All fields must be present";
       else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -841,16 +709,8 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) vue_context.error = err.response.data.message;
           });
-
-        //Else
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>

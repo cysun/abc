@@ -123,11 +123,6 @@
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
-                          <!-- <td>
-                            <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
-                              <button class="btn btn-primary">{{$t('edit')}}</button>
-                            </nuxt-link>
-                          </td> -->
                         </tr>
                       </tbody>
                     </table>
@@ -162,11 +157,6 @@
                         <td>
                           <span class="badge badge-info">{{reward.creation_date}}</span>
                         </td>
-                        <!-- <td>
-                          <nuxt-link :to="'/admin/rewards/' + reward._id + '/edit'">
-                            <button class="btn btn-primary">{{$t('edit')}}</button>
-                          </nuxt-link>
-                        </td> -->
                       </tr>
                     </tbody>
                   </table>
@@ -251,8 +241,6 @@ export default {
     if (!context.query.page) context.query.page = 1;
     if (!context.query.type) context.query.type = "AVAILABLE";
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
     // console.log(context)
     await axios
@@ -260,80 +248,22 @@ export default {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
+        
         data = res.data;
-        //Loop through data and format date
-        // data.acts.forEach(element => {
-        //   if (element.__t == "Event") {
-        //     element.formated_start_time = moment(element.start_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-        //     element.formated_end_time = moment(element.end_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-
-        //     element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-        //     element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-        //   }
-        // });
+        
       })
       .catch(function(err) {
         if (err.response.status == 401) {
           context.redirect("/logout");
         }
 
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
+    
     return { data };
   },
 
   mounted() {
-    //Sticky header code
-    // $(document).ready(function() {
-    //   var navoffeset = $(".header-main").offset().top;
-    //   $(window).scroll(function() {
-    //     var scrollpos = $(window).scrollTop();
-    //     if (scrollpos >= navoffeset) {
-    //       $(".header-main").addClass("fixed");
-    //     } else {
-    //       $(".header-main").removeClass("fixed");
-    //     }
-    //   });
-    // });
-
+   
     var toggle = true;
 
     $(".sidebar-icon").click(function() {

@@ -40,29 +40,8 @@ export default {
     vue_context = this;
   },
   async mounted() {
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
-  // async asyncData({ query, req }) {
   async asyncData(context) {
-    //If user is logged in, redirect to main page
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
   },
   data() {
     return {
@@ -101,20 +80,6 @@ export default {
       if (!this.first_name || !this.last_name || !this.email || !this.password)
         this.error = "All fields must be present";
       else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
         this.$nuxt.$loading.start();
 
         const formData = new FormData();
@@ -138,30 +103,8 @@ export default {
             vue_context.$nuxt.$loading.finish();
             if (err.response) vue_context.error = err.response.data.message;
           });
-
-        //Else
       }
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

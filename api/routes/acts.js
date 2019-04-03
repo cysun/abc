@@ -7,9 +7,6 @@ const FileSchema = require("../../models/File");
 const Event_Act = require("../../models/Event");
 var createError = require("http-errors");
 const multer = require("multer");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const secret = require("../../secret");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const uuidv4 = require("uuid/v4");
@@ -20,13 +17,10 @@ const util = require("util");
 const cheerio = require("cheerio");
 const fs_read_file = util.promisify(fs.readFile);
 const fs_delete_file = util.promisify(fs.unlink);
-const atob = require("atob");
 const mv = require("mv");
 const fs_rename_file = util.promisify(mv);
-// const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
-const mailTest = require("../../mail_test");
 const os = require("os");
 const moment = require("moment");
 sanitize.defaults.allowedAttributes = [];
@@ -325,7 +319,7 @@ router.get("/:id/details", async function(req, res, next) {
         pages = Math.ceil(count / 10);
     });
     logger.info(
-      `${req.user.id} successfully got reward ${req.params.id} relationships`
+      `${req.user.id} successfully got act ${req.params.id} relationships`
     );
     res.json({
       data: returned_results,
@@ -335,7 +329,7 @@ router.get("/:id/details", async function(req, res, next) {
   } catch (err) {
     next(createError(400, err.message));
     logger.error(
-      `${req.user.id} failed to get reward ${req.params.id} relationships`
+      `${req.user.id} failed to get act ${req.params.id} relationships`
     );
   }
 });
@@ -631,15 +625,6 @@ router.post("/:id/complete", upload.array("files"), async function(
         "UNDER_REVIEW"
       ) {
         //Find the specific entry and add these proofs to it
-        // const last_under_review_act = await User.findOne(
-        //   {
-        //     _id: user.id,
-        //     "acts.id": req.params.id,
-        //     "acts.state": "UNDER_REVIEW"
-        //   },
-        //   { "acts.$._id": 1 },
-        //   { sort: { "acts.time": -1 } }
-        // );
         //Add to the entry where it's under review
         promised_user_change = User.findOneAndUpdate(
           {
@@ -736,8 +721,9 @@ router.post("/:id/complete", upload.array("files"), async function(
     );
     // console.log(act_proofs.acts[0].proof_of_completion);
     res.json(act_proofs.acts[0].proof_of_completion);
+    logger.info(`${req.user.id} successfully uploaded proof of completion`)
   } catch (err) {
-    console.log(err);
+    logger.error(`${req.user.id} failed to upload proof of completion`)
     //Delete uploaded files
     const this_promises = [];
     if (req.files) {
@@ -756,6 +742,7 @@ router.post("/:id/complete", upload.array("files"), async function(
   }
 });
 
+//Review completed act
 router.put("/:id/review", async function(req, res, next) {
   try {
     const user_review_of_act = {
@@ -786,11 +773,11 @@ router.get("/:id/image", async function(req, res, next) {
       _id: false,
       image: true
     });
-    console.log(act_image);
+    logger.info("Success in getting act " + req.params.id +  " image");
     res.sendFile(`${process.env.files_folder}/${act_image.image}`);
   } catch (err) {
     next(createError(400, err.message));
-    logger.error("Failed to get act image");
+    logger.error(req.user.id + " failed to get act " + req.params.id +  " image");
   }
 });
 
@@ -798,9 +785,10 @@ router.get("/:id/image", async function(req, res, next) {
 router.get("/images/:id", async function(req, res, next) {
   try {
     res.sendFile(`${process.env.files_folder}/${req.params.id}`);
+    logger.info(`${req.user.id} successfully got act ${req.params.id} image`);
   } catch (err) {
     next(createError(400, err.message));
-    logger.error("Failed to get act image");
+    logger.error(`${req.user.id} failed to get act ${req.params.id} image`);
   }
 });
 
@@ -865,11 +853,9 @@ router.get("/proof/:id", async function(req, res, next) {
     const file_location = new_name.replace(`${process.env.website}`, "");
     //Else,
     //return proof
+    logger.info(`${req.user.id} successfully got act proof ${req.params.id}`);
     res.sendFile(`${process.env.files_folder}/${new_name}`);
-    // res.json(file_location);
-    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
-    // res.redirect(new_name);
-    // res.json({message: new_name});
+    
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
@@ -894,19 +880,12 @@ router.get("/admin_proof/:id", async function(req, res, next) {
       }
     ]);
     //If not, error
-    // if (act_proof[0]._id != req.user.id)
-    //   throw new Error("You do not have authorization");
-    // console.log(JSON.stringify(act_proof))
+    
     const new_name = act_proof[0].acts[0].proof_of_completion[0].new_name;
-    // const original_name = act_proof[0].acts.proof_of_completion.original_name;
-    // const file_location = new_name.replace(`${process.env.website}`, "");
     //Else,
     //return proof
+    logger.info(`${req.user.id} successfully got act proof ${req.params.id}`);
     res.sendFile(`${process.env.files_folder}/${new_name}`);
-    // res.json(file_location);
-    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
-    // res.redirect(new_name);
-    // res.json({message: new_name});
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
@@ -959,11 +938,8 @@ router.get("/manage_proof/:id", async function(req, res, next) {
     const file_location = new_name.replace(`${process.env.website}`, "");
     //Else,
     //return proof
+    logger.info(`${req.user.id} successfully got act proof ${req.params.id}`);
     res.sendFile(`${process.env.files_folder}/${new_name}`);
-    // res.json(file_location);
-    // res.download(`${__dirname}/../../static/${file_location}`, original_name);
-    // res.redirect(new_name);
-    // res.json({message: new_name});
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
@@ -983,6 +959,7 @@ router.delete("/:id/image", async function(req, res, next) {
     promises.push(FileSchema.findOneAndDelete({ proof_name: act.image }));
     await Promise.all(promises);
     //Return success message
+    logger.info(`${req.user.id} successfully deleted act ${req.params.id} image`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
@@ -1004,11 +981,6 @@ router.get("/:id", async function(req, res, next) {
       req.params.id,
       "act_provider importance repeatable deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
     ).lean();
-    // const promised_user = User.findOne(
-    //   { _id: req.user.id, "acts.id": req.params.id },
-    //   { "acts.$": 1 },
-    //   { sort: { "acts.$.time": -1 } }
-    // );
 
     const promised_user = User.aggregate([
       {
@@ -1104,10 +1076,6 @@ router.get("/:id", async function(req, res, next) {
       }
     }
 
-    // console.log(user_act)
-    // console.log()
-    // console.log(act)
-
     //If user has completed this act and it is repeatable
     //Act should behave like the user has not completed it before
     if (user_act && user_act.acts[0].state == "COMPLETED" && act.repeatable)
@@ -1136,11 +1104,6 @@ router.get("/:id/complete", async function(req, res, next) {
       { "completed_users._id": req.params.id },
       "act_provider repeatable deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
     ).lean();
-    // const promised_user = User.findOne(
-    //   { _id: req.user.id, "acts.id": req.params.id },
-    //   { "acts.$": 1 },
-    //   { sort: { "acts.$.time": -1 } }
-    // );
 
     const promised_user = Act.findOne(
       { "completed_users._id": req.params.id },
@@ -1157,20 +1120,7 @@ router.get("/:id/complete", async function(req, res, next) {
     await Promise.all(promises).then(function(values) {
       act = values[0];
       user_act = values[1];
-      // console.log(user_act)
-      // console.log()
-      // console.log(act)
     });
-
-    // if (user_act[0]) {
-    //   let x;
-    //   x = user_act[0].acts;
-    //   user_act[0].acts = [x];
-    //   user_act = user_act[0];
-    //   console.log(user_act);
-    // } else {
-    //   user_act = user_act[0];
-    // }
 
     //If act does not exist, error
     if (!act) throw new Error(res.__("act_does_not_exist"));
@@ -1223,21 +1173,17 @@ router.get("/:id/complete", async function(req, res, next) {
     //   }
     // }
 
-    // console.log(user_act)
-    // console.log()
-    // console.log(act)
-
     // //If user has completed this act and it is repeatable
     // //Act should behave like the user has not completed it before
     // if (user_act && user_act.acts[0].state == "COMPLETED" && act.repeatable)
     //   user_act = null;
 
-    logger.info(`${req.user.id} successfully got act ${req.params.id}`);
+    logger.info(`${req.user.id} successfully got completed act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
     console.log(err);
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to get act ${req.params.id}`);
+    logger.error(`${req.user.id} failed to get completed act ${req.params.id}`);
   }
 });
 
@@ -1256,11 +1202,11 @@ router.put("/:id/enable/:state", async function(req, res, next) {
     await Act.findByIdAndUpdate(req.params.id, {
       "enabled.state": req.params.state
     });
-    logger.info(`${req.user.id} successfully altered ${req.params.id} state`);
+    logger.info(`${req.user.id} successfully altered act ${req.params.id} state`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to altered ${req.params.id} state`);
+    logger.error(`${req.user.id} failed to alter act ${req.params.id} state`);
   }
 });
 
@@ -1386,9 +1332,7 @@ router.get("/", async function(req, res, next) {
       next_year += 1;
     }
     //Get first days in both months
-    // const lower_date = `${this_year}-${this_month}-1`;
-    // const upper_date = `${next_year}-${next_month}-1`;
-
+    
     lower_date = new Date(this_year, this_month, 1);
     upper_date = new Date(next_year, next_month, 1);
 
@@ -1510,10 +1454,6 @@ router.get("/", async function(req, res, next) {
     count = Math.ceil(count / 10);
     const total = [];
     for (let i = 0; i < count; i++) total.push(1);
-    // acts.forEach(element => {
-    //     if (!element.image)
-    //         element.image = process.env.website + 'images/banner1.jpg';
-    // });
     let current_page = process.env.website + "acts?";
 
     if (!req.query.page) req.query.page = 1;
@@ -1526,10 +1466,7 @@ router.get("/", async function(req, res, next) {
     if (req.query.order)
       current_page = current_page + "order=" + req.query.order + "&";
 
-    // res.cookie('type', type, { maxAge: 3600000 })
-    // if (!req.query.type)
-    //     req.query.type = type
-
+      logger.info(`User ${req.user.id} successfully got acts`);
     res.json({
       reward_points,
       acts,
@@ -1546,9 +1483,8 @@ router.get("/", async function(req, res, next) {
       roles: req.roles
     });
 
-    // res.render('acts', { type, current_page, query: req.query, count, title: "Acts", acts, total_acts: total, user: req.user, roles: req.roles });
   } catch (err) {
-    console.log(err);
+    logger.error(`User ${req.user.id} failed to get acts`);
     next(createError(400, err.message));
   }
 });
@@ -1589,8 +1525,6 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
         size: req.file.size
       };
 
-      // console.log(file_object);
-
       await FileSchema.create(file_object);
     }
 
@@ -1618,9 +1552,7 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
     if (req.roles.administrator) act.enabled.state = true;
 
     await act.save();
-    // user = user.toObject();
-    // delete user.password;
-    // res.redirect('/acts?success=Success');
+    
     await session.commitTransaction();
     logger.info(`${req.user.id} successfully created ${act._id}`);
     res.json(act);
@@ -1753,8 +1685,6 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
           }
         }
       }
-      // console.log(old_image_srcs);
-      // console.log(new_image_srcs);
       //After everything is done,
       const promised_delete_files = [];
       for (let i = 0; i < old_image_srcs.length; i++) {
@@ -1836,121 +1766,6 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       console.log(description);
     }
 
-    // //Do the same for how to submit evidences
-    // $ = cheerio.load(act.how_to_submit_evidences);
-    // //Check if there are images in the description in the database
-    // if ($("img").length > 0) {
-    //   //Compare with new description to figure out old images to delete
-    //   const old_image_srcs = [];
-    //   const new_image_srcs = [];
-    //   const old_description_images = $("img");
-    //   //Put database description image srcs in an array
-    //   for (let i = 0; i < old_description_images.length; i++) {
-    //     old_image_srcs.push(old_description_images[i].attribs["src"]);
-    //   }
-    //   //Check the new description for image srcs
-    //   const new_description1 = cheerio.load(description);
-    //   // console.log(new_description1("img").nextAll())
-    //   if (new_description1("img").length > 0) {
-    //     const new_description_images = new_description1("img");
-    //     //For each new description src, check if it starts with '/'
-    //     for (let i = 0; i < new_description_images.length; i++) {
-    //       //If so, put in another array
-    //       // console.log(new_description_images[i].prev.attribs["src"].charAt(0))
-    //       if (new_description_images[i].attribs["src"].charAt(0) == "/")
-    //         new_image_srcs.push(new_description_images[i].attribs["src"]);
-    //     }
-    //     //Check if old description src exists in new description src (Do it backwards)
-    //     for (let i = old_image_srcs.length - 1; i >= 0; i--) {
-    //       if (new_image_srcs.indexOf(old_image_srcs[i]) > -1) {
-    //         //If so, remove from old array
-    //         old_image_srcs.splice(i, 1);
-    //       }
-    //     }
-    //   }
-    //   // console.log(old_image_srcs);
-    //   // console.log(new_image_srcs);
-    //   //After everything is done,
-    //   const promised_delete_files = [];
-    //   for (let i = 0; i < old_image_srcs.length; i++) {
-    //     //Get image link in old description src array
-    //     old_image_srcs[i] = old_image_srcs[i].replace(`/api/acts/images/`, "");
-    //     //Unlink all those images
-    //     // console.log(`${process.env.files_folder}/${old_image_srcs[i]}`);
-    //     promised_delete_files.push(
-    //       fs_delete_file(`${process.env.files_folder}/${old_image_srcs[i]}`)
-    //     );
-    //     //Also delete from fileschema
-    //     promised_delete_files.push(
-    //       FileSchema.deleteOne({ proof_name: old_image_srcs[i] })
-    //     );
-    //   }
-    //   await Promise.all(promised_delete_files);
-    // }
-
-    //Add new images
-    //Check if there are images in the new description
-    //If image tag start with '/'
-    //Skip
-    //Else, decode, store, change src to link
-    // $ = cheerio.load(how_to_submit_evidences);
-    // if ($("img").length > 0) {
-    //   let ext;
-    //   const image_promises = [];
-    //   const image_names = [];
-    //   const file_details = [];
-    //   //Look for all images in the description
-    //   const images = $("img");
-    //   //Get unique names
-    //   for (let i = 0; i < images.length; i++) {
-    //     if (images[i].attribs["src"].charAt(0) != "/") {
-    //       ext = re.exec(images[i].attribs["data-filename"])[1];
-    //       if (ext == undefined) ext = "";
-    //       else ext = `.${ext}`;
-    //       image_names.push(uuidv4());
-    //       //Convert them to files
-    //       image_promises.push(
-    //         base64Img.img(
-    //           images[i].attribs.src,
-    //           process.env.files_folder,
-    //           image_names[i]
-    //         )
-    //       );
-    //       image_names[i] = image_names[i] + ext;
-    //       // .then(function(filepath) {});
-    //     } else {
-    //       image_names.push("");
-    //       image_names[i] = images[i].attribs["src"];
-    //     }
-    //   }
-    //   await Promise.all(image_promises);
-    //   //Get their image links
-    //   for (let i = 0; i < images.length; i++) {
-    //     if (images[i].attribs["src"].charAt(0) != "/") {
-    //       //Replace the src of the images in the description with the new links
-    //       images[i].attribs["src"] = "/api/acts/images/" + image_names[i];
-    //       file_details.push({
-    //         uploader_id: mongoose.Types.ObjectId(req.user.id),
-    //         proof_name: image_names[i],
-    //         upload_time: new Date(),
-    //         original_name: images[i].attribs["data-filename"],
-    //         size: fs.statSync(`${process.env.files_folder}/${image_names[i]}`)
-    //           .size
-    //       });
-    //     }
-    //   }
-    //   // console.log($.html())
-    //   let new_description = $.html();
-    //   new_description = new_description.split("<body>")[1];
-    //   new_description = new_description.split("</body>")[0];
-    //   how_to_submit_evidences = new_description;
-    //   //Insert these new files into the file schema
-    //   if (file_details.length > 0)
-    //     await FileSchema.collection.insertMany(file_details);
-
-    //   console.log(description);
-    // }
-
     //Add other details
     act.description = description;
     // act.how_to_submit_evidences = how_to_submit_evidences;
@@ -2003,16 +1818,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
         my_tags.push({
           name: element
         });
-        // promises.push(
-        //   Act.findOneAndUpdate(
-        //     {
-        //       _id: act._id,
-        //       "tags.name": { $ne: element }
-        //     },
-        //     { $addToSet: { tags: { name: element } } },
-        //     function(err, res) {}
-        //   )
-        // );
+        
       });
       await Promise.all(promises);
     }
@@ -2021,12 +1827,12 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
 
     act = await Act.findById(act._id);
 
-    logger.info(`${req.user.id} successfully edited ${act._id}`);
+    logger.info(`${req.user.id} successfully edited act ${act._id}`);
     res.json(act);
     // res.json(await Act.findById(req.params.id));
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to edit ${req.params.id}`);
+    logger.error(`${req.user.id} failed to edit act ${req.params.id}`);
   }
 });
 
@@ -2062,13 +1868,13 @@ router.put("/:id/state", async function(req, res, next) {
     await act.save();
 
     logger.info(
-      `${req.user.id} successfully changed ${act._id} availablity state`
+      `${req.user.id} successfully changed act ${act._id} availablity state`
     );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
     logger.error(
-      `${req.user.id} failed to change ${req.params.id} availability state`
+      `${req.user.id} failed to change act ${req.params.id} availability state`
     );
   }
 });
@@ -2140,13 +1946,6 @@ router.delete("/proof/:id", async function(req, res, next) {
     ]);
 
     const new_name = act_proof[0].acts.proof_of_completion.new_name;
-
-    // await User.findOneAndUpdate(
-    //   { "acts.proof_of_completion.new_name": new_name },
-    //   { $pull: { "acts.$.proof_of_completion": { new_name: new_name } } }
-    // )
-    // res.json({message: "Success"});
-
     const promises = [];
 
     //Delete the proof from the act object

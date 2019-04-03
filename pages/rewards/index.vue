@@ -3,14 +3,7 @@
     <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
     <my-banner :title="title"/>
     <section class="banner-bottom-w3ls-agileinfo py-5">
-      <!--/blog-->
       <div class="container py-md-3">
-        <!-- <div>
-          <div style="float: left; width: 50%"></div>
-          <div class="progress" style="float: right; width: 50%">
-            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50 points</div>
-          </div>
-        </div>-->
         <span class="badge badge-primary float-right">{{data.reward_points.points}} {{$t('reward_points')}}</span>
         <div style="clear: both"></div>
         <br>
@@ -316,14 +309,7 @@
                   <li>
                     <span title="Favorites" class="fa fa-user" aria-hidden="true"></span>
                     {{act.total_number_of_users_who_got_this_reward}}
-                    <!-- <i>|</i> -->
                   </li>
-                  <!-- <li>
-                    <a href="#">
-                      <span class="fa fa-tag" aria-hidden="true"></span>
-                      13
-                    </a>
-                  </li>-->
                 </ul>
               </div>
               <div class="clearfix"></div>
@@ -603,12 +589,6 @@ export default {
             vue_context.deleted_acts[index]
           );
           delete_act(index);
-          // vue_context.$set(
-          //   vue_context.data.acts[index],
-          //   "state",
-          //   vue_context.data.acts[index].previous_data.state
-          // );
-          //Tell the user that the act could not be deleted
           izitoast.error({
             title: "Error",
             message: "Sorry, the reward could not be deleted",

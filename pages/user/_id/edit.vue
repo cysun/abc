@@ -170,8 +170,6 @@ export default {
   methods: {
     async editUser() {
       //Format data
-      //   const params = new URLSearchParams();
-
       const roles = [];
       if (this.data.roles.act_poster) roles.push({ name: "Act Poster" });
       if (this.data.roles.reward_provider)
@@ -185,11 +183,6 @@ export default {
         enabled: this.data.user.enabled,
         roles: roles
       };
-
-      //   params.append("first_name", this.data.user.first_name);
-      //   params.append("last_name", this.data.user.last_name);
-      //   params.append("enabled", this.data.user.enabled);
-      //   params.append("roles", roles);
 
       //Send request to edit user
       const token = this.$cookies.get("token");
@@ -221,78 +214,19 @@ export default {
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
-    // if (!context.query.sort) context.query.sort = "";
-    // if (!context.query.search) context.query.search = "";
-    // if (!context.query.order) context.query.order = "";
-    // if (!context.query.page) context.query.page = 1;
-    // if (!context.query.type) context.query.type = "AVAILABLE";
-
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
       .get(`/api/users/${context.params.id}/edit`, {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
-        // console.log("I ran");
-        // //Redirect to verification page
-        // vue_context.$nuxt.$loading.finish();
-        // vue_context.$router.push({
-        //   path: "/verify_account"
-        // });
-        // console.log(res);
         data = res.data;
-        //Loop through data and format date
-        // data.acts.forEach(element => {
-        //   if (element.__t == "Event") {
-        //     element.formated_start_time = moment(element.start_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-        //     element.formated_end_time = moment(element.end_time).format(
-        //       "MMMM Do YYYY, h:mm:ss a"
-        //     );
-
-        //     element.start_time = element.start_time.substring(0, element.start_time.length - 8);
-        //     element.end_time = element.end_time.substring(0, element.end_time.length - 8);
-        //   }
-        // });
       })
       .catch(function(err) {
         if (err.response.status == 401) {
           context.redirect("/logout");
         }
-
-        // console.log(context.app.$cookies.getAll());
-        // console.log(err.response.data.message);
-        // if (err.response.status == 400) {
-        //   context.redirect("/logout");
-        // }
-        // console.log(err.response.status);
-        // vue_context.$nuxt.$loading.finish();
-        // if (err.response) vue_context.error = err.response.data.message;
       });
-    //If user is not logged in
-    //Delete cookies and redirect to main page
-    //If user is logged in, redirect to main page
-    //Place acts in array of acts
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-    // if (process.server)
-
-    // console.log(context.query.sort);
-    // context.query.sort = "Hello";
-    // console.log(context.query);
-    // context.query.sort = "Hello";
     return { data };
   },
   head() {
@@ -301,23 +235,6 @@ export default {
       meta: [
         { hid: 'description', name: 'description', content: 'Make changes to user details' }
       ]
-      // script: [
-      //   { src: "js/admin/skycons.js" }
-      //   // {
-      //   //   src:
-      //   //     "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"
-      //   // }
-      // ],
-      // css: [
-      //   '~/assets/css/admin/style.css'
-      // ]
-      // link: [
-      //   {
-      //     href:
-      //       "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css",
-      //     rel: "stylesheet"
-      //   }
-      // ]
     };
   }
 };

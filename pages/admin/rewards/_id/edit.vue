@@ -23,13 +23,7 @@
                   >
                   <label for="description">{{$t('description')}}</label>
                   <textarea id="summernote" name="editordata"></textarea>
-                  <!-- <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    :placeholder="$t('description')"
-                    v-model="data.act.description"
-                  > -->
+                  
                   <label for="reward_points">{{$t('value')}}</label>
                   <input
                     type="text"
@@ -327,24 +321,6 @@ export default {
       })
       .then(function(res) {
         data = res.data;
-
-        // if (data.act.__t == "Event") {
-        //   data.act.start_time = moment(data.act.start_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        //   data.act.end_time = moment(data.act.end_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        // }
-
-        // data.act.start_time = data.act.start_time.substring(
-        //   0,
-        //   data.act.start_time.length - 8
-        // );
-        // data.act.end_time = data.act.end_time.substring(
-        //   0,
-        //   data.act.end_time.length - 8
-        // );
       })
       .catch(function(err) {
         if (err.response.status == 401) {

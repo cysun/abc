@@ -100,14 +100,6 @@ export default {
           ["insert", ["link", "picture"]],
           ["misc", ["fullscreen", "codeview", "help"]]
         ]
-        // callbacks: {
-        //   onImageUpload: function(files) {
-        //     // upload image to server and create imgNode...
-        //     // $("#summernote").summernote('insertNode', imgNode);
-        //     $('#summernote').summernote('insertText', "<p>Hello World</p>");
-        //     console.log(files);
-        //   }
-        // }
       });
     });
 

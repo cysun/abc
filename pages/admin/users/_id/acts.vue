@@ -28,19 +28,9 @@
                         <select class="form-control" name="sort" v-model="query.sort">
                           <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
                           <option value="name" :selected="query.sort == 'name'">Name</option>
-                          <!-- <option
-                            value="time"
-                            :selected="query.sort == 'time'"
-                          >Time</option>-->
+                          
                           <option value="time" :selected="query.sort == 'time'">Date</option>
-                          <!-- <option
-                            value="total_number_of_clicks"
-                            :selected="query.sort == 'total_number_of_clicks'"
-                          >{{$t('popularity')}}</option>
-                          <option
-                            value="reward_points"
-                            :selected="query.sort == 'reward_points'"
-                          >{{$t('Reward_points')}}</option>-->
+                          
                         </select>
 
                         <select class="form-control" name="order" v-model="query.order">
@@ -91,14 +81,9 @@
                         <tr>
                           <th>#</th>
                           <th>Act name</th>
-                          <!-- <th>Proof of completion</th> -->
-                          <!-- <th v-if="query.type == 'REJECTED'">Review of proof</th> -->
                           <th>Poster's First name</th>
                           <th>Poster's Last name</th>
                           <th>Time</th>
-                          <!-- <th>{{$t('creation_date')}}</th>
-                          <th>More details</th>-->
-                          <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
                       <tbody>
@@ -108,32 +93,7 @@
                           <td>{{act.populated_act[0].act_provider.first_name}}</td>
                           <td>{{act.populated_act[0].act_provider.last_name}}</td>
                           <td>{{act.acts.time}}</td>
-                          <!-- <td
-                            v-if="query.type == 'REJECTED'"
-                          >{{act.completed_users.review_of_proof.comments}}</td>
-                          <td>{{act.completed_users.review_of_proof.reviewer_name}}</td>
-                          <td>{{act.completed_users.time}}</td>-->
-                          <!--<td>
-                            <span
-                              class="label"
-                              :class="act.enabled.state ? 'label-success': 'label-danger'"
-                            >{{act.enabled.state}}</span>
-                          </td>
-                          <td>{{act.state}}</td>
-                          <td>
-                            <span
-                              class="label"
-                              :class="act.deleted ? 'label-danger': 'label-success'"
-                            >{{act.deleted}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/acts/' + act._id + '/users'">
-                              <button class="btn btn-primary">Users</button>
-                            </nuxt-link>
-                          </td>-->
+                          
                         </tr>
                       </tbody>
                     </table>
@@ -165,43 +125,7 @@
                   </div>
                 </div>
               </div>
-              <!-- <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent acts</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>{{$t('poster_name')}}</th>
-                          <th>Act's name</th>
-                          <th>Verified</th>
-                          <th>Creation time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(act, index) in data.acts">
-                          <td>{{index + 1}}</td>
-                          <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
-                          <td>{{act.name}}</td>
-                          <td>
-                            <span class="label label-danger">{{act.enabled.state}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/edit/act/' + act._id">
-                              <button class="btn btn-primary">{{$t('edit')}}</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>-->
+              
               <div class="clearfix"></div>
             </div>
           </div>
@@ -272,12 +196,7 @@ export default {
       )
       .then(function(res) {
         data = res.data;
-        // // Loop through data and format date
-        // data.data.forEach(element => {
-        //   element.creation_date = moment(element.creation_date).format(
-        //     "MMMM Do YYYY"
-        //   );
-        // });
+        // Loop through data and format date
         //Create popover of proofs
         console.log(data);
         data.acts.forEach(element => {

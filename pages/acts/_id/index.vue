@@ -39,17 +39,6 @@
                 <div>
                   <p v-html="data.act.description"></p>
                 </div>
-                <!-- <textarea
-                  id="act_description"
-                  v-if="data.edit"
-                  class="form-control"
-                  rows="4"
-                  :value="data.act.description"
-                ></textarea>-->
-                <!-- <div>
-                  <h3>How to submit evidences</h3>
-                  <p v-html="data.act.how_to_submit_evidences"></p>
-                </div> -->
                 <div v-if="data.act.__t == 'Event'">
                   <div>
                     <span
@@ -150,77 +139,6 @@
                 </div>
                 <br>
 
-                <!-- <form
-                  id="smileys"
-                  v-if="data.rewards && data.rewards.rewards[0].state == 'COMPLETED' && !data.review"
-                  @submit.prevent="submitRating"
-                >
-                  <span class="align-top">{{$t('rate_the_reward')}}:</span>
-                  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
-                  <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
-                  <input
-                    type="radio"
-                    name="smiley"
-                    value="3"
-                    class="neutral"
-                    v-model="reward_rating"
-                  >
-                  <input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
-                  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
-                  <textarea
-                    class="form-control"
-                    v-model="reward_comments"
-                    :placeholder="$t('additional_comments_about_the_reward')"
-                  ></textarea>
-
-                  <br>
-                  <span class="align-top">{{$t('rate_the_reward_provider')}}:</span>
-                  <input
-                    type="radio"
-                    name="smiley1"
-                    value="1"
-                    class="devil"
-                    v-model="reward_provider_rating"
-                  >
-                  <input
-                    type="radio"
-                    name="smiley1"
-                    value="2"
-                    class="sad"
-                    v-model="reward_provider_rating"
-                  >
-                  <input
-                    type="radio"
-                    name="smiley1"
-                    value="3"
-                    class="neutral"
-                    v-model="reward_provider_rating"
-                  >
-                  <input
-                    type="radio"
-                    name="smiley1"
-                    value="4"
-                    class="happy"
-                    v-model="reward_provider_rating"
-                  >
-                  <input
-                    type="radio"
-                    name="smiley1"
-                    value="5"
-                    class="love"
-                    v-model="reward_provider_rating"
-                  >
-                  <textarea
-                    class="form-control"
-                    v-model="reward_provider_comments"
-                    :placeholder="$t('additional_comments_about_the_reward_provider')"
-                  ></textarea>
-                  <br>
-                  <div class="text-center">
-                    <input class="btn btn-primary" type="submit" :value="$t('submit_rating')">
-                  </div>
-                </form> -->
-
                 <div
                   v-if="data.act.enabled.state && data.act.state == 'AVAILABLE' && data.proofs.acts[0].state !== 'COMPLETED'"
                   class="form-inline justify-content-center"
@@ -285,11 +203,7 @@
                       <nuxt-link :to="`/acts/${data.act._id}/edit`">
                         <button class="btn btn-primary">{{$t('edit')}}</button>
                       </nuxt-link>
-                      <!-- <button
-                        v-if="!data.edit"
-                        @click="edit_act"
-                        class="btn btn-primary"
-                      >{{$t('edit')}}</button>-->
+                      
                       <button
                         v-if="data.edit"
                         @click="save_act"
@@ -517,11 +431,6 @@ export default {
         .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
         .then(function(res) {
           //Redirect to verification page
-          // if (vue_context.data.proofs.acts[0].proof_of_completion)
-          //   vue_context.data.proofs.acts[0].proof_of_completion = vue_context.data.proofs.acts[0].proof_of_completion.concat(
-          //     res.data
-          //   );
-          // else
           vue_context.$set(
             vue_context.data.proofs.acts[0],
             "proof_of_completion",

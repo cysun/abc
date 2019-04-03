@@ -2,12 +2,10 @@
 const mongoose = require("mongoose");
 const globals = require("../globals");
 const fs = require("fs");
-const nodemailer = require("nodemailer");
 const sanitize = require("sanitize-html");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 const passwordValidator = require("password-validator");
-const randomstring = require("randomstring");
 const util = require("util");
 const fs_read_file = util.promisify(fs.readFile);
 const bcrypt = require("bcryptjs");
@@ -15,7 +13,6 @@ const schema = new passwordValidator();
 const Act = require("./Act");
 const uuidv4 = require("uuid/v4");
 const sharp = require("sharp");
-const path = require("path");
 schema
   .is()
   .min(8)
@@ -87,12 +84,6 @@ let userSchema = new mongoose.Schema({
   ],
   roles: [
     {
-      // id: {
-      //     type: mongoose.Schema.Types.ObjectId,
-      //     ref: 'Role',
-      //     required: true,
-      //     sparse: true
-      // },
       name: {
         type: String,
         required: true,
@@ -109,21 +100,6 @@ let userSchema = new mongoose.Schema({
         required: true,
         sparse: true
       },
-      // name: {
-      //     type: String,
-      //     required: true,
-      //     sparse: true
-      // },
-      // description: {
-      //     type: String,
-      //     required: true,
-      //     sparse: true
-      // },
-      // reward_points: {
-      //     type: Number,
-      //     required: true,
-      //     sparse: true
-      // },
       state: {
         type: String,
         enum: ["UNDER_REVIEW", "COMPLETED", "REJECTED"],
@@ -144,23 +120,6 @@ let userSchema = new mongoose.Schema({
           }
         }
       ]
-
-      // completed_time: Date,
-      // proof_of_completion: {
-      //     type: String,
-      //     unique: true,
-      //     sparse: true
-      // },
-      // review_of_proof: {
-      //     reviewer_id: {
-      //         type: mongoose.Schema.Types.ObjectId,
-      //         ref: "User"
-      //     },
-      //     reviewer_name: String,
-      //     time_of_review: Date,
-      //     result: Boolean,
-      //     comments: String
-      // }
     }
   ],
   rewards: [
@@ -216,17 +175,6 @@ userSchema.index(
   }
 );
 
-// userSchema.index(
-//     {
-//         'acts.name': 'text',
-//         'acts.description': 'text'
-//     },
-//     {
-//         name: 'User acts index',
-//         weights: { 'acts.name': 2, 'acts.description': 1 }
-//     }
-// )
-
 //Find user with ID
 userSchema.statics.findByID = function(id, callback) {
   return this.findOne(
@@ -241,24 +189,6 @@ userSchema.statics.findByID = function(id, callback) {
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email });
 };
-
-//Don't delete this
-// userSchema.statics.getUniqueName = async function (name, length_of_random_string = 32) {
-//     let result;
-//     let random_name;
-//     let value;
-//     do {
-//         random_name = randomstring.generate(length_of_random_string);
-//         if (name == "profile_picture")
-//             value =
-//                 process.env.website + process.env.display_picture_folder + random_name + ".png";
-//         else value = random_name;
-//         result = await this.findOne({
-//             [name]: value
-//         });
-//     } while (result != null);
-//     return random_name;
-// };
 
 userSchema.statics.getUniqueName = async function(
   name,
@@ -398,11 +328,6 @@ userSchema.methods.attachProfilePicture = async function(profile_picture) {
       //If all goes well, delete the previous image
       fs.unlink(previous_image);
       //Attach new profile picture to user
-      // user = await this_user.model('User').findByIdAndUpdate(
-      //     this_user._id,
-      //     { profile_picture: process.env.website + process.env.display_picture_folder + file_name + ".png" },
-      //     { new: true }
-      // )
       this_user.profile_picture =
         process.env.website + process.env.files_folder + file_name + ".png";
     })
@@ -418,36 +343,6 @@ userSchema.methods.attachProfilePicture = async function(profile_picture) {
 
   if (error_drawing_file) throw new Error("Invalid Image");
 };
-
-// userSchema.methods.sendVerificationEmail = async function () {
-//     let error_occured = false;
-//     // Generate unique verification token
-//     const verification_token = await this.model('User').getUniqueName("email_verification_token", 70);
-//     // Send email to the given address for verification
-//     const transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: process.env.email_address,
-//             pass: process.env.email_password
-//         }
-//     });
-
-//     const mailOptions = {
-//         from: process.env.email_address,
-//         to: this.unverified_email,
-//         subject: 'Verify your account',
-//         html: `<p>Click <a href='${process.env.website}verify/${verification_token}'>here</a> to verify your account on ABC</p>`
-//     };
-
-//     await transporter.sendMail(mailOptions, function (error, info) {
-//         if (error)
-//             error_occured = true;
-//     });
-//     if (error_occured)
-//         throw new Error("Something went wrong. Please try again later");
-
-//     this.email_verification_token = verification_token;
-// };
 
 userSchema.methods.deleteProfilePicture = async function() {
   //If there is a profile picture
@@ -473,37 +368,6 @@ userSchema.methods.deleteUser = async function() {
   //Make enabled bit false
   this.enabled = false;
 };
-
-// userSchema.methods.sendPasswordResetInstructions = async function () {
-//     let error_occured = false;
-//     //Get unique password reset token
-//     const password_reset_token = await this.model('User').getUniqueName("reset_tokens", 70);
-//     //Send password reset instructions to the user
-//     const transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: process.env.email_address,
-//             pass: process.env.email_password
-//         }
-//     });
-
-//     const mailOptions = {
-//         from: process.env.email_address,
-//         to: this.email,
-//         subject: 'Reset your password',
-//         html: `<p>Click <a href='${process.env.website}reset/${password_reset_token}'>here</a> to reset your password on ABC</p>`
-//     };
-
-//     await transporter.sendMail(mailOptions, function (error, info) {
-//         if (error)
-//             error_occured = true;
-//     });
-//     if (error_occured)
-//         throw new Error("Something went wrong. Please try again later");
-
-//     //Add it to this user's reset tokens
-//     this.reset_tokens.push(password_reset_token);
-// }
 
 userSchema.methods.getActs = async function(params) {
   //Get user's acts (paginated)
@@ -588,92 +452,5 @@ userSchema.methods.getActs = async function(params) {
   });
   return result;
 };
-
-// userSchema.methods.getRewards = async function (params) {
-//     //Get user's rewards (paginated)
-//     let search;
-//     let page = parseInt(sanitize(params.page));
-//     let act_type = sanitize(params.act_type);
-//     if (params.search)
-//         search = sanitize(params.search);
-//     let sort = sanitize(params.sort);
-//     let order = parseInt(sanitize(params.order));
-//     const this_object = this;
-
-//     //Handle invalid page
-//     if (!page || page < 1)
-//         page = 1
-
-//     //Handle invalid act type
-//     if (!act_type || globals.user_act_types.indexOf(act_type) === -1)
-//         act_type = "UNDER_REVIEW";
-
-//     //Handle invalid act sort category
-//     if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
-//         sort = "name";
-
-//     //Handle invalid act order category
-//     if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
-//         order = 1;
-
-//     let offset = (page - 1) * 10;
-
-//     //Get the requested acts of this user (10)
-//     let search_condition = {};
-
-//     //If there is a search query
-//     if (search) {
-//         search_condition = { '$text': { '$search': search } };
-//     }
-
-//     let results = Act.aggregate([
-//         //Gets Acts this user has completed
-//         {
-//             $match: {
-//                 $and: [
-//                     { 'users_who_completed_this_act.id': this._id },
-//                     search_condition
-//                 ]
-//             }
-//         },
-//         //Creates an array of many documents with a single (different) act in each one
-//         { $unwind: '$users_who_completed_this_act' },
-//         // //Gets the documents with the specified act.name
-//         { $match: { 'users_who_completed_this_act.id': this._id } },
-//         // { $group: { _id: null, acts: { $push: "$$ROOT" }, count: { $sum: 1 } } },
-//         { $skip: offset },
-//         { $limit: 10 },
-//         { $sort: { [sort]: -1 } },
-//         // //Removes the _id
-//         { $project: { _id: 0 } }
-//     ]);
-
-//     let count = Act.aggregate([
-//         //Gets Acts this user has completed
-//         {
-//             $match: {
-//                 $and: [
-//                     { 'users_who_completed_this_act.id': this._id },
-//                     search_condition
-//                 ]
-//             }
-//         },
-//         //Creates an array of many documents with a single (different) act in each one
-//         { $unwind: '$users_who_completed_this_act' },
-//         // //Gets the documents with the specified act.name
-//         { $match: { 'users_who_completed_this_act.id': this._id } },
-//         { $group: { _id: null, count: { $sum: 1 } } },
-//     ]);
-
-//     let promises = [results, count];
-//     let result = {};
-//     let counter;
-//     await Promise.all(promises)
-//         .then(function (values) {
-//             result.result = values[0];
-//             result.total_count = values[1][0]['count'];
-//         })
-//     return result;
-// }
 
 module.exports = mongoose.model("User", userSchema);

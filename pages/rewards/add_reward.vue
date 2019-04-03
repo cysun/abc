@@ -9,21 +9,6 @@
         <div class="row inner-sec-wthree-agileits">
           <div class="col-lg-12 blog-sp">
             <div class="single-gd" v-if="data.roles && data.roles.reward_provider">
-              <!-- <img src="images/a3.jpg" class="img-fluid" alt> -->
-              <!-- <div
-                v-if="status_message"
-                class="alert"
-                :class="{'alert-danger': status_state == 'Error', 'alert-success': status_state == 'Success'}"
-              >
-                <strong>{{status_state}}:</strong>
-                {{status_message}}
-              </div>
-              <select @change="upload_type_changed" class="form-control" v-model="upload_type">
-                <option value="act">{{$t('add_act')}}</option>
-                <option value="event">{{$t('add_event')}}</option>
-              </select>
-              <br>-->
-              <!-- <h4>Add Act</h4> -->
               <form @submit.prevent="addAct">
                 <label for="name">Name</label>
                 <input
@@ -35,13 +20,6 @@
                   :placeholder="$t('name')"
                   required
                 >
-                <!-- <textarea
-                  rows="10"
-                  class="form-control"
-                  name="description"
-                  :placeholder="$t('description')"
-                  required
-                ></textarea>-->
                 <label for="summernote">Description</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <div v-if="upload_type == 'event'" class="control-group">
@@ -60,9 +38,7 @@
                       value
                       id="start_time"
                     >
-                    <!-- <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>-->
+                   
                     <span class="add-on">
                       <i class="icon-th"></i>
                     </span>
@@ -83,9 +59,7 @@
                       class="form-control"
                       value
                     >
-                    <!-- <span class="add-on">
-                      <i class="icon-remove"></i>
-                    </span>-->
+                   
                     <span class="add-on">
                       <i class="icon-th"></i>
                     </span>

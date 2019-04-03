@@ -1,14 +1,9 @@
 const { Router } = require("express");
 const User = require("../../models/User");
 const globals = require("../../globals");
-const Act = require("../../models/Act");
 const Reward = require("../../models/Reward");
-const Event_Act = require("../../models/Event");
 var createError = require("http-errors");
 const multer = require("multer");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const secret = require("../../secret");
 const FileSchema = require("../../models/File");
 const mongoose = require("mongoose");
 const util = require("util");
@@ -18,8 +13,6 @@ const sanitize = require("sanitize-html");
 const cheerio = require("cheerio");
 const base64Img = require("base64-img-promise");
 const fs_delete_file = util.promisify(fs.unlink);
-const atob = require("atob");
-const fs_rename_file = util.promisify(fs.rename);
 const mail = require("../../send_mail");
 const logger = require("../../logger").winston;
 const sharp = require("sharp");
@@ -311,15 +304,6 @@ router.get("/", async function(req, res, next) {
     if (!req.user) {
       throw new Error(res.__("lack_auth"));
     }
-    //   try {
-    //     let user = await User.findOne({});
-    //     await user.sendVerificationEmail();
-    //     await user.save();
-    //     res.send("Finished");
-    //   } catch (error) {
-    //     res.send(error);
-    //   }
-
     //Get list of act IDs this user has completed
 
     //Get 10 latest available acts WRT user search query
@@ -331,8 +315,6 @@ router.get("/", async function(req, res, next) {
         $match: { $text: { $search: sanitize(req.query.search) } }
       };
     }
-    // search = { 'users_under_review.id': { '$not': { $eq: req.user.id } } };
-
     //Act must be enabled
     const enabled = true;
 
@@ -347,14 +329,6 @@ router.get("/", async function(req, res, next) {
     //Enabled and disabled acts are returned
     if (type != "MY_REWARDS") search.enabled = enabled;
 
-    // if (type == "undefined")
-    //     type = req.cookies.type;
-
-    //If this is a manager, the default view should be All acts
-    // if (req.roles && req.roles.manager)
-    //   if (!type || globals.user_act_types.indexOf(type) === -1)
-    //     type = "ALL";
-
     if (type == "ALL") delete search.enabled;
     else if (type == "ENABLED") search.enabled = true;
     else if (type == "DISABLED") search.enabled = false;
@@ -367,8 +341,7 @@ router.get("/", async function(req, res, next) {
 
     if (type == "AVAILABLE") {
       //Only return acts this user has not completed
-      // search['users_under_review.id'] = { '$not': { $eq: req.user.id } };
-      // search['completed_users.id'] = { '$not': { $eq: req.user.id } };
+      
       search["users_who_claimed_this_reward"] = {
         $not: {
           $elemMatch: { id: req.user.id, state: "COMPLETED", state: "ON_GOING" }
@@ -401,8 +374,7 @@ router.get("/", async function(req, res, next) {
           state: "COMPLETED"
         }
       };
-      // search['users_who_claimed_this_reward.id'] = req.user.id;
-      // search['users_who_claimed_this_reward.state'] = "COMPLETED";
+      
     } else if (type == "CLOSED") {
       //Get rewards that have at least one user who has collected it
       search["users_who_claimed_this_reward.state"] = "COMPLETED";
@@ -436,19 +408,6 @@ router.get("/", async function(req, res, next) {
       order = 1;
 
     let offset = (page - 1) * 10;
-
-    //Get the requested acts of this user (10)
-    // let promises = [results, count];
-    // let result = {};
-    // let counter;
-    // await Promise.all(promises)
-    //     .then(function (values) {
-    //         result.result = values[0];
-    //         result.total_count = values[1][0]['count'];
-    //     })
-    // return result;
-
-    // console.log(search);
 
     //For some unknown reason, the below command gives this error: Projection cannot have a mix of inclusion and exclusion.
     // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
@@ -584,8 +543,6 @@ router.get("/", async function(req, res, next) {
       next_year += 1;
     }
     //Get first days in both months
-    // const lower_date = `${this_year}-${this_month}-1`;
-    // const upper_date = `${next_year}-${next_month}-1`;
 
     lower_date = new Date(this_year, this_month, 1);
     upper_date = new Date(next_year, next_month, 1);
@@ -647,10 +604,7 @@ router.get("/", async function(req, res, next) {
     let result = {};
     let counter;
     await Promise.all(promises).then(function(values) {
-      // result.result = values[0];
-      // result.total_count = values[1][0]['count'];
       acts = values[0];
-      // console.log(acts)
       count = values[1];
       reward_points = values[2];
       if (type == "OPEN") {
@@ -659,12 +613,7 @@ router.get("/", async function(req, res, next) {
           acts.push(element.reward);
         });
         if (values[4] && values[4][0]) count = values[4][0].count;
-        // acts = values[3];
-
-        // acts.forEach(element => {
-        //   if ()
-        // });
-        // console.log(acts);
+       
       }
       best_acts = values[values.length - 1];
     });
@@ -672,10 +621,7 @@ router.get("/", async function(req, res, next) {
     count = Math.ceil(count / 10);
     const total = [];
     for (let i = 0; i < count; i++) total.push(1);
-    // acts.forEach(element => {
-    //     if (!element.image)
-    //         element.image = process.env.website + 'images/banner1.jpg';
-    // });
+    
     let current_page = process.env.website + "rewards?";
 
     if (!req.query.page) req.query.page = 1;
@@ -687,10 +633,6 @@ router.get("/", async function(req, res, next) {
       current_page = current_page + "sort=" + req.query.sort + "&";
     if (req.query.order)
       current_page = current_page + "order=" + req.query.order + "&";
-
-    // res.cookie('type', type, { maxAge: 3600000 })
-    // if (!req.query.type)
-    //     req.query.type = type
 
     logger.info(`${req.user.id} successfully got rewards`);
 
@@ -710,7 +652,6 @@ router.get("/", async function(req, res, next) {
       roles: req.roles
     });
 
-    // res.render('acts', { type, current_page, query: req.query, count, title: "Acts", acts, total_acts: total, user: req.user, roles: req.roles });
   } catch (err) {
     next(createError(400, err.message));
     logger.info(`${req.user.id} failed to get rewards`);
@@ -819,9 +760,6 @@ router.get("/:id/details", async function(req, res, next) {
           $group: {
             _id: null,
             reviews: { $push: "$reviews" }
-            // count: {
-            //   $sum: 1
-            // }
           }
         },
         { $project: { _id: false } }
@@ -960,8 +898,6 @@ router.post("/", upload.single("file"), async function(req, res, next) {
         size: req.file.size
       };
 
-      // console.log(file_object);
-
       await FileSchema.create(file_object);
     }
 
@@ -1025,24 +961,6 @@ router.post("/", upload.single("file"), async function(req, res, next) {
 
     await reward.save();
 
-    // if (req.file)
-    //     req.body.picture = './tmp/' + req.file.filename
-    // req.body.provider = req.user;
-    // let act;
-    // if (req.params.type == 'act')
-    //   act = await Act.initialize(req.body);
-
-    // // //Handling events
-    // else if (req.params.type == 'event') {
-    //   act = await Event_Act.initialize(req.body);
-    //   act.start_time = req.body.start_time;
-    //   act.end_time = req.body.end_time;
-    // }
-
-    // await act.save();
-    // user = user.toObject();
-    // delete user.password;
-    // res.redirect('/acts?success=Success');
     logger.info(`${req.user.id} successfully created reward`);
     res.json({ message: "Success" });
   } catch (err) {
@@ -1052,11 +970,6 @@ router.post("/", upload.single("file"), async function(req, res, next) {
     if (req.file) fs.unlinkSync(os.tmpdir() + "\\" + req.file.filename);
   }
 });
-// finally {
-//   //Delete uploaded file
-//   if (req.file)
-//     fs.unlinkSync(req.body.profile_picture);
-// }
 
 //Get act image
 router.get("/:id/image", async function(req, res, next) {
@@ -1096,6 +1009,7 @@ router.delete("/:id/image", async function(req, res, next) {
     await Promise.all(promises);
     //Return success message
     res.json({ message: "Success" });
+    logger.info(`${req.user.id} successfully deleted reward ${req.params.id} image`);
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to delete reward ${req.params.id} image`);
@@ -1135,23 +1049,6 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
     act.name = name;
     act.value = value;
     act.amount = amount;
-
-    //If this is an event
-    // if (act.__t == 'Event') {
-    //   //Make sure all fields were sent
-    //   if (!req.body.start_time || !req.body.end_time)
-    //     throw new Error("Incomplete request");
-
-    //   const start_time = sanitize(req.body.start_time);
-    //   const end_time = sanitize(req.body.end_time);
-
-    //   if (!start_time || !end_time)
-    //     throw new Error("Incomplete request");
-
-    //   //Attach new values to it
-    //   act.start_time = start_time;
-    //   act.end_time = end_time
-    // }
 
     const re = /(?:\.([^.]+))?$/;
     let $ = cheerio.load(act.description);
