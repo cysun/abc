@@ -312,11 +312,11 @@ router.get("/:id/details", async function(req, res, next) {
     // let results, count, points
     let returned_results, pages, sum;
     await Promise.all(promises).then(function(values) {
-        if (values[0][0]) returned_results = values[0][0].reviews;
-        else returned_results = [];
-        if (values[1][0]) count = values[1][0].count;
-        else count = 0;
-        pages = Math.ceil(count / 10);
+      if (values[0][0]) returned_results = values[0][0].reviews;
+      else returned_results = [];
+      if (values[1][0]) count = values[1][0].count;
+      else count = 0;
+      pages = Math.ceil(count / 10);
     });
     logger.info(
       `${req.user.id} successfully got act ${req.params.id} relationships`
@@ -721,9 +721,9 @@ router.post("/:id/complete", upload.array("files"), async function(
     );
     // console.log(act_proofs.acts[0].proof_of_completion);
     res.json(act_proofs.acts[0].proof_of_completion);
-    logger.info(`${req.user.id} successfully uploaded proof of completion`)
+    logger.info(`${req.user.id} successfully uploaded proof of completion`);
   } catch (err) {
-    logger.error(`${req.user.id} failed to upload proof of completion`)
+    logger.error(`${req.user.id} failed to upload proof of completion`);
     //Delete uploaded files
     const this_promises = [];
     if (req.files) {
@@ -760,7 +760,6 @@ router.put("/:id/review", async function(req, res, next) {
     //Return success message
     res.json({ message: "Success" });
   } catch (err) {
-    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to review act ${req.params.id}`);
   }
@@ -773,11 +772,13 @@ router.get("/:id/image", async function(req, res, next) {
       _id: false,
       image: true
     });
-    logger.info("Success in getting act " + req.params.id +  " image");
+    logger.info("Success in getting act " + req.params.id + " image");
     res.sendFile(`${process.env.files_folder}/${act_image.image}`);
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(req.user.id + " failed to get act " + req.params.id +  " image");
+    logger.error(
+      req.user.id + " failed to get act " + req.params.id + " image"
+    );
   }
 });
 
@@ -855,7 +856,6 @@ router.get("/proof/:id", async function(req, res, next) {
     //return proof
     logger.info(`${req.user.id} successfully got act proof ${req.params.id}`);
     res.sendFile(`${process.env.files_folder}/${new_name}`);
-    
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act proof ${req.params.id}`);
@@ -880,7 +880,7 @@ router.get("/admin_proof/:id", async function(req, res, next) {
       }
     ]);
     //If not, error
-    
+
     const new_name = act_proof[0].acts[0].proof_of_completion[0].new_name;
     //Else,
     //return proof
@@ -959,7 +959,9 @@ router.delete("/:id/image", async function(req, res, next) {
     promises.push(FileSchema.findOneAndDelete({ proof_name: act.image }));
     await Promise.all(promises);
     //Return success message
-    logger.info(`${req.user.id} successfully deleted act ${req.params.id} image`);
+    logger.info(
+      `${req.user.id} successfully deleted act ${req.params.id} image`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
@@ -1020,7 +1022,6 @@ router.get("/:id", async function(req, res, next) {
       x = user_act[0].acts;
       user_act[0].acts = [x];
       user_act = user_act[0];
-      
     } else {
       user_act = user_act[0];
     }
@@ -1084,7 +1085,6 @@ router.get("/:id", async function(req, res, next) {
     logger.info(`${req.user.id} successfully got act ${req.params.id}`);
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
-    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get act ${req.params.id}`);
   }
@@ -1178,10 +1178,11 @@ router.get("/:id/complete", async function(req, res, next) {
     // if (user_act && user_act.acts[0].state == "COMPLETED" && act.repeatable)
     //   user_act = null;
 
-    logger.info(`${req.user.id} successfully got completed act ${req.params.id}`);
+    logger.info(
+      `${req.user.id} successfully got completed act ${req.params.id}`
+    );
     res.json({ act, user: req.user, proofs: user_act, roles: req.roles });
   } catch (err) {
-    
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to get completed act ${req.params.id}`);
   }
@@ -1202,7 +1203,9 @@ router.put("/:id/enable/:state", async function(req, res, next) {
     await Act.findByIdAndUpdate(req.params.id, {
       "enabled.state": req.params.state
     });
-    logger.info(`${req.user.id} successfully altered act ${req.params.id} state`);
+    logger.info(
+      `${req.user.id} successfully altered act ${req.params.id} state`
+    );
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
@@ -1332,7 +1335,7 @@ router.get("/", async function(req, res, next) {
       next_year += 1;
     }
     //Get first days in both months
-    
+
     lower_date = new Date(this_year, this_month, 1);
     upper_date = new Date(next_year, next_month, 1);
 
@@ -1446,8 +1449,15 @@ router.get("/", async function(req, res, next) {
       count = values[1];
       reward_points = values[2];
       best_acts = values[3];
+      console.log(values[5]);
       if (values[4]) acts = values[4];
-      if (values[5]) count = values[5][0].no;
+      if (values[5]) {
+        if (values[5][0] != undefined) {
+          count = values[5][0].no;
+        } else {
+          count = 0;
+        }
+      }
     });
 
     const act_count = count;
@@ -1466,7 +1476,7 @@ router.get("/", async function(req, res, next) {
     if (req.query.order)
       current_page = current_page + "order=" + req.query.order + "&";
 
-      logger.info(`User ${req.user.id} successfully got acts`);
+    logger.info(`User ${req.user.id} successfully got acts`);
     res.json({
       reward_points,
       acts,
@@ -1482,7 +1492,6 @@ router.get("/", async function(req, res, next) {
       user: req.user,
       roles: req.roles
     });
-
   } catch (err) {
     logger.error(`User ${req.user.id} failed to get acts`);
     next(createError(400, err.message));
@@ -1552,7 +1561,7 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
     if (req.roles.administrator) act.enabled.state = true;
 
     await act.save();
-    
+
     await session.commitTransaction();
     logger.info(`${req.user.id} successfully created ${act._id}`);
     res.json(act);
@@ -1762,8 +1771,6 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
       //Insert these new files into the file schema
       if (file_details.length > 0)
         await FileSchema.collection.insertMany(file_details);
-
-      
     }
 
     //Add other details
@@ -1818,7 +1825,6 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
         my_tags.push({
           name: element
         });
-        
       });
       await Promise.all(promises);
     }
