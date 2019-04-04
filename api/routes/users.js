@@ -144,7 +144,7 @@ router.put("/:id", async function(req, res, next) {
     user.roles = req.body.roles;
     user.enabled = req.body.enabled;
     //Make sure that unverified email is moved to email and then removed if exists
-    if (user.unverified_email)
+    if (user.unverified_email && req.body.enabled)
     {
       user.email = user.unverified_email;
       user.unverified_email = undefined;
