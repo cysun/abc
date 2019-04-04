@@ -1,18 +1,9 @@
-// const mongoose = require("mongoose");
 const Act = require("../models/Act");
 const mail = require("../send_mail");
 require("dotenv").load();
 
 async function run() {
-  // mongoose.connect(
-  //   process.env.DBURL,
-  //   {
-  //     useCreateIndex: true,
-  //     useNewUrlParser: true,
-  //     replicaSet: "rs"
-  //   }
-  // );
-
+  
   const today = new Date();
   const a_week_in_the_future = new Date();
   a_week_in_the_future.setDate(today.getDate() + 7);
@@ -47,9 +38,7 @@ async function run() {
     }
     await Promise.all(promises);
   }
-  // await mongoose.disconnect();
 }
-// run();
 module.exports = {
   run
 }

@@ -1,18 +1,8 @@
-// const mongoose = require("mongoose");
 const User = require("../models/User");
 const mail = require("../send_mail");
 require("dotenv").load();
 
 async function run() {
-  // mongoose.connect(
-  //   process.env.DBURL,
-  //   {
-  //     useCreateIndex: true,
-  //     useNewUrlParser: true,
-  //     replicaSet: "rs"
-  //   }
-  // );
-
   //Count the number of users who have acts that are under review
   const user_count = await User.find({
     "acts.state": "UNDER_REVIEW"
@@ -37,11 +27,7 @@ async function run() {
       await Promise.all(promises);
     }
   }
-
-  // await mongoose.disconnect();
 }
-
-// run();
 module.exports = {
   run
 }

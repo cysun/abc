@@ -3,79 +3,6 @@
     <my-header :logged_in="logged_in" :page="page" :roles="roles"/>
     <my-banner :title="title"/>
     <about-sidebar/>
-    <!-- <how-we-work/> -->
-    <!-- //about -->
-    <!-- team -->
-    <!-- <section class="about py-5" style="margin-top: -80px">
-      <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4">OUR THEORY OF CHANGE</h3>
-        <div class="row about-grids agile-info">
-          <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
-            <p>
-              We seek to enhance the
-              <a
-                style="all: unset; cursor: pointer; color: blue"
-                target="_blank"
-                href="https://www.consumerfinance.gov/data-research/research-reports/financial-well-being-america/"
-              >financial well-being</a> of anyone who wishes to join us, seeking to help others in the process. We do this by promoting the power to act (
-              <a
-                style="all: unset; cursor: pointer; color: blue"
-                target="_blank"
-                href="http://www.oxfordscholarship.com/view/10.1093/acprof:oso/9780199755950.001.0001/acprof-9780199755950-chapter-1"
-              >financial capability</a>) -- providing opportunities to act (financial inclusion) and providing easy access to the knowledge needed to make an informed decision (financial literacy).
-            </p>
-            <br>
-            <p>Our helping is not an act of charity, but of efficiency:</p>
-            <br>
-            <ul>
-              <li>
-                We are
-                <a
-                  style="all: unset; cursor: pointer; color: blue"
-                  target="_blank"
-                  href="https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work?language=en&utm_campaign=tedspread&utm_medium=referral&utm_source=tedcomshare"
-                >most productive when we are happy</a>, and
-                <a
-                  style="all: unset; cursor: pointer; color: blue"
-                  target="_blank"
-                  href="https://www.ted.com/talks/michael_norton_how_to_buy_happiness?awesm=on.ted.com_neE&utm_campaign=tedspread&utm_medium=referral&utm_source=tedcomshare"
-                >we are much happier when giving than getting</a>. Many of our members appreciate the enhanced feelings of happiness they feel when helping their community members.
-              </li>
-              <li>The best way to learn something is to teach it, or to otherwise practice it, with others. This is called service learning or active learning, where we learn by acting in the world. We are grateful to members of our communities for allowing us to practice with them, and refer them to experts as needed. They are our most powerful teachers.</li>
-              <li>Employers know about this deepening of practice knowledge, and many of our members appreciate the professional experience that comes when they perform services for others.</li>
-            </ul>
-            <br>
-            <p>At the community level, we seek to enhance relationships and safety. Just like we benefit from having a doctor in the house or a neighbor who knows CPR, our communities can benefit when a critical mass of its members are themselves financially empowered, or at least know how to get in touch with experts when needed.</p>
-            <br>
-            <p>
-              At the same time, we keep our eyes out for opportunities to promote
-              <a
-                style="all: unset; cursor: pointer; color: blue"
-                target="_blank"
-                href="https://prosperitynow.org/resources/road-zero-wealth"
-              >social justice</a>.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- <div id="myModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Dr Joanna K. Doran</h4>
-          </div>
-          <div class="modal-body">
-            <p>ABC’s founding member is Joanna [P: ; she/her/hers] K. Doran, PhD, MSW, assistant professor in the School of Social Work in California State University in Los Angeles. She welcomes anyone to join her.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <section class="team py-5" style="margin-top: -80px">
       <div class="container py-md-3">
         <h3 class="heading mb-lg-5 mb-4">Our core members</h3>
@@ -154,28 +81,6 @@
               </div>
             </div>
           </div>
-          <!-- <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
-            <div class="team-members">
-              <div class="team-avatar">
-                <img src="images/t7.jpg" class="img-fluid" alt="image">
-              </div>
-              <div class="team-desc agile-info">
-                <h4>Alex Atkinson</h4>
-                <span>Director</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6 mt-4 team-grid w3-agile-grid">
-            <div class="team-members">
-              <div class="team-avatar">
-                <img src="images/t8.jpg" class="img-fluid" alt="image">
-              </div>
-              <div class="team-desc agile-info">
-                <h4>Thompson</h4>
-                <span>Director</span>
-              </div>
-            </div>
-          </div> -->
         </div>
       </div>
     </section>
@@ -265,7 +170,6 @@
             <br>
             <h4 class="text-left" style="font-size: 50px">Additional Partners</h4>
             <br>
-            <!-- <p>At the community level, we seek to enhance relationships and safety. Just like we benefit from having a doctor in the house or a neighbor who knows CPR, our communities can benefit when a critical mass of its members are themselves financially empowered, or at least know how to get in touch with experts when needed.</p> -->
             <br>
             <p>
               <b>Alliance for Economic Inclusion (AEI)</b>. The Los Angeles AEI is an FDIC initiative focused primarily in the City of Los Angeles, California, and is comprised of a broad-base of participating organizations representing financial institutions, community nonprofit organizations, and government agencies. ABC promotes saving pledges through
@@ -340,12 +244,6 @@ export default {
     HowWeWork,
     AboutSidebar
   },
-  // async asyncData(context) {
-  //   if (context.app.$cookies.get("token")) {
-  //     const logged_in = true;
-  //     return logged_in;
-  //   }
-  // },
   created: function() {
     vue_context = this;
 

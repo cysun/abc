@@ -93,21 +93,13 @@ export default {
           // [groupName, [list of button]]
           ["para", ["style"]],
           ["style", ["bold", "underline", "clear"]],
-          ["style", ["fontname"]],
+          ["style", ["fontname", "fontsize"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],
           ["insert", ["link", "picture"]],
           ["misc", ["fullscreen", "codeview", "help"]]
         ]
-        // callbacks: {
-        //   onImageUpload: function(files) {
-        //     // upload image to server and create imgNode...
-        //     // $("#summernote").summernote('insertNode', imgNode);
-        //     $('#summernote').summernote('insertText', "<p>Hello World</p>");
-        //     console.log(files);
-        //   }
-        // }
       });
     });
 

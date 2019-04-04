@@ -118,12 +118,6 @@
                   class="dropdown-item"
                   :class="{active: page == 'manage_rewards'}"
                 >{{$t('rewards')}}</nuxt-link>
-                <!-- <nuxt-link
-                  v-if="roles && roles.administrator"
-                  to="/manage/users"
-                  class="dropdown-item"
-                  :class="{active: page == 'manage_users'}"
-                >Users</nuxt-link> -->
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in">

@@ -1,18 +1,8 @@
-// const mongoose = require("mongoose");
 const Act = require("../models/Act");
 const mail = require("../send_mail");
 require("dotenv").load();
 
 async function run() {
-  // mongoose.connect(
-  //   process.env.DBURL,
-  //   {
-  //     useCreateIndex: true,
-  //     useNewUrlParser: true,
-  //     replicaSet: "rs"
-  //   }
-  // );
-
   const start = new Date();
   start.setHours(0, 0, 0, 0);
 
@@ -29,11 +19,7 @@ async function run() {
       state: "NOT_AVAILABLE"
     }
   );
-
-  // await mongoose.disconnect();
 }
-
-// run();
 module.exports = {
   run
 }

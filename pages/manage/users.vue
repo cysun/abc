@@ -147,16 +147,6 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
-
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
   },
   async fetch(context) {},
   // async asyncData({ query, req }) {
@@ -169,10 +159,7 @@ export default {
     if (!context.query.order) context.query.order = "";
     if (!context.query.page) context.query.page = 1;
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
-    // console.log(context)
     await axios
       .get(
         `/api/users?search=${context.query.search}&sort=${
@@ -306,11 +293,5 @@ export default {
       this.$router.push(`/manage/users`);
     }
   }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
 };
 </script>

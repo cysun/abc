@@ -18,13 +18,7 @@
                   <label for="name">{{$t('name')}}</label>
                   <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
                   <label for="summernote">{{$t('description')}}</label>
-                  <!-- <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    :placeholder="$t('description')"
-                    v-model="description"
-                  >-->
+                  
                   <textarea id="summernote" name="editordata"></textarea>
                   <label for="amount">Amount of users who can execute this act</label>
                   <input
@@ -43,6 +37,10 @@
                     id="reward_points"
                     v-model="reward_points"
                   >
+                  <div>
+                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="repeatable" type="checkbox" id="repeatable" name="repeatable">
+                <label for="repeatable">Repeatable</label>
+                </div>
                   <label for="tags">{{$t('tags')}}</label>
                   <input
                     type="text"
@@ -59,6 +57,16 @@
                     type="file"
                     name="file"
                   >
+                  <label for="importance">Importance</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="importance"
+                  name="importance"
+                  placeholder="Importance"
+                  required
+                  v-model="importance"
+                >
                   <label for="expiration_date">Expiration date</label>
                   <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                     <input
@@ -124,7 +132,7 @@ export default {
           // [groupName, [list of button]]
           ["para", ["style"]],
           ["style", ["bold", "underline", "clear"]],
-          ["style", ["fontname"]],
+          ["style", ["fontname", "fontsize"]],
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],
@@ -170,8 +178,6 @@ export default {
       this.disable_submit_button = true;
       this.submit_text = "Submitting...";
       this.$nuxt.$loading.start();
-      // vue_context.$nuxt.$loading.finish();
-      // alert("Hello World");
       //Send act
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
@@ -183,6 +189,8 @@ export default {
       params.append("description", this.description);
       params.append("reward_points", this.reward_points);
       params.append("amount", this.amount);
+      params.append("repeatable", this.repeatable);
+      params.append("importance", this.importance);
       if (this.expiration_date)
         params.append("expiration_date", this.expiration_date);
       if (this.image) params.append("file", this.image, this.image.name);
@@ -236,10 +244,12 @@ export default {
       reward_points: "",
       amount: "",
       tags: "",
+      repeatable: false,
       image: null,
       expiration_date: "",
       disable_submit_button: false,
-      submit_text: "Submit"
+      submit_text: "Submit",
+      importance: 0
     };
   }
 };

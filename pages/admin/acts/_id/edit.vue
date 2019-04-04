@@ -22,13 +22,8 @@
                     v-model="data.act.name"
                   >
                   <label for="description">{{$t('description')}}</label>
-                  <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    :placeholder="$t('description')"
-                    v-model="data.act.description"
-                  >
+                  <textarea id="summernote" name="editordata"></textarea>
+                  
                   <label for="reward_points">{{$t('Reward_points')}}</label>
                   <input
                     type="text"
@@ -86,11 +81,22 @@
                       </span>
                     </div>
                   </template>
+                  <label for="importance">Importance</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="importance"
+                  name="importance"
+                  placeholder="Importance"
+                  required
+                  v-model="data.act.importance"
+                >
+                <br>
+                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="data.act.repeatable" type="checkbox" id="repeatable" name="repeatable">
+                <label for="repeatable">Repeatable</label>
                   <h3>{{$t('tags')}}</h3>
                   <div>
-                    <!-- <span v-for="(tag, index) in data.act.tags">
-                      <span style="margin-right: 2px" class="badge badge-secondary">{{tag.name}}</span>
-                    </span>-->
+                    
                     <a
                       v-for="(tag, index) in data.act.tags"
                       tabindex="0"
@@ -99,6 +105,9 @@
                       @click="deleteTag(index)"
                     >{{tag.name}}</a>
                   </div>
+                  <div>
+                    
+                </div>
                   <br>
                   <label for="tags">{{$t('new_tags')}}</label>
                   <input
@@ -178,6 +187,28 @@ export default {
       startView: 2,
       forceParse: 0,
       showMeridian: 1
+    });
+
+    const doc = document.createElement("span");
+    doc.innerHTML = vue_context.data.act.description;
+
+    $(document).ready(function() {
+      $("#summernote").summernote({
+        placeholder: "Description",
+        height: 300,
+        toolbar: [
+          // [groupName, [list of button]]
+          ["para", ["style"]],
+          ["style", ["bold", "underline", "clear"]],
+          ["style", ["fontname", "fontsize"]],
+          ["color", ["color"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["insert", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["misc", ["fullscreen", "codeview", "help"]]
+        ]
+      });
+      $("#summernote").summernote("insertNode", doc);
     });
 
     $(".form_datetime")
@@ -329,8 +360,11 @@ export default {
       const params = new URLSearchParams();
 
       params.append("name", this.data.act.name);
+      this.data.act.description = $("#summernote").summernote("code");
       params.append("description", this.data.act.description);
       params.append("reward_points", this.data.act.reward_points);
+      params.append("repeatable", this.data.act.repeatable);
+      params.append("importance", this.data.act.importance);
       if (this.data.act.start_time) {
         params.append("start_time", this.data.act.start_time + "Z");
         params.append("end_time", this.data.act.end_time + "Z");
@@ -338,11 +372,7 @@ export default {
       if (this.new_tags) params.append("tags", this.new_tags);
 
       // //If this is an event, edit its start and end times
-      // if (this.data.acts[index].__t == "Event") {
-      //   params.append("start_time", start_time);
-      //   params.append("end_time", end_time);
-      // }
-
+     
       await axios
         .put(`/api/acts/${vue_context.data.act._id}`, params, {
           headers: {
@@ -379,14 +409,6 @@ export default {
       .then(function(res) {
         data = res.data;
 
-        // if (data.act.__t == "Event") {
-        //   data.act.start_time = moment(data.act.start_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        //   data.act.end_time = moment(data.act.end_time).format(
-        //     "MMMM Do YYYY, h:mm:ss a"
-        //   );
-        // }
         if (data.act.__t == "Event") {
           data.act.start_time = data.act.start_time.substring(
             0,

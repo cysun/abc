@@ -17,26 +17,6 @@
               </p>
             </div>
           </div>
-          <!-- <div class="row col-md-4 col-sm-6 mt-sm-0 mt-4 contact-grid1 w3-agile-grid">
-            <div class="col-3 text-center">
-              <i class="fas fa-phone"></i>
-            </div>
-            <div class="col-9 p-0">
-              <h4>{{$t('call_us')}}</h4>
-              <p>+11 887 8976 2334</p>
-            </div>
-          </div>
-          <div class="row col-md-4 col-sm-6 mt-md-0 mt-4 contact-grid1 w3-agile-grid">
-            <div class="col-3 text-center">
-              <i class="fas fa-laptop"></i>
-            </div>
-            <div class="col-9 p-0">
-              <h4>{{$t('fax')}}</h4>
-              <p>
-                <a href="mailto:example@career.com">example@career.com</a>
-              </p>
-            </div>
-          </div>-->
         </div>
         <div class="row contact_full w3-agile-grid">
           <div class="col-md-12 contact-us w3-agile-grid">
@@ -82,15 +62,9 @@
               </div>
             </form>
           </div>
-          <!-- <div class="col-md-5 map">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1398183.40180821!2d7.103180750702041!3d46.80771447968857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c64ef6f596d61%3A0x5c56b5110fcb7b15!2sSwitzerland!5e0!3m2!1sen!2sin!4v1529102870533"
-            ></iframe>
-          </div> -->
         </div>
       </div>
     </section>
-    <!-- //team -->
   </div>
 </template>
 

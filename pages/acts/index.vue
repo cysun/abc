@@ -5,6 +5,9 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
+        <span v-if="query.type == 'COMPLETED'"
+          class="badge badge-secondary float-left"
+        >{{data.act_count}} completed acts</span>
         <span
           class="badge badge-primary float-right"
         >{{data.reward_points.points}} {{$t('reward_points')}}</span>
@@ -84,13 +87,27 @@
               v-for="(act, index) in data.acts"
             >
               <div class="blog-img w3-agile-grid">
-                <nuxt-link :to="`/acts/${act._id}`" v-if="act.image">
+                <nuxt-link :to="`/acts/${act.completed_users._id}/complete`" v-if="act.image && data.type == 'COMPLETED'">
+                  <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
+                </nuxt-link>
+                <nuxt-link :to="`/acts/${act._id}`" v-if="act.image && data.type != 'COMPLETED'">
                   <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
                 </nuxt-link>
               </div>
               <div class="blog_info">
                 <h5>
-                  <nuxt-link v-if="!act.edit" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link>
+                  <a
+                  style='cursor: pointer'
+                    tabindex="0"
+                    v-if="!act.edit && act.act_provider.id == data.user.id && data.type != 'COMPLETED'"
+                    data-toggle="popover"
+                    :title="'<a class=\'view_popover\' name=\'' + act._id + '\' href=\'/acts/' + act._id + '\'>' + $t('view') + '</a>'"
+                    :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/acts/' + act._id + '/details\'>Reviews' + '' + '</a>'"
+                    data-trigger="focus"
+                    data-html="true"
+                  >{{act.name}}</a>    
+                  <nuxt-link v-if="!act.edit && data.type == 'COMPLETED'" :to="{path: 'acts/' + act.completed_users._id + '/complete'}">{{act.name}}</nuxt-link>
+                  <!-- <nuxt-link v-if="!act.edit && data.type != 'COMPLETED'" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link> -->
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -188,7 +205,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="float-right"><nuxt-link :to="`/acts/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
+                <div class="float-right"><nuxt-link v-if="data.type == 'COMPLETE'" :to="`/acts/${act.completed_users._id}/complete`"><button class="btn btn-primary">More details</button></nuxt-link><nuxt-link v-if="data.type != 'COMPLETE'" :to="`/acts/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
                 <div class="clearfix"></div>
                 <div
                   class="row"
@@ -396,6 +413,31 @@ export default {
   },
   async mounted() {
     izitoast = require("izitoast");
+
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
+    });
+
+    $(document).on("click", ".view_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.viewReward(id);
+    });
+    $(document).on("click", ".more_details_popover", function(event) {
+      event.preventDefault();
+      
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      var target = $(event.target);
+      // const index = target[0].id;
+      const id = target[0].name;
+      vue_context.rewardDetails(id);
+    });
   },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
@@ -552,6 +594,12 @@ export default {
     next() {
       this.navigateTo(parseInt(this.data.query.page) + 1);
     },
+    viewReward(id){
+      this.$router.push(`acts/${id}`)
+    },
+    rewardDetails(id){
+      this.$router.push(`acts/${id}/details`)
+    },
     reset() {
       this.query.order = "";
       this.query.page = 1;
@@ -562,7 +610,6 @@ export default {
     type_changed() {
       this.$router.push(`/acts?type=${this.query.type}`);
     },
-    upload_type_changed() {},
     edit_act(index) {
       if (!this.data.acts[index].edit)
         this.$set(this.data.acts[index], "edit", true);
@@ -721,257 +768,6 @@ export default {
           });
         });
     },
-    async save_act(index) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      //Get new name, description and reward points
-      const name = document.getElementById("act_name" + index).value;
-      const description = document.getElementById("act_description" + index)
-        .value;
-      const reward_points = document.getElementById("act_reward_points" + index)
-        .value;
-      const enabled_state = this.data.acts[index].enabled.state;
-      //If this is an event, get new start and end time too
-      let start_time, end_time;
-
-      if (this.data.acts[index].__t == "Event") {
-        start_time = document.getElementById("act_start_time" + index).value;
-        end_time = document.getElementById("act_end_time" + index).value;
-      }
-      //Save previous name, description and reward points and enabled_state
-      this.$set(this.data.acts[index], "previous_data", {
-        name: this.data.acts[index].name,
-        description: this.data.acts[index].description,
-        reward_points: this.data.acts[index].reward_points,
-        enabled: enabled_state
-      });
-      //If this is an event, save previous start and end times
-      if (this.data.acts[index].__t == "Event") {
-        this.$set(
-          this.data.acts[index].previous_data,
-          "start_time",
-          this.data.acts[index].formated_start_time
-        );
-        this.$set(
-          this.data.acts[index].previous_data,
-          "end_time",
-          this.data.acts[index].formated_end_time
-        );
-      }
-      //Update to new name, desription and reward points
-      this.$set(this.data.acts[index], "name", name);
-      this.$set(this.data.acts[index], "description", description);
-      this.$set(this.data.acts[index], "reward_points", reward_points);
-      //If this is an event
-      //Update to new start and end times
-      if (this.data.acts[index].__t == "Event") {
-        this.$set(
-          this.data.acts[index],
-          "formated_start_time",
-          moment(start_time).format("MMMM Do YYYY, h:mm:ss a")
-        );
-        this.$set(
-          this.data.acts[index],
-          "formated_end_time",
-          moment(end_time).format("MMMM Do YYYY, h:mm:ss a")
-        );
-      }
-      //Remember to disable the act
-      this.$set(this.data.acts[index].enabled, "state", false);
-      //Remove input fields
-      this.edit_act(index);
-      //Edit this act
-      const params = new URLSearchParams();
-
-      const new_tag = document.getElementById("add_tag").value;
-      document.getElementById("add_tag").value = "";
-
-      params.append("name", name);
-      params.append("description", description);
-      params.append("reward_points", reward_points);
-      if (new_tag) params.append("tags", new_tag);
-
-      //If this is an event, edit its start and end times
-      if (this.data.acts[index].__t == "Event") {
-        params.append("start_time", start_time);
-        params.append("end_time", end_time);
-      }
-
-      await axios
-        .put(`/api/acts/${vue_context.data.acts[index]._id}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .then(function(res) {
-          // vue_context.data.acts[index].add_tags = "";
-          //Replace this act tags
-          vue_context.data.acts[index].tags = res.data.tags;
-        })
-        .catch(function(err) {
-          //If error, revert to old name and description
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "name",
-            vue_context.data.acts[index].previous_data.name
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "description",
-            vue_context.data.acts[index].previous_data.description
-          );
-          vue_context.$set(
-            vue_context.data.acts[index],
-            "reward_points",
-            vue_context.data.acts[index].previous_data.reward_points
-          );
-
-          //Revert to previous state
-          vue_context.$set(
-            vue_context.data.acts[index].enabled,
-            "state",
-            vue_context.data.acts[index].previous_data.enabled
-          );
-
-          //If this is an event, revert to old start and end times
-          if (vue_context.data.acts[index].__t == "Event") {
-            vue_context.$set(
-              vue_context.data.acts[index],
-              "formated_start_time",
-              vue_context.data.acts[index].previous_data.start_time
-            );
-            vue_context.$set(
-              vue_context.data.acts[index],
-              "formated_end_time",
-              vue_context.data.acts[index].previous_data.end_time
-            );
-          }
-
-          //Tell the user that the act could not be edited
-          let type_of_act = "act";
-          if (vue_context.data.acts[index].__t == "Event")
-            type_of_act = "event";
-          izitoast.error({
-            title: "Error",
-            message: `Sorry, the ${type_of_act} could not be edited`,
-            position: "topRight"
-          });
-        });
-    },
-    async addAct() {
-      // alert("Hello World");
-      //Send act
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-      const params = new URLSearchParams();
-
-      params.append("name", this.add_act.name);
-      params.append("description", this.add_act.description);
-      params.append("reward_points", this.add_act.reward_points);
-      if (this.add_act.tags) params.append("tags", this.add_act.tags);
-      if (this.upload_type == "event") {
-        if (
-          !document.getElementById("start_time").value ||
-          !document.getElementById("end_time").value
-        ) {
-          izitoast.error({
-            title: "Error",
-            message: "Start time and end time must be inputted",
-            position: "topRight"
-          });
-          return;
-        }
-
-        params.append(
-          "start_time",
-          // new Date(document.getElementById("start_time").value + 'Z')
-          new Date(document.getElementById("start_time").value)
-        );
-        params.append(
-          "end_time",
-          // new Date(document.getElementById("end_time").value + 'Z')
-          new Date(document.getElementById("end_time").value)
-        );
-      }
-      await axios
-        .post(`/api/acts/${vue_context.upload_type}`, params, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .then(function(res) {
-          izitoast.success({
-            title: "Success",
-            message: "Your act has been successfully created",
-            position: "topRight"
-          });
-          vue_context.add_act.name = "";
-          vue_context.add_act.description = "";
-          vue_context.add_act.reward_points = 0;
-          vue_context.add_act.tags = "";
-
-          if (vue_context.upload_type == "event") {
-            document.getElementById("end_time").value = "";
-            document.getElementById("start_time").value = "";
-          }
-
-          console.log(vue_context.query.type);
-          //If not admin
-          if (!vue_context.data.roles.administrator) {
-            //If not in My acts
-            if (vue_context.query.type != "MY_ACTS") {
-              //Navigate to my acts
-              vue_context.query.type = "MY_ACTS";
-              vue_context.$router.push(`/acts?type=MY_ACTS`);
-            } else {
-              //If already in my acts
-              //Add this new act to top of page
-              vue_context.data.acts.splice(0, 0, res.data);
-            }
-          } else {
-            //If admin,
-            //If not in available
-            if (vue_context.query.type != "AVAILABLE") {
-              //Navigate to available
-              vue_context.query.type = "AVAILABLE";
-              vue_context.$router.push(`/acts?type=AVAILABLE`);
-            } else {
-              //If in available
-              //Add this new act to top of page
-              //If this is an event
-              //Format the start and end time first
-
-              if (vue_context.upload_type == "event") {
-                res.data.formated_start_time = moment(
-                  res.data.start_time
-                ).format("MMMM Do YYYY, h:mm:ss a");
-                ("MMMM Do YYYY, h:mm:ss a");
-                res.data.formated_end_time = moment(res.data.end_time).format(
-                  "MMMM Do YYYY, h:mm:ss a"
-                );
-                ("MMMM Do YYYY, h:mm:ss a");
-
-                res.data.start_time = moment(res.data.start_time).format(
-                  moment.HTML5_FMT.DATETIME_LOCAL
-                );
-                res.data.end_time = moment(res.data.end_time).format(
-                  moment.HTML5_FMT.DATETIME_LOCAL
-                );
-              }
-
-              vue_context.data.acts.splice(0, 0, res.data);
-            }
-          }
-        })
-        .catch(function(err) {
-          console.log(err);
-          izitoast.error({
-            title: "Error",
-            message: err.response.data.message,
-            position: "topRight"
-          });
-        });
-    },
     async search() {
       this.$router.push(
         `/acts?type=${this.query.type}&sort=${this.query.sort}&order=${
@@ -980,38 +776,6 @@ export default {
         `
       );
     },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        //If all fields are present
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-      }
-    }
   }
 };
 </script>

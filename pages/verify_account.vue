@@ -39,38 +39,19 @@ export default {
   created: function() {
     vue_context = this;
   },
-  async mounted() {
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
-  },
-  // async asyncData({ query, req }) {
-  async asyncData(context) {
-    //If user is logged in, redirect to main page
-    // context.redirect("/");
-    //getCook("connect.sid", req.headers.cookie);
-    // console.log(context.req.headers.cookie);
-    //Check if user is logged in
-    //If so, redirect to main page
-    // if (process.server) {
-    //   if (getCookie("token", context.req.headers.cookie)) {
-    //     context.redirect("/");
-    //   }
-    // }
-  },
-  head () {
+  async mounted() {},
+  async asyncData(context) {},
+  head() {
     return {
       title: "Asset Building Clinic : Verify your account",
       meta: [
-        { hid: 'description', name: 'description', content: 'Verify your account' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Verify your account"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -85,77 +66,6 @@ export default {
       page: "verify_account"
     };
   },
-  methods: {
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-
-        //Else
-      }
-    }
-  }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
+  methods: {}
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

@@ -14,7 +14,7 @@ const reward_types = [
 ];
 
 const user_acts_sort_categories = [
-    'name', 'total_number_of_users_who_clicked_on_this_reward', 'value', 'total_number_of_users_who_got_this_reward', 'total_number_of_completions', 'total_number_of_clicks', 'creation_date', 'reward_points', 'first_name', 'last_name'
+    'name', 'total_number_of_users_who_clicked_on_this_reward', 'value', 'total_number_of_users_who_got_this_reward', 'total_number_of_completions', 'total_number_of_clicks', 'creation_date', 'reward_points', 'first_name', 'last_name', 'time'
 ];
 
 const user_acts_order_categories = [

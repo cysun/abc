@@ -27,18 +27,11 @@
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
             <p>With the nearly half of Americans (46%) unable to come up with $400 in the event of an emergency[1] and communities of color on the road to a median of zero wealth if we maintain status quo [2], it is imperative we do something. But what?</p>
-            <!-- <p class="mt-2 mb-3">{{$t('about_us_text_2')}}</p> -->
           </div>
           <div class="col-lg-3 col-md-4 w3-agile-grid pr-md-0">
-            <!-- <h3 class="margin">{{$t('years_experience')}}</h3>
-            <h3 class="black">{{$t('valuable_services')}}</h3>-->
             <img src="~/assets/images/a.png">
             <p class="text-right">Image by Banksy</p>
           </div>
-          <!-- <div class="col-lg-3 col-md-4 w3-agile-grid mt-md-0 mt-4">
-            <h3 class="margin green">{{$t('experienced_professionals')}}</h3>
-            <h3 class="grey">{{$t('financial_solutions')}}</h3>
-          </div>-->
         </div>
       </div>
     </section>
@@ -63,7 +56,6 @@
 
     <section class="about py-5">
       <div class="container py-md-3">
-        <!-- <h3 class="heading mb-md-5 mb-4">How we Work</h3> -->
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
             <p><b>This is why we make it easy for anyone to complete financially empowering acts, whether for themselves or by helping another person.</b></p>
@@ -78,8 +70,6 @@
                 >financial security and financial freedom of choice, in the present and in the future</a>
               </li>
               <li>We provide you with clear instructions for checking credit reports, enhancing financial education, and exploring safe financial products designed to reduce debt, grow savings, and buy assets. Most people do not know such services exist, and this is why we make it easy for you to access them.</li>
-              <!-- <li>We can help someone check their credit report or let them know where to get their taxes filed</li>
-              <li>We can invite someone to join us, and encourage them to come up with other ways to build financial empowerment</li>-->
             </ul>
             <br>
             <p><b>We also found a way to reward each other for financially empowering ourselves and our communities. Each act is worth points, which can be redeemed for rewards.</b></p>
@@ -90,7 +80,6 @@
     <section class="work">
       <div class="work-layer py-5">
         <div class="container py-md-3">
-          <!-- <h3 class="heading mb-lg-5 mb-4">{{$t('how_we_work')}}</h3> -->
           <div class="row join agile-info">
             <div class="col-md-3 col-sm-6 steps-reach w3-agile-grid">
               <span class="fab fa-algolia"></span>
@@ -148,7 +137,6 @@
     <section class="work">
       <div class="work-layer py-5">
         <div class="container py-md-3">
-          <!-- <h3 class="heading mb-lg-5 mb-4">{{$t('how_we_work')}}</h3> -->
           <div class="row join agile-info">
             <div class="col-md-3 col-sm-6 steps-reach w3-agile-grid">
               <span class="fab fa-algolia"></span>
@@ -183,37 +171,6 @@
         </div>
       </div>
     </section>
-    <!-- <about-sidebar/> -->
-    <!-- <section class="services py-5">
-      <div class="container agile-info py-md-3">
-        <h3 class="heading mb-lg-5 mb-4">{{$t('how_we_can_help_you')}}</h3>
-        <div class="row service_grids">
-          <div class="col-lg-4 w3-agile-grid">
-            <div class="grid">
-              <h4 class="mb-3">{{$t('learn_about_programs')}}</h4>
-              <p>{{$t('learn_about_programs_text')}}</p>
-            </div>
-            <div class="grid mt-4">
-              <h4 class="mb-3">{{$t('engage_in_financial')}}</h4>
-              <p>{{$t('engage_in_financial_text')}}</p>
-            </div>
-          </div>
-          <div class="col-lg-4 col-md-6 my-lg-0 my-5">
-            <img src="images/service.jpg" alt class="img-fluid">
-          </div>
-          <div class="col-lg-4 w3-agile-grid">
-            <div class="grid">
-              <h4 class="mb-3">{{$t('gain_rewards')}}</h4>
-              <p>{{$t('gain_rewards_text')}}</p>
-            </div>
-            <div class="grid mt-4">
-              <h4 class="mb-3">{{$t('help_us')}}</h4>
-              <p>{{$t('help_us_text')}}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>-->
     <section class="quotes py-5 text-center">
       <div class="container py-md-3">
         <div class="quotes-info agile-info-quotes">
@@ -221,7 +178,6 @@
           <p>Become a member of ABC and join us in enhancing financial wellbeing for us all.</p>
           <br>
           <p>We do not judge and we do not give advice. Membership is confidential and free.</p>
-          <!-- <p>{{$t('join_us_today')}}</p> -->
           <nuxt-link
             class="bt mt-4 mr-2 text-capitalize"
             to="/sign_up"

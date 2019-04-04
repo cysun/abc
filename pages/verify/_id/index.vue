@@ -30,21 +30,8 @@ export default {
   created: function() {
     vue_context = this;
   },
-  async mounted() {
-    // this.$nextTick(() => {
-    //   this.$nuxt.$loading.start();
-    //   setTimeout(() => this.$nuxt.$loading.finish(), 1500);
-    // });
-    // for (let i = 0; i < 1000; i++)
-    //   await axios.get("/api/users/users").then(function(res) {
-    //     vue_context.title = res.title;
-    //     console.log(res);
-    //   });
-  },
-  // async asyncData({ query, req }) {
+  async mounted() {},
   async asyncData(context) {
-    // console.log(context.params.id);
-    //If undefined
     //Redirect to main page
     if (!context.params.id) context.redirect("/");
     //Else
@@ -54,8 +41,6 @@ export default {
         .put(`${process.env.website}api/verify/${context.params.id}`)
         .then(function(res) {
           if (process.server) {
-            // const cookiesRes = context.req.headers.cookie.getAll();
-            // console.log(context.app.$cookies.getAll());
             context.app.$cookies.set("token", res.data.token, {
               path: "/",
               maxAge: 3600000
@@ -66,39 +51,25 @@ export default {
             });
             context.redirect("/acts");
           }
-          // console.log(res.data);
-          //If success
-          //Save cookies
-          // if (process.server)
-          // console.log(context.req.headers.cookie)
-          // context.req.headers.cookie += `; res.`
-          //Redirect to dashboard
-          // vue_context.$nuxt.$loading.finish();
-          // vue_context.$router.push({
-          //   path: "/verify_account"
-          // });
         })
         .catch(function(err) {
           if (err.response.status == 401) {
-          context.redirect("/logout");
-        }
-
-          // console.log(err.response.data.message)
-          // vue_context.$nuxt.$loading.finish();
-          // if (err.response) vue_context.error = err.response.data.message;
+            context.redirect("/logout");
+          }
         });
-
-      //Else
-      //Redirect to main page
     }
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : Verify User",
       meta: [
-        { hid: 'description', name: 'description', content: 'Verify the identity of a user' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Verify the identity of a user"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -113,77 +84,6 @@ export default {
       page: "verify_account"
     };
   },
-  methods: {
-    fileChanged(event) {
-      this.image = event.target.files[0];
-    },
-    register() {
-      //Check if there an empty input field
-      //If so, display error
-      if (!this.first_name || !this.last_name || !this.email || !this.password)
-        this.error = "All fields must be present";
-      else {
-        //If all fields are present
-        //Convert image to base64 if exists
-        // if (this.image)
-        // {
-        //   const base64_image = base64Img.base64Sync
-        // }
-        //Send json to server
-        // const json = {
-        //   first_name: this.first_name,
-        //   last_name: this.last_name,
-        //   email: this.email,
-        //   password: this.password
-        // };
-
-        this.$nuxt.$loading.start();
-
-        const formData = new FormData();
-        if (this.image) formData.append("file", this.image, this.image.name);
-
-        formData.append("first_name", this.first_name);
-        formData.append("last_name", this.last_name);
-        formData.append("email", this.email);
-        formData.append("password", this.password);
-
-        axios
-          .post("/api/users/register", formData)
-          .then(function(res) {
-            //Redirect to verification page
-            vue_context.$nuxt.$loading.finish();
-            vue_context.$router.push({
-              path: "/verify_account"
-            });
-          })
-          .catch(function(err) {
-            vue_context.$nuxt.$loading.finish();
-            if (err.response) vue_context.error = err.response.data.message;
-          });
-
-        //Else
-      }
-    }
-  }
-  // mounted() {
-  //   this.msg = "Works";
-  // }
-  // created: function() {
-  //   this.msg = "Works"
-  // }
+  methods: {}
 };
 </script>
-
-<style scoped>
-/*.title {
-  margin: 30px 0;
-}
-.users {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.user {
-  margin: 10px 0;
-}*/
-</style>

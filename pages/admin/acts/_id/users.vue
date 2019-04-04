@@ -8,7 +8,7 @@
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
             <div class="text-center">
-              <h1>Events</h1>
+              <h1>Users relationship with this act</h1>
             </div>
             <div class="chit-chat-layer1">
               <div class="col-md-2"></div>
@@ -22,34 +22,46 @@
                           name="search"
                           v-model="query.search"
                           class="form-control"
-                          :placeholder="$t('search')"
+                          placeholder="Search (Last name)"
                           @keyup.enter="search"
                         >
                         <select class="form-control" name="sort" v-model="query.sort">
                           <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
                           <option
-                            value="creation_date"
-                            :selected="query.sort == 'creation_date'"
-                          >{{$t('date')}}</option>
+                            value="first_name"
+                            :selected="query.sort == 'first_name'"
+                          >First name</option>
                           <option
-                            value="total_number_of_completions"
-                            :selected="query.sort == 'total_number_of_completions'"
-                          >{{$t('favorites')}}</option>
-                          <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
-                          <option
-                            value="total_number_of_clicks"
-                            :selected="query.sort == 'total_number_of_clicks'"
-                          >{{$t('popularity')}}</option>
-                          <option
-                            value="reward_points"
-                            :selected="query.sort == 'reward_points'"
-                          >{{$t('Reward_points')}}</option>
+                            value="last_name"
+                            :selected="query.sort == 'last_name'"
+                          >Last name</option>
+                          <option value="time" :selected="query.sort == 'time'">Date</option>
                         </select>
-                        
+
                         <select class="form-control" name="order" v-model="query.order">
                           <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
                           <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
                           <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
+                        </select>
+
+                        <select
+                          @change="type_changed"
+                          class="form-control"
+                          name="type"
+                          v-model="query.type"
+                        >
+                          <option
+                            value="COMPLETED"
+                            :selected="!query.type == 'COMPLETED'"
+                          >{{$t('completed')}}</option>
+                          <option
+                            value="UNDER_REVIEW"
+                            :selected="!query.type == 'UNDER_REVIEW'"
+                          >{{$t('under_review')}}</option>
+                          <option
+                            value="REJECTED"
+                            :selected="!query.type == 'REJECTED'"
+                          >{{$t('rejected')}}</option>
                         </select>
                       </span>
                       <button
@@ -58,58 +70,49 @@
                         class="btn btn-primary"
                         style="margin-right: 10px"
                       >{{$t('search')}}</button>
-                      <input @click="reset" type="button" class="btn btn-danger" :value="$t('reset')">
+                      <input
+                        @click="reset"
+                        type="button"
+                        class="btn btn-danger"
+                        :value="$t('reset')"
+                      >
                     </div>
                   </div>
                   <br>
-                  <!-- <div class="chit-chat-heading">{{$t('acts')}}</div> -->
+                  <div class="chit-chat-heading">{{$t('acts')}}</div>
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>{{$t('poster_name')}}</th>
-                          <th>Event's name</th>
-                          <th>{{$t('verified')}}</th>
-                          <th>{{$t('state')}}</th>
-                          <th>{{$t('deleted')}}</th>
-                          <th>{{$t('creation_date')}}</th>
-                          <th>More details</th>
-                          <th>Edit</th>
-                          <!-- <th>{{$t('actions')}}</th> -->
+                          <th>User's name</th>
+                          <th>Proof of completion</th>
+                          <th v-if="query.type == 'REJECTED'">Review of proof</th>
+                          <th>Reviewer's name</th>
+                          <th>Time</th>
+                          
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="(act, index) in data.data">
+                        <tr v-for="(act, index) in data.users">
                           <td>{{index + 1}}</td>
-                          <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
-                          <td>{{act.name}}</td>
+                          <td>{{act.completed_users.first_name}} {{act.completed_users.last_name}}</td>
                           <td>
-                            <span
-                              class="label"
-                              :class="act.enabled.state ? 'label-success': 'label-danger'"
-                            >{{act.enabled.state}}</span>
+                            <a
+                              tabindex="0"
+                              style="cursor: pointer"
+                              data-toggle="popover"
+                              title="Click on a file to view"
+                              :data-content="act.completed_users.popover_html"
+                              data-trigger="focus"
+                              data-html="true"
+                            >{{$t('view_proofs')}}</a>
+                            <!-- <a href="this.proof_of_completion">View Proof</a> -->
                           </td>
-                          <td>{{act.state}}</td>
-                          <td>
-                            <span
-                              class="label"
-                              :class="act.deleted ? 'label-danger': 'label-success'"
-                            >{{act.deleted}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/acts/' + act._id + '/users'">
-                              <button class="btn btn-primary">Users</button>
-                            </nuxt-link>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
-                            </nuxt-link>
-                          </td>
+                          <td v-if="query.type == 'REJECTED'">{{act.completed_users.review_of_proof.comments}}</td>
+                          <td>{{act.completed_users.review_of_proof.reviewer_name}}</td>
+                          <td>{{act.completed_users.time}}</td>
+                         
                         </tr>
                       </tbody>
                     </table>
@@ -173,16 +176,20 @@ export default {
     MyHeader,
     MyFooter
   },
-  head () {
-    return {
-      title: "Asset Building Clinic : View events",
-      meta: [
-        { hid: 'description', name: 'description', content: 'Search for specific events' }
-      ]
-    }
-  },
   created: function() {
     vue_context = this;
+  },
+  head() {
+    return {
+      title: "Asset Building Clinic : View acts",
+      meta: [
+        {
+          hid: "description",
+          name: "description",
+          content: "View details of an act"
+        }
+      ]
+    };
   },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
@@ -192,16 +199,17 @@ export default {
     if (!context.query.search) context.query.search = "";
     if (!context.query.order) context.query.order = "";
     if (!context.query.page) context.query.page = 1;
+    if (!context.query.type) context.query.type = "COMPLETED";
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
     // console.log(context)
     await axios
       .get(
-        `/api/admin/acts?search=${context.query.search}&sort=${
-          context.query.sort
-        }&order=${context.query.order}&page=${context.query.page}&type=event`,
+        `/api/admin/acts/${context.params.id}/users/${
+          context.query.page
+        }?search=${context.query.search}&type=${context.query.type}&sort=${context.query.sort}&order=${
+          context.query.order
+        }&page=${context.query.page}`,
         {
           headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         }
@@ -209,13 +217,23 @@ export default {
       .then(function(res) {
         data = res.data;
         // Loop through data and format date
-        data.data.forEach(element => {
-          element.creation_date = moment(element.creation_date).format(
-            "MMMM Do YYYY"
-          );
+        //Create popover of proofs
+        console.log(data);
+        data.users.forEach(element => {
+          let user = element.completed_users;
+          element.completed_users.time = moment(
+            element.completed_users.time
+          ).format("MMMM Do YYYY");
+          if (!user.popover_html) user.popover_html = "";
+          element.completed_users.proof_of_completion.forEach(element => {
+            user.popover_html += `<div><a href='/api/acts/admin_proof/${
+              element._id
+            }'>${element.original_name}</a></div>`;
+          });
         });
       })
       .catch(function(err) {
+        console.log(err);
         if (err.response.status == 401) {
           context.redirect("/logout");
         }
@@ -226,28 +244,39 @@ export default {
     const token = this.$cookies.get("token");
     const refresh_token = this.$cookies.get("refresh_token");
 
+
     if (!to.query.sort) to.query.sort = "";
     if (!to.query.search) to.query.search = "";
     if (!to.query.order) to.query.order = "";
     if (!to.query.page) to.query.page = 1;
+    if (!to.query.type) to.query.type = "COMPLETED";
 
     let data;
     await axios
       .get(
-        `/api/admin/acts?sort=${to.query.sort}&order=${to.query.order}&search=${
-          to.query.search
-        }&page=${to.query.page}&type=event`,
+        `/api/admin/acts/${to.params.id}/users/${
+          to.query.page
+        }?search=${to.query.search}&type=${to.query.type}&sort=${to.query.sort}&order=${
+          to.query.order
+        }&page=${to.query.page}`,
         {
           headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         }
       )
       .then(function(res) {
         data = res.data;
-        //Loop through data and format date
-        data.data.forEach(element => {
-          element.creation_date = moment(element.creation_date).format(
-            "MMMM Do YYYY"
-          );
+        console.log(data);
+        data.users.forEach(element => {
+          let user = element.completed_users;
+          element.completed_users.time = moment(
+            element.completed_users.time
+          ).format("MMMM Do YYYY");
+          if (!user.popover_html) user.popover_html = "";
+          element.completed_users.proof_of_completion.forEach(element => {
+            user.popover_html += `<div><a href='/api/acts/admin_proof/${
+              element._id
+            }'>${element.original_name}</a></div>`;
+          });
         });
       })
       .catch(function(err) {
@@ -278,15 +307,22 @@ export default {
       }
       toggle = !toggle;
     });
+
+    $(document).ready(function() {
+      $('[data-toggle="popover"]').popover();
+    });
   },
   methods: {
     async search() {
       this.$router.push(
-        `/admin/events?sort=${this.query.sort}&order=${this.query.order}&search=${
-          this.query.search
-        }&type=event
+        `/admin/acts/${this.$route.params.id}/users?sort=${
+          this.query.sort
+        }&order=${this.query.order}&search=${this.query.search}&type=${this.query.type}
         `
       );
+    },
+    type_changed() {
+      this.$router.push(`/admin/acts/${this.$route.params.id}/users?type=${this.query.type}`);
     },
     navigateTo(index) {
       var element = this.$refs["acts_come_here"];
@@ -294,9 +330,9 @@ export default {
       scrollToElement(element);
 
       this.$router.push(
-        `/admin/events?sort=${this.query.sort}&order=${this.query.order}&search=${
+        `/admin/acts?sort=${this.query.sort}&order=${this.query.order}&search=${
           vue_context.query.search
-        }&page=${index}&type=event
+        }&page=${index}
         `
       );
     },
@@ -313,7 +349,7 @@ export default {
       this.query.page = 1;
       this.query.search = "";
       this.query.sort = "";
-      this.$router.push(`/admin/events?type=event`);
+      this.$router.push(`/admin/acts/${this.$route.params.id}/users?type=${this.query.type}`);
     }
   }
 };

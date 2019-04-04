@@ -10,14 +10,14 @@
           <div class="col-lg-12 blog-sp">
             <article style="margin-bottom: 10px" class="blog-x row">
               <div v-if="data.act.image" class="blog-img w3-agile-grid">
-                <img :src="`/api/acts/${$route.params.id}/image`" alt class="img-fluid">
+                <img :src="`/api/acts/${data.act._id}/image`" alt class="img-fluid">
               </div>
               <div class="blog_info">
                 <h5>
                   <div class="row">
                     <a class="col-md-9" tabindex="-1" v-if="!data.edit">{{data.act.name}}</a>
                     <h6>
-                      <span class="badge badge-secondary">{{data.proofs.acts[0].state}}</span>
+                      <span class="badge badge-secondary">COMPLETED</span>
                     </h6>
                   </div>
                   <input
@@ -99,65 +99,52 @@
                       </div>
                       <input type="hidden" id="dtp_input1" value>
                       <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                       </script>
                     </div>
                   </div>
                 </div>
-                <div style="margin-bottom: 10px" v-if="data.proofs.acts[0].state == 'REJECTED'">
-                  <span
-                    class="badge badge-warning"
-                  >{{$t('reason_for_rejection')}}: {{data.proofs.acts[0].comments}}</span>
-                </div>
                 <div
                   style="margin-bottom: 5px"
-                  v-for="(proof, index) in data.proofs.acts[0].proof_of_completion"
+                  v-for="(proof, index) in data.proofs.completed_users[0].proof_of_completion"
                   class="justify-content-center"
                 >
-                  <a
-                    tabindex="0"
-                    v-if="data.proofs.acts[0].state !== 'COMPLETED'"
-                    data-toggle="popover"
-                    :title="'<a href=\'/api/acts/proof/' + proof._id + '\'>' + $t('view') + '</a>'"
-                    :data-content="'<a style=\'cursor: pointer\' id=\'' + index + '\' class=\'delete_name\' name=\'' + proof._id + '\'>' + $t('delete') + '</a>'"
-                    data-trigger="focus"
-                    data-html="true"
-                    style="cursor: pointer"
-                  >{{proof.original_name}}</a>
-                  <a
-                    v-if="data.proofs.acts[0].state == 'COMPLETED'"
-                    :href="`/api/acts/proof/${proof._id}`"
-                  >{{proof.original_name}}</a>
+                  <a :href="`/api/acts/proof/${proof._id}`">{{proof.original_name}}</a>
                 </div>
                 <br>
 
-                <div
-                  v-if="data.act.enabled.state && data.act.state == 'AVAILABLE' && data.proofs.acts[0].state !== 'COMPLETED'"
-                  class="form-inline justify-content-center"
+                <form
+                  id="smileys"
+                  v-if="!data.proofs.completed_users[0].user_review_of_act.act_rating && !data.proofs.completed_users[0].user_review_of_act.act_comments"
+                  @submit.prevent="submitRating"
                 >
+                  <span class="align-top">Rate the act:</span>
+                  <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
                   <input
-                    @change="fileChanged"
-                    type="file"
-                    multiple
+                    type="radio"
+                    name="smiley"
+                    value="3"
+                    class="neutral"
+                    v-model="reward_rating"
+                  >
+                  <input type="radio" name="smiley" value="4" class="happy" v-model="reward_rating">
+                  <input type="radio" name="smiley" value="5" class="love" v-model="reward_rating">
+                  <textarea
                     class="form-control"
-                    name="file"
-                    id="file_input"
-                  >
-                  <input
-                    @click="uploadProof"
-                    type="button"
-                    :value="$t('upload_proof_of_completion')"
-                    class="btn btn-primary"
-                  >
-                </div>
+                    v-model="reward_comments"
+                    placeholder="Additional comments about the act"
+                  ></textarea>
+                  <div class='text-center'><input class='btn btn-primary' type='submit' :value="$t('submit_rating')"></div>
+                </form>
                 <div
                   class="row"
                   v-if="data.act.act_provider.id == data.user.id || (data.roles && data.roles.manager)"
@@ -320,15 +307,6 @@ export default {
     $(document).ready(function() {
       $('[data-toggle="popover"]').popover();
     });
-
-    $(document).on("click", ".delete_name", function(event) {
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      var target = $(event.target);
-      const index = target[0].id;
-      const id = target[0].name;
-      vue_context.deleteProof(index, id);
-    });
   },
   async asyncData(context) {
     const token = context.app.$cookies.get("token");
@@ -336,11 +314,12 @@ export default {
 
     let data;
     await axios
-      .get(`/api/acts/${context.params.id}`, {
+      .get(`/api/acts/${context.params.id}/complete`, {
         headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
       })
       .then(function(res) {
         data = res.data;
+        console.log(data.proofs.completed_users[0].proof_of_completion);
         //Loop through data and format date
         if (data.act.__t == "Event") {
           data.act.formated_start_time = moment(data.act.start_time).format(
@@ -366,14 +345,7 @@ export default {
           return;
         }
       });
-    if (!data.proofs) {
-      const acts = {
-        acts: [{ state: "" }]
-      };
-      data.proofs = acts;
-    } else if (data.proofs.acts[0].state) {
-      data.proofs.acts[0].state = data.proofs.acts[0].state.replace("_", " ");
-    }
+    
     return { data };
   },
   head() {
@@ -409,45 +381,12 @@ export default {
         reward_points: "",
         start_time: "",
         end_time: ""
-      }
+      },
+      reward_rating: 0,
+      reward_comments: "",
     };
   },
   methods: {
-    fileChanged(event) {
-      this.files = event.target.files;
-    },
-    async uploadProof() {
-      if (!this.files || this.files.length == 0) return;
-      //Save current state
-      this.data.current_state = this.data.proofs.acts[0].state;
-      //Change state to under review
-      this.data.proofs.acts[0].state = "UNDER REVIEW";
-
-      const formData = new FormData();
-      for (let i = 0; i < this.files.length; i++)
-        formData.append("files", this.files[i], this.files[i].name);
-
-      await axios
-        .post(`/api/acts/${vue_context.data.act._id}/complete`, formData)
-        .then(function(res) {
-          //Redirect to verification page
-          vue_context.$set(
-            vue_context.data.proofs.acts[0],
-            "proof_of_completion",
-            res.data
-          );
-          document.getElementById("file_input").value = null;
-        })
-        .catch(function(err) {
-          //If error
-          //Return state to original value
-          vue_context.data.proofs.acts[0].state =
-            vue_context.data.current_state;
-          // vue_context.$nuxt.$loading.finish();
-          // if (err.response) vue_context.error = err.response.data.message;
-        });
-      $('[data-toggle="popover"]').popover();
-    },
     edit_act() {
       if (!this.data.edit) this.$set(this.data, "edit", true);
       else this.$set(this.data, "edit", false);
@@ -510,48 +449,6 @@ export default {
           izitoast.error({
             title: "Error",
             message: "Sorry, the tag could not be deleted",
-            position: "topRight"
-          });
-        });
-    },
-    async deleteProof(index, id) {
-      const token = this.$cookies.get("token");
-      const refresh_token = this.$cookies.get("refresh_token");
-
-      //Save the current state of the proof
-      if (!this.data.proofs.acts[0].previous_proof)
-        this.$set(this.data.proofs.acts[0], "previous_proof", {
-          [index]: this.data.proofs.acts[0].proof_of_completion[index]
-        });
-      else
-        this.$set(
-          this.data.proofs.acts[0].previous_proof,
-          index,
-          this.data.proofs.acts[0].proof_of_completion[index]
-        );
-
-      //Remove the proof from the screen
-      this.data.proofs.acts[0].proof_of_completion.splice(index, 1);
-      // const encoded_id = btoa(id);
-
-      //Send request to remove the proof from the database
-      await axios
-        .delete(`/api/acts/proof/${id}`, {
-          headers: {
-            Cookie: `token=${token}; refresh_token=${refresh_token};`
-          }
-        })
-        .catch(function(err) {
-          //If something goes wrong, put the proof back
-          vue_context.data.proofs.acts[0].proof_of_completion.splice(
-            index,
-            0,
-            vue_context.data.proofs.acts[0].previous_proof[index]
-          );
-          //Tell the user that the act could not be deleted
-          izitoast.error({
-            title: "Error",
-            message: "Sorry, the proof could not be deleted",
             position: "topRight"
           });
         });
@@ -630,6 +527,118 @@ export default {
           });
         });
     },
+    submitRating(){
+      //If reward or reward provider rating is 0, error
+      if (this.reward_rating == 0)
+      {
+        izitoast.error({
+            title: "Error",
+            message: "You must rate the act before submitting",
+            position: "topRight"
+          });
+          return;
+      }
+      //Remove the form from the page
+      this.$set(this.data.proofs.completed_users[0], 'user_review_of_act', {act_rating: 1});
+      // this.data.proofs.completed_users[0].user_review_of_act.act_rating = 1;
+      //Send rating
+      const token = this.$cookies.get("token");
+      const refresh_token = this.$cookies.get("refresh_token");
+
+      const params = new URLSearchParams();
+      params.append("reward_rating", this.reward_rating);
+      params.append("reward_comments", this.reward_comments);
+
+      axios
+        .put(`/api/acts/${this.$route.params.id}/review`, params, {
+          headers: {
+            Cookie: `token=${token}; refresh_token=${refresh_token};`
+          }
+        })
+        .then(function(res) {
+          //If successful
+          //Show success message
+          izitoast.success({
+            title: "Thank you",
+            message: "Your review has been received",
+            position: "topRight"
+          });
+        })
+        .catch(function(err) {
+                //If error,
+      //Place the form back
+      // vue_context.data.proofs.completed_users[0].user_review_of_act.act_rating = null;
+      vue_context.$set(vue_context.data.proofs.completed_users[0], 'user_review_of_act', {act_rating: null});
+      //Give error
+          izitoast.error({
+            title: "Error",
+            message: "Sorry, your review could not be sent",
+            position: "topRight"
+          });
+        });
+
+    },
   }
 };
 </script>
+
+<style scoped>
+form#smileys input[type="radio"] {
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  transition: border 0.2s ease;
+  -webkit-filter: grayscale(100%);
+          filter: grayscale(100%);
+  margin: 0 0px;
+  transition: all 0.2s ease;
+}
+form#smileys input[type="radio"]:hover, form#smileys input[type="radio"]:checked {
+  -webkit-filter: grayscale(0);
+          filter: grayscale(0);
+}
+form#smileys input[type="radio"]:focus {
+  outline: 0;
+}
+form#smileys input[type="radio"].devil {
+  background: url("~assets/images/smileys/devil.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].sad {
+  background: url("~assets/images/smileys/sad.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].neutral {
+  background: url("~assets/images/smileys/meh.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].happy {
+  background: url("~assets/images/smileys/smile.svg") center;
+  background-size: cover;
+}
+form#smileys input[type="radio"].love {
+  background: url("~assets/images/smileys/heart.svg") center;
+  background-size: cover;
+}
+
+
+
+.mtt {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  color: #999;
+  text-decoration: none;
+}
+.mtt span {
+  color: #e74c3c;
+}
+.mtt:hover {
+  color: #666;
+}
+.mtt:hover span {
+  color: #c0392b;
+}
+</style>

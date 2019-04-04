@@ -74,6 +74,7 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
+                          <th>Edit</th>
                           <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
@@ -98,11 +99,12 @@
                           <td>
                             <span class="badge badge-info">{{act.creation_date}}</span>
                           </td>
-                          <!-- <td>
+                          <td>
                             <nuxt-link :to="'/admin/rewards/' + act._id + '/edit'">
-                              <button class="btn btn-primary">{{$t('edit')}}</button>
+                              <button class="btn btn-primary">Edit</button>
                             </nuxt-link>
-                          </td> -->
+                          </td>
+                          
                         </tr>
                       </tbody>
                     </table>
@@ -134,43 +136,7 @@
                   </div>
                 </div>
               </div>
-              <!-- <div class="col-md-6 chit-chat-layer1-left">
-                <div class="work-progres">
-                  <div class="chit-chat-heading">Recent acts</div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>{{$t('poster_name')}}</th>
-                          <th>Act's name</th>
-                          <th>Verified</th>
-                          <th>Creation time</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(act, index) in data.acts">
-                          <td>{{index + 1}}</td>
-                          <td>{{act.act_provider.first_name}} {{act.act_provider.last_name}}</td>
-                          <td>{{act.name}}</td>
-                          <td>
-                            <span class="label label-danger">{{act.enabled.state}}</span>
-                          </td>
-                          <td>
-                            <span class="badge badge-info">{{act.creation_date}}</span>
-                          </td>
-                          <td>
-                            <nuxt-link :to="'/admin/edit/act/' + act._id">
-                              <button class="btn btn-primary">{{$t('edit')}}</button>
-                            </nuxt-link>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>-->
+              
               <div class="clearfix"></div>
             </div>
           </div>
@@ -222,8 +188,6 @@ export default {
     if (!context.query.order) context.query.order = "";
     if (!context.query.page) context.query.page = 1;
 
-    // console.log(context.app.$cookies.getAll());
-    // console.log(context.req.headers.cookie);
     let data;
     // console.log(context)
     await axios
@@ -289,18 +253,7 @@ export default {
     next();
   },
   mounted() {
-    // $(document).ready(function() {
-    //   var navoffeset = $(".header-main").offset().top;
-    //   $(window).scroll(function() {
-    //     var scrollpos = $(window).scrollTop();
-    //     if (scrollpos >= navoffeset) {
-    //       $(".header-main").addClass("fixed");
-    //     } else {
-    //       $(".header-main").removeClass("fixed");
-    //     }
-    //   });
-    // });
-
+    
     var toggle = true;
 
     $(".sidebar-icon").click(function() {

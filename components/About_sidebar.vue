@@ -10,12 +10,6 @@
           </div>
           <div class="col-lg-3 col-md-4 w3-agile-grid pr-md-0">
             <img src="~/assets/images/c.jpg">
-            <!-- <h3 class="margin">{{$t('years_experience')}}</h3>
-            <h3 class="black">{{$t('valuable_services')}}</h3>
-          </div>
-          <div class="col-lg-3 col-md-4 w3-agile-grid mt-md-0 mt-4">
-            <h3 class="margin green">{{$t('experienced_professionals')}}</h3>
-            <h3 class="grey">{{$t('financial_solutions')}}</h3> -->
           </div>
         </div>
       </div>
