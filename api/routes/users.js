@@ -143,12 +143,18 @@ router.put("/:id", async function(req, res, next) {
     user.last_name = req.body.last_name;
     user.roles = req.body.roles;
     user.enabled = req.body.enabled;
+    //Make sure that unverified email is moved to email and then removed if exists
+    if (user.unverified_email)
+    {
+      user.email = user.unverified_email;
+      user.unverified_email = undefined;
+    }
     await user.save();
     logger.info(`${req.user.id} successfully edited user ${user._id}`);
     res.json({ message: "Success" });
   } catch (err) {
     next(createError(400, err.message));
-    logger.error(`${req.user.id} failed to edite user ${req.params.id}`);
+    logger.error(`${req.user.id} failed to edit user ${req.params.id}`);
   }
 });
 
