@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const User = require("../../models/User");
+const globals = require("../../globals");
 var createError = require("http-errors");
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
@@ -171,6 +172,314 @@ router.post("/reset_password", async function(req, res, next) {
         req.body.reset_password
       }`
     );
+  }
+});
+
+//Show acts
+router.get("/view_acts", async function(req, res, next) {
+  try {
+    //Get list of act IDs this user has completed
+    //Get 10 latest available acts WRT user search query
+    let search = {};
+    if (req.query.search)
+      search = { $text: { $search: sanitize(req.query.search) } };
+    // search = { 'users_under_review.id': { '$not': { $eq: req.user.id } } };
+
+    //Act must be enabled
+    const enabled = {
+      state: true
+    };
+
+    let page = parseInt(sanitize(req.query.page));
+    let act_type = sanitize(req.query.act_type);
+    let sort = sanitize(req.query.sort);
+    let type = sanitize(req.query.type);
+    let order = parseInt(sanitize(req.query.order));
+    const this_object = this;
+
+    //This ensures that when an act poster tries to get his acts
+    //Enabled and disabled acts are returned
+    if (type != "MY_ACTS") search.enabled = enabled;
+
+    // if (type == "undefined")
+    //     type = req.cookies.type;
+
+    //If this is a manager, the default view should be All acts
+    if (req.roles && req.roles.manager)
+      if (!type || globals.user_act_types.indexOf(type) === -1) type = "ALL";
+
+    if (type == "ALL") delete search.enabled;
+    else if (type == "ENABLED") search.enabled.state = true;
+    else if (type == "DISABLED") search.enabled.state = false;
+
+    if (!type || globals.user_act_types.indexOf(type) === -1)
+      type = "AVAILABLE";
+
+    //Deleted acts should not show up
+    search["deleted"] = false;
+
+    if (type == "AVAILABLE") {
+    } else if (type == "UNDER_REVIEW")
+      search["users_under_review.id"] = req.user.id;
+    else if (type == "COMPLETED") search["completed_users.id"] = req.user.id;
+    else if (type == "REJECTED") search["rejected_users.id"] = req.user.id;
+    else if (type == "MY_ACTS") search["act_provider.id"] = req.user.id;
+
+    //Handle invalid page
+    if (!page || page < 1) page = 1;
+
+    //Handle invalid act type
+    if (!act_type || globals.act_types.indexOf(act_type) === -1)
+      act_type = "AVAILABLE";
+
+    //This ensures that when an act poster tries to get his acts
+    //Available and unavailable acts are returned
+    if (type != "MY_ACTS") search.state = act_type;
+
+    //Handle invalid act sort category
+    if (!sort || globals.user_acts_sort_categories.indexOf(sort) === -1)
+      sort = "name";
+
+    //Handle invalid act order category
+    if (!order || globals.user_acts_order_categories.indexOf(order) === -1)
+      order = 1;
+
+    let offset = (page - 1) * 10;
+
+    //If user requests completed acts
+    //Disregard deleted, enabled and available states
+    if (type == "COMPLETED") {
+      delete search.deleted;
+      delete search.enabled;
+      delete search.state;
+    }
+
+    let sort_query = { [sort]: order };
+    if (type == "AVAILABLE") {
+      sort_query = [["importance", -1], [sort, order]];
+    }
+
+    //For some unknown reason, the below command gives this error: Projection cannot have a mix of inclusion and exclusion.
+    // const promised_acts = Act.find(search, { users_who_clicked_on_this_act: false, users_who_completed_this_act: false }).sort({ [sort]: order }).skip(offset).limit(10).lean();
+    const promised_acts = Act.find(search)
+      .sort(sort_query)
+      .skip(offset)
+      .limit(10)
+      .lean();
+    const promised_count = Act.find(search).countDocuments();
+
+    //Get the 3 highest completed acts this month
+    //Get current month and year
+    const date = new Date();
+    const this_month = date.getMonth();
+    const this_year = date.getFullYear();
+    let next_year = this_year;
+    //Get next month (If 12, make it 0)
+    let next_month = this_month + 1;
+    if (next_month > 11) {
+      next_month = 0;
+      next_year += 1;
+    }
+    //Get first days in both months
+
+    lower_date = new Date(this_year, this_month, 1);
+    upper_date = new Date(next_year, next_month, 1);
+
+    //Get the count of completed users in between this period per act
+    const promised_best_acts_for_this_month = Act.aggregate([
+      {
+        //Get acts that have been completed this month
+        $match: {
+          completed_users: { $exists: true, $ne: [] },
+          "completed_users.time": { $gte: lower_date },
+          "completed_users.time": { $lt: upper_date }
+        }
+      },
+      //Split based on the users who completed the acts
+      { $unwind: "$completed_users" },
+      //Get only the users who completed each act in the specified period
+      {
+        $match: {
+          "completed_users.time": { $gte: lower_date },
+          "completed_users.time": { $lt: upper_date }
+        }
+      },
+      //Count the users per act and get each act's details
+      {
+        $group: {
+          _id: "$_id",
+          act: {
+            $addToSet: {
+              name: "$name",
+              description: "$description"
+            }
+          },
+          count: {
+            $sum: 1
+          }
+        }
+      },
+      //Sort by count in decreasing order
+      { $sort: { count: -1 } },
+      //Get only 3 acts
+      { $limit: 3 }
+    ]);
+
+    let promises = [
+      promised_acts,
+      promised_count,
+      promised_best_acts_for_this_month
+    ];
+
+    if (type == "COMPLETED") {
+      let this_search = req.query.search;
+      if (!this_search) this_search = "";
+      const promised_completed_acts = Act.aggregate([
+        {
+          $match: {
+            //Handle search
+            $or: [{ $text: { $search: this_search } }, {}],
+            "completed_users.id": mongoose.Types.ObjectId(req.user.id)
+          }
+        },
+        {
+          ////Get all cases where this user has completed the act
+          $unwind: "$completed_users"
+        },
+        {
+          $match: { "completed_users.id": mongoose.Types.ObjectId(req.user.id) }
+        },
+        //Handle pagination, sort and sort direction
+        { $sort: { [sort]: order } },
+        { $skip: offset },
+        { $limit: 10 }
+        // { $project: { _id: false } }
+      ]);
+
+      const promised_completed_acts_count = Act.aggregate([
+        {
+          $match: {
+            //Handle search
+            $or: [{ $text: { $search: this_search } }, {}],
+            "completed_users.id": mongoose.Types.ObjectId(req.user.id)
+          }
+        },
+        {
+          ////Get all cases where this user has completed the act
+          $unwind: "$completed_users"
+        },
+        {
+          $match: { "completed_users.id": mongoose.Types.ObjectId(req.user.id) }
+        },
+        //Count documents
+        {
+          $count: "no"
+        }
+      ]);
+
+      promises.push(promised_completed_acts);
+      promises.push(promised_completed_acts_count);
+    }
+
+    let acts;
+    let count;
+    let reward_points;
+    let best_acts;
+    let result = {};
+    let counter;
+    await Promise.all(promises).then(function(values) {
+      // result.result = values[0];
+      // result.total_count = values[1][0]['count'];
+      acts = values[0];
+      count = values[1];
+      reward_points = values[2];
+      best_acts = values[2];
+      console.log(values[5]);
+      if (values[4]) acts = values[4];
+      if (values[5]) {
+        if (values[5][0] != undefined) {
+          count = values[5][0].no;
+        } else {
+          count = 0;
+        }
+      }
+    });
+
+    const act_count = count;
+    count = Math.ceil(count / 10);
+    const total = [];
+    for (let i = 0; i < count; i++) total.push(1);
+    let current_page = process.env.website + "acts?";
+
+    if (!req.query.page) req.query.page = 1;
+
+    //Loop through the query parameters and append them to the url;
+    if (req.query.search)
+      current_page = current_page + "search=" + req.query.search + "&";
+    if (req.query.sort)
+      current_page = current_page + "sort=" + req.query.sort + "&";
+    if (req.query.order)
+      current_page = current_page + "order=" + req.query.order + "&";
+
+    logger.info(`Viewer successfully got acts`);
+    res.json({
+      reward_points,
+      acts,
+      best_acts,
+      type,
+      current_page,
+      act_count,
+      query: req.query,
+      count,
+      title: "Acts",
+      acts,
+      total_acts: total,
+      user: req.user,
+      roles: req.roles
+    });
+  } catch (err) {
+    console.log(err)
+    logger.error(`Viewer failed to get acts`);
+    next(createError(400, err.message));
+  }
+});
+
+//Get individual act
+router.get("/:id/view_act", async function(req, res, next) {
+  try {
+    const promised_act = Act.findById(
+      req.params.id,
+      "act_provider importance repeatable deleted how_to_submit_evidences start_time amount expiration_date end_time image description tags enabled name reward_points state total_number_of_clicks total_number_of_completions"
+    ).lean();
+
+    const promises = [promised_act];
+    let act;
+    await Promise.all(promises).then(function(values) {
+      act = values[0];
+    });
+
+    //If act does not exist, error
+    if (!act) throw new Error(res.__("act_does_not_exist"));
+
+
+    //If this act has been deleted
+    //Only admins and users who have completed it can view it
+
+    if (act.deleted == true) {
+      let display_act = false;
+      if (req.roles && req.roles.administrator) {
+        display_act = true;
+      }
+      if (!display_act) {
+        throw new Error(res.__("act_has_been_deleted"));
+      }
+    }
+
+    logger.info(`Viewer successfully got act ${req.params.id}`);
+    res.json({ act, roles: req.roles });
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`Viewer failed to get act ${req.params.id}`);
   }
 });
 

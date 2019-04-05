@@ -1,6 +1,6 @@
 <template>
   <div>
-    <my-header/>
+    <my-header :logged_in="logged_in" :page="page" :roles="data.roles"/>
     <homepage/>
   </div>
 </template>
@@ -18,7 +18,32 @@ export default {
     Homepage
   },
   async asyncData(context) {
-    if (context.app.$cookies.get("token")) context.redirect("/acts");
+    const token = context.app.$cookies.get("token");
+    const refresh_token = context.app.$cookies.get("refresh_token");
+    //Make request to server
+    let data, logged_in;
+    data = {
+      roles: {}
+    };
+    logged_in = false;
+    await axios
+      .get(`/api/users/details`, {
+        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+      })
+      .then(function(res) {
+        data = res.data;
+        logged_in = true;
+      })
+      .catch(function(err) {
+        data.roles = {};
+      });
+
+    return { data, logged_in };
+  },
+  data() {
+    return {
+      page: 'homepage',
+    }
   },
   head() {
     return {

@@ -1,3 +1,6 @@
+//Uncomment the line below when running tests
+// require("dotenv").load({ path: __dirname + "/../.env_test" });
+//Comment the line above during development
 require("dotenv").load();
 
 const secret = require("../secret");

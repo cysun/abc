@@ -29,6 +29,18 @@
                 <span class="sr-only">(current)</span>
               </nuxt-link>
             </li>
+            <li v-if="logged_in" :class="{active: page == 'homepage'}" class="nav-item mr-lg-3">
+              <nuxt-link to="/homepage" class="nav-link">
+                {{$t('home')}}
+                <span class="sr-only">(current)</span>
+              </nuxt-link>
+            </li>
+            <li v-if="!logged_in" :class="{active: page == 'view_acts'}" class="nav-item mr-lg-3">
+              <nuxt-link to="/view_acts" class="nav-link">
+                {{$t('acts')}}
+                <span class="sr-only">(current)</span>
+              </nuxt-link>
+            </li>
             <li class="nav-item mr-lg-3" v-if="logged_in && ((roles && !roles.act_poster) || !roles)">
               <nuxt-link
                 to="/acts"
