@@ -22,7 +22,8 @@
                   California 90032
                 </p>
                 <p>
-                  <i class="fas mr-1 fa-clock"></i> {{$t('time')}}: By appointment
+                  <i class="fas mr-1 fa-clock"></i>
+                  {{$t('time')}}: By appointment
                 </p>
                 <p>
                   <i class="fas mr-1 fa-envelope-open"></i>
@@ -36,13 +37,16 @@
           <h3 class="text-capitalize mb-3">{{$t('services')}}</h3>
           <ul>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('affordable_housing')}}.
+              <i class="fas mr-1 fa-chevron-circle-right"></i>
+              {{$t('affordable_housing')}}.
             </li>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('utility_assistance')}}.
+              <i class="fas mr-1 fa-chevron-circle-right"></i>
+              {{$t('utility_assistance')}}.
             </li>
             <li>
-              <i class="fas mr-1 fa-chevron-circle-right"></i> {{$t('savings_and_credit')}}.
+              <i class="fas mr-1 fa-chevron-circle-right"></i>
+              {{$t('savings_and_credit')}}.
             </li>
           </ul>
           <h3 class="text-capitalize mt-4 mb-3">{{$t('newsletter')}}</h3>
@@ -65,13 +69,13 @@
           <h3 class="text-capitalize mb-3">{{$t('latest_acts')}}</h3>
           <div class="blog-grids row mb-3" v-for="(act, index) in acts">
             <div class="col-md-4 col-sm-3 col-4 pr-sm-3 pr-0 blog-grid-left">
-              <nuxt-link :to="'/acts/' + act._id">
+              <nuxt-link :to="`/acts/${act._id}${$store.state.logged_in ? '' : '/view'}`">
                 <img :src="`/images/f${index + 1}.jpg`" class="img-fluid" alt>
               </nuxt-link>
             </div>
             <div class="col-md-8 col-sm-9 col-8 blog-grid-right">
               <h5>
-                <nuxt-link :to="'/acts/' + act._id">{{act.name}}</nuxt-link>
+                <nuxt-link :to="`/acts/${act._id}${$store.state.logged_in ? '' : '/view'}`">{{act.name}}</nuxt-link>
               </h5>
               <div class="sub-meta">
                 <span>
@@ -104,6 +108,10 @@ let izitoast;
 export default {
   created: function() {
     vue_context = this;
+
+    const token = this.$cookies.get("token");
+    const refresh_token = this.$cookies.get("refresh_token");
+
     axios
       .get(`/api/latest_acts`)
       .then(function(res) {
@@ -124,7 +132,7 @@ export default {
     return {
       acts: [],
       subscriber: "",
-      email_address: process.env.email_address
+      email_address: process.env.email_address,
     };
   },
   methods: {

@@ -19,6 +19,7 @@ export default {
   },
   async asyncData(context) {
     if (context.app.$cookies.get("token")) context.redirect("/acts");
+    context.store.commit('SET_LOGGEDIN_STATE', false)
   },
   head() {
     return {
