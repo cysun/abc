@@ -5,7 +5,8 @@
     <section class="banner-bottom-w3ls-agileinfo py-5">
       <!--/blog-->
       <div class="container py-md-3">
-        <span v-if="query.type == 'COMPLETED'"
+        <span
+          v-if="query.type == 'COMPLETED'"
           class="badge badge-secondary float-left"
         >{{data.act_count}} completed acts</span>
         <span
@@ -44,13 +45,13 @@
                   :selected="query.sort == 'reward_points'"
                 >{{$t('Reward_points')}}</option>
               </select>
-              
+
               <select class="form-control" name="order" v-model="query.order">
                 <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
                 <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
                 <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
               </select>
-              
+
               <select @change="type_changed" class="form-control" name="type" v-model="query.type">
                 <option value="AVAILABLE" :selected="!query.type == 'AVAILABLE'">{{$t('available')}}</option>
                 <option
@@ -87,7 +88,10 @@
               v-for="(act, index) in data.acts"
             >
               <div class="blog-img w3-agile-grid">
-                <nuxt-link :to="`/acts/${act.completed_users._id}/complete`" v-if="act.image && data.type == 'COMPLETED'">
+                <nuxt-link
+                  :to="`/acts/${act.completed_users._id}/complete`"
+                  v-if="act.image && data.type == 'COMPLETED'"
+                >
                   <img :src="`/api/acts/${act._id}/image`" alt class="img-fluid">
                 </nuxt-link>
                 <nuxt-link :to="`/acts/${act._id}`" v-if="act.image && data.type != 'COMPLETED'">
@@ -97,7 +101,7 @@
               <div class="blog_info">
                 <h5>
                   <a
-                  style='cursor: pointer'
+                    style="cursor: pointer"
                     tabindex="0"
                     v-if="!act.edit && act.act_provider.id == data.user.id && data.type != 'COMPLETED'"
                     data-toggle="popover"
@@ -105,9 +109,15 @@
                     :data-content="'<a class=\'more_details_popover\' name=\'' + act._id + '\' href=\'/acts/' + act._id + '/details\'>Reviews' + '' + '</a>'"
                     data-trigger="focus"
                     data-html="true"
-                  >{{act.name}}</a>    
-                  <nuxt-link v-if="!act.edit && data.type == 'COMPLETED'" :to="{path: 'acts/' + act.completed_users._id + '/complete'}">{{act.name}}</nuxt-link>
-                  <!-- <nuxt-link v-if="!act.edit && data.type != 'COMPLETED'" :to="{path: 'acts/' + act._id}">{{act.name}}</nuxt-link> -->
+                  >{{act.name}}</a>
+                  <nuxt-link
+                    v-if="!act.edit && data.type == 'COMPLETED'"
+                    :to="{path: 'acts/' + act.completed_users._id + '/complete'}"
+                  >{{act.name}}</nuxt-link>
+                  <nuxt-link
+                    v-if="!act.edit && data.type != 'COMPLETED' && act.act_provider.id != data.user.id"
+                    :to="{path: 'acts/' + act._id}"
+                  >{{act.name}}</nuxt-link>
                   <input
                     :id="'act_name' + index"
                     v-if="act.edit"
@@ -124,7 +134,9 @@
                   ></a>
                 </p>
 
-                <div><p class="truncate_text_3_lines" v-html="act.description"></p></div>
+                <div>
+                  <p class="truncate_text_3_lines" v-html="act.description"></p>
+                </div>
                 <textarea
                   :id="'act_description' + index"
                   v-if="act.edit"
@@ -192,20 +204,30 @@
                       </div>
                       <input type="hidden" id="dtp_input1" value>
                       <script>
-                        $(".form_datetime").datetimepicker({
-                          weekStart: 1,
-                          todayBtn: 1,
-                          autoclose: 1,
-                          todayHighlight: 1,
-                          startView: 2,
-                          forceParse: 0,
-                          showMeridian: 1
-                        });
+  $(".form_datetime").datetimepicker({
+    weekStart: 1,
+    todayBtn: 1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    showMeridian: 1
+  });
                       </script>
                     </div>
                   </div>
                 </div>
-                <div class="float-right"><nuxt-link v-if="data.type == 'COMPLETE'" :to="`/acts/${act.completed_users._id}/complete`"><button class="btn btn-primary">More details</button></nuxt-link><nuxt-link v-if="data.type != 'COMPLETE'" :to="`/acts/${act._id}`"><button class="btn btn-primary">More details</button></nuxt-link></div>
+                <div class="float-right">
+                  <nuxt-link
+                    v-if="data.type == 'COMPLETE'"
+                    :to="`/acts/${act.completed_users._id}/complete`"
+                  >
+                    <button class="btn btn-primary">More details</button>
+                  </nuxt-link>
+                  <nuxt-link v-if="data.type != 'COMPLETE'" :to="`/acts/${act._id}`">
+                    <button class="btn btn-primary">More details</button>
+                  </nuxt-link>
+                </div>
                 <div class="clearfix"></div>
                 <div
                   class="row"
@@ -250,10 +272,7 @@
                   >
                     <span v-if="!act.delete">
                       <nuxt-link :to="`/acts/${act._id}/edit`">
-                        <button
-                          v-if="!act.edit"
-                          class="btn btn-primary"
-                        >{{$t('edit')}}</button>
+                        <button v-if="!act.edit" class="btn btn-primary">{{$t('edit')}}</button>
                       </nuxt-link>
                       <button
                         v-if="act.edit"
@@ -420,7 +439,7 @@ export default {
 
     $(document).on("click", ".view_popover", function(event) {
       event.preventDefault();
-      
+
       event.stopPropagation();
       event.stopImmediatePropagation();
       var target = $(event.target);
@@ -430,7 +449,7 @@ export default {
     });
     $(document).on("click", ".more_details_popover", function(event) {
       event.preventDefault();
-      
+
       event.stopPropagation();
       event.stopImmediatePropagation();
       var target = $(event.target);
@@ -440,7 +459,7 @@ export default {
     });
   },
   async asyncData(context) {
-    context.store.commit('SET_LOGGEDIN_STATE', true)
+    context.store.commit("SET_LOGGEDIN_STATE", true);
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
@@ -490,13 +509,17 @@ export default {
       });
     return { query: context.query, data };
   },
-  head () {
+  head() {
     return {
       title: "Asset Building Clinic : View and filter acts",
       meta: [
-        { hid: 'description', name: 'description', content: 'Search for specific acts' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Search for specific acts"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
@@ -564,6 +587,10 @@ export default {
           }
         });
         vue_context.data = data;
+        setTimeout(function() {
+          if (to.query.type != "COMPLETED")
+            $('[data-toggle="popover"]').popover();
+        }, 100);
       })
       .catch(function(err) {
         if (err.response.status == 401) {
@@ -595,11 +622,11 @@ export default {
     next() {
       this.navigateTo(parseInt(this.data.query.page) + 1);
     },
-    viewReward(id){
-      this.$router.push(`acts/${id}`)
+    viewReward(id) {
+      this.$router.push(`acts/${id}`);
     },
-    rewardDetails(id){
-      this.$router.push(`acts/${id}/details`)
+    rewardDetails(id) {
+      this.$router.push(`acts/${id}/details`);
     },
     reset() {
       this.query.order = "";
@@ -776,7 +803,7 @@ export default {
         }&search=${vue_context.query.search}
         `
       );
-    },
+    }
   }
 };
 </script>
