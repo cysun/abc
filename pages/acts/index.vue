@@ -440,6 +440,7 @@ export default {
     });
   },
   async asyncData(context) {
+    context.store.commit('SET_LOGGEDIN_STATE', true)
     const token = context.app.$cookies.get("token");
     const refresh_token = context.app.$cookies.get("refresh_token");
 
