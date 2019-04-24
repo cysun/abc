@@ -93,7 +93,7 @@
                 >
                 <br>
                 <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="data.act.repeatable" type="checkbox" id="repeatable" name="repeatable">
-                <label for="repeatable">Repeatable</label>
+                <label for="repeatable">{{$t('repeatable')}}</label>
                   <h3>{{$t('tags')}}</h3>
                   <div>
                     

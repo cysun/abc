@@ -20,7 +20,7 @@
                   <img src="/images/admin/p1.png" alt>
                 </span>
                 <div class="user-name">
-                  <p>Dr Joanna</p>
+                  <p>{{$t('admin_name')}}</p>
                   <span>{{$t('administrator')}}</span>
                 </div>
                 <i class="fa fa-angle-down lnr"></i>

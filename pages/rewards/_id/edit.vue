@@ -22,7 +22,7 @@
               </template>
               <!-- <h4>Add Act</h4> -->
               <form @submit.prevent="editAct">
-                <label for="name">Name</label>
+                <label for="name">{{$t('name')}}</label>
                 <input
                   class="form-control"
                   v-model="data.act.name"
@@ -32,7 +32,7 @@
                   required
                   id="name"
                 >
-                <label for="summernote">Description</label>
+                <label for="summernote">{{$t('description')}}</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <div v-if="upload_type == 'event'" class="control-group">
                   <div
@@ -91,17 +91,17 @@
   });
                   </script>
                 </div>
-                <label for="value">Value</label>
+                <label for="value">{{$t('value')}}</label>
                 <input
                   class="form-control"
                   type="number"
                   name="value"
-                  placeholder="Value"
+                  :placeholder="$t('value')"
                   required
                   id="value"
                   v-model="data.act.value"
                 >
-                <label for="amount">Amount available ( -1 is unlimited )</label>
+                <label for="amount">{{$t('amount_avialable_unlimited')}}</label>
                 <input
                   class="form-control"
                   type="number"
@@ -111,7 +111,7 @@
                   required
                   v-model="data.act.amount"
                 >
-                <label for="file">Image should be 1600 X 800</label>
+                <label for="file">{{$t('image_should_be')}}</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
                
                 <div class="button">

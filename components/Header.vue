@@ -58,18 +58,18 @@
                 aria-haspopup="true"
                 aria-expanded="false"
                 :class="{active: page == 'acts' || page == 'add_act' || page == 'edit_act' }"
-              >Acts</a>
+              >{{$t('acts')}}</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <nuxt-link
                   to="/acts"
                   class="dropdown-item"
                   :class="{active: page == 'acts'}"
-                >View Acts</nuxt-link>
+                >{{$t('view_acts')}}</nuxt-link>
                 <nuxt-link
                   to="/acts/add_act"
                   class="dropdown-item"
                   :class="{active: page == 'add_act'}"
-                >Add Act</nuxt-link>
+                >{{$t('add_act')}}</nuxt-link>
               </div>
             </li>
             <li class="nav-item mr-lg-3" v-if="logged_in && ((roles && !roles.reward_provider) || !roles)">
@@ -89,18 +89,18 @@
                 aria-haspopup="true"
                 aria-expanded="false"
                 :class="{active: page == 'rewards' || page == 'add_rewards' || page == 'edit_reward' }"
-              >Rewards</a>
+              >{{$t('rewards')}}</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <nuxt-link
                   to="/rewards"
                   class="dropdown-item"
                   :class="{active: page == 'rewards'}"
-                >View Rewards</nuxt-link>
+                >{{$t('view_rewards')}}</nuxt-link>
                 <nuxt-link
                   to="/rewards/add_reward"
                   class="dropdown-item"
                   :class="{active: page == 'add_reward'}"
-                >Add Reward</nuxt-link>
+                >{{$t('add_reward')}}</nuxt-link>
               </div>
             </li>
             <li class="nav-item dropdown mr-lg-3" v-if="roles && roles.manager">

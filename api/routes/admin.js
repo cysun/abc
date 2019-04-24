@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const User = require("../../models/User");
+const Subscriber = require("../../models/Subscriber");
 const globals = require("../../globals");
 const Act = require("../../models/Act");
 const Reward = require("../../models/Reward");
@@ -10,8 +11,9 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const sanitize = require("sanitize-html");
 const util = require("util");
-const os = require('os');
+const os = require("os");
 const logger = require("../../logger").winston;
+const mail = require("../../send_mail");
 sanitize.defaults.allowedAttributes = [];
 sanitize.defaults.allowedTags = [];
 var upload = multer({
@@ -256,14 +258,117 @@ router.get("/users/:id/acts/:page", async function(req, res, next) {
   }
 });
 
-//Give/Remove user points
-router.put("/users/:id/points/:points", async function(req, res, next) {
+router.get("/users/:id/points/:page", async function(req, res, next) {
   try {
+    // //Only admin can get here
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
+
+    const page = req.params.page;
+    const skip = (page - 1) * 10;
+
+    const acts = await User.aggregate([
+      {
+        $match: { _id: mongoose.Types.ObjectId(req.params.id) }
+      },
+      {
+        $unwind: "$points_given_by_admin"
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          points_given_by_admin: true,
+          _id: false
+        }
+      }
+    ]);
+
+    // logger.info(`${req.user.id} successfully got acts`);
+    res.json({ acts });
+  } catch (err) {
+    console.log(err);
+    next(createError(400, err.message));
+    logger.error(`${req.user.id} failed to get points`);
+  }
+});
+
+router.post("/email", async function(req, res, next) {
+  try {
+    const name = req.body.name;
+    const description = req.body.description;
+
+    if (!name || !description) throw new Error("Incomplete Request");
+
+    //Get all users who should get email
+    //Get all verified emails
+    //Get all unverified emails
+    const promised_user_emails = User.find(
+      {},
+      { email: true, _id: false, unverified_email: true }
+    ).lean();
+    //Get all subcriber emails
+    const promised_subscriber_emails = Subscriber.find(
+      {},
+      { email: true, _id: false }
+    ).lean();
+
+    const promises = [];
+    promises.push(promised_user_emails);
+    promises.push(promised_subscriber_emails);
+    let user_emails, subscriber_emails;
+    await Promise.all(promises).then(function(values) {
+      user_emails = values[0];
+      subscriber_emails = values[1];
+    });
+    //Merge
+    const emails = [];
+    for (let i = 0; i < user_emails.length; i++) {
+      if (user_emails[i].email) emails.push(user_emails[i].email);
+      if (user_emails[i].unverified_email)
+        emails.push(user_emails[i].unverified_email);
+    }
+    for (let i = 0; i < subscriber_emails.length; i++) {
+      if (emails.indexOf(subscriber_emails[i].email) == -1)
+        emails.push(subscriber_emails[i].email);
+    }
+    // Send to all users
+    await mail.sendEmail(emails, name, description);
+
+    res.json({ Success: "Success" });
+    logger.info(`Successfully sent emails`);
+  } catch (err) {
+    next(createError(400, err.message));
+    logger.error(`Failed to send emails`);
+  }
+});
+
+//Give/Remove user points
+router.put("/users/:id/points", async function(req, res, next) {
+  try {
+    const points = req.body.points;
+    const reason = req.body.reason;
+    if (!points || !reason) throw new Error("Incomplete request");
+    const data = {
+      amount: points,
+      reason: reason,
+      given_by: {
+        id: req.user.id,
+        first_name: req.user.first_name,
+        last_name: req.user.last_name
+      }
+    };
     await User.findByIdAndUpdate(req.params.id, {
-      $inc: { points: req.params.points }
+      $inc: { points: points },
+      $push: { points_given_by_admin: data }
     });
     res.json({ Success: "Success" });
-    logger.info(`${req.user.id} successfully gave user ${req.params.id} points`);
+    logger.info(
+      `${req.user.id} successfully gave user ${req.params.id} points`
+    );
   } catch (err) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to give user ${req.params.id} points`);
@@ -368,7 +473,7 @@ router.get("/", async function(req, res, next) {
     next_year += 1;
   }
   //Get first days in both months
-  
+
   lower_date = new Date(this_year, this_month, 1);
   upper_date = new Date(next_year, next_month, 1);
 

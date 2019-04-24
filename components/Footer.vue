@@ -9,21 +9,21 @@
             <div class="col-md-6">
               <h3 class="text-capitalize mb-3">{{$t('connect_with_us')}}</h3>
               <a href="#" class="facebook mr-2">
-                <span class="fab mr-1 fa-facebook-f"></span> Facebook
+                <span class="fab mr-1 fa-facebook-f"></span> {{$t('facebook')}}
               </a>
             </div>
             <div class="col-md-6 mt-md-0 mt-5">
               <h3 class="text-capitalize mb-3">{{$t('head_quarters')}}</h3>
               <address class="mb-0">
                 <p class="mb-2">
-                  <i class="fas fa-map-marker"></i> ABC Asset Building Clinic,
-                  <br>Cal State LA, 5151 University
-                  <br>Dr. ST 814, Los Angeles,
-                  California 90032
+                  <i class="fas fa-map-marker"></i> {{$t('location_1')}},
+                  <br>{{$t('location_2')}}
+                  <br>{{$t('location_3')}}
+                  {{$t('location_4')}}
                 </p>
                 <p>
                   <i class="fas mr-1 fa-clock"></i>
-                  {{$t('time')}}: By appointment
+                  {{$t('time')}}: {{$t('by_appointment')}}
                 </p>
                 <p>
                   <i class="fas mr-1 fa-envelope-open"></i>
@@ -75,7 +75,9 @@
             </div>
             <div class="col-md-8 col-sm-9 col-8 blog-grid-right">
               <h5>
-                <nuxt-link :to="`/acts/${act._id}${$store.state.logged_in ? '' : '/view'}`">{{act.name}}</nuxt-link>
+                <nuxt-link
+                  :to="`/acts/${act._id}${$store.state.logged_in ? '' : '/view'}`"
+                >{{act.name}}</nuxt-link>
               </h5>
               <div class="sub-meta">
                 <span>
@@ -89,13 +91,7 @@
       </div>
     </div>
     <div class="copyright pb-sm-5 pb-4 text-center">
-      <p>
-        © 2019 ABC. {{$t('all_rights_reserved')}} | Design by
-        <a
-          href="http://www.W3Layouts.com"
-          target="_blank"
-        >W3Layouts</a>
-      </p>
+      <p>{{$t('footer_text')}}</p>
     </div>
   </footer>
 </template>
@@ -132,7 +128,7 @@ export default {
     return {
       acts: [],
       subscriber: "",
-      email_address: process.env.email_address,
+      email_address: process.env.email_address
     };
   },
   methods: {

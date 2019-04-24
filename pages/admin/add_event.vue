@@ -16,7 +16,7 @@
                   <input type="hidden" name="id" value="this_user._id">
                   <label for="name">{{$t('name')}}</label>
                   <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
-                  <label for="summernote">Description</label>
+                  <label for="summernote">{{$t('description')}}</label>
                   <textarea id="summernote" name="editordata"></textarea>
                   <label for="start_time">{{$t('start_time')}}</label>
                   <div
@@ -63,12 +63,12 @@
                       <i class="icon-th"></i>
                     </span>
                   </div>
-                  <label for="amount">Amount of users who can execute this act</label>
+                  <label for="amount">{{$t('amount_of_users_short')}}</label>
                   <input
                     type="text"
                     id="amount"
                     name="amount"
-                    placeholder="Amount of users who can execute this act"
+                    :placeholder="$t('amount_of_users_short')"
                     required
                     v-model="amount"
                   >
@@ -82,7 +82,7 @@
                   >
                   <div>
                 <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="repeatable" type="checkbox" id="repeatable" name="repeatable">
-                <label for="repeatable">Repeatable</label>
+                <label for="repeatable">{{$t('repeatable')}}</label>
                 </div>
                   <label for="tags">{{$t('tags')}}</label>
                   <input
@@ -92,7 +92,7 @@
                     id="tags"
                     v-model="tags"
                   >
-                  <label for="file">Image should be 1600 X 800</label>
+                  <label for="file">{{$t('image_should_be')}}</label>
                   <input
                     class="form-control"
                     @change="fileChanged"
@@ -100,20 +100,20 @@
                     type="file"
                     name="file"
                   >
-                  <label for="importance">Importance</label>
+                  <label for="importance">{{$t('importance')}}</label>
                 <input
                   class="form-control"
                   type="number"
                   id="importance"
                   name="importance"
-                  placeholder="Importance"
+                  :placeholder="$t('importance')"
                   required
                   v-model="importance"
                 >
-                  <label for="expiration_date">Expiration date</label>
+                  <label for="expiration_date">{{$t('expiration_date')}}</label>
                   <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                     <input
-                      placeholder="Expiration date"
+                      :placeholder="$t('expiration_date')"
                       readonly
                       class="span2 form-control"
                       size="16"

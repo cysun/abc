@@ -24,6 +24,12 @@
             <span>{{$t('dashboard')}}</span>
           </nuxt-link>
         </li>
+        <li id="menu-home">
+          <nuxt-link to="/admin/email">
+            <i class="fa fa-envelope"></i>
+            <span>{{$t('email_users')}}</span>
+          </nuxt-link>
+        </li>
         <li>
           <a href="#">
             <i class="fa fa-users"></i>

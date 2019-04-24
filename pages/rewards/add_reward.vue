@@ -10,7 +10,7 @@
           <div class="col-lg-12 blog-sp">
             <div class="single-gd" v-if="data.roles && data.roles.reward_provider">
               <form @submit.prevent="addAct">
-                <label for="name">Name</label>
+                <label for="name">{{$t('name')}}</label>
                 <input
                   class="form-control"
                   v-model="add_act.name"
@@ -20,10 +20,10 @@
                   :placeholder="$t('name')"
                   required
                 >
-                <label for="summernote">Description</label>
+                <label for="summernote">{{$t('description')}}</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <div v-if="upload_type == 'event'" class="control-group">
-                  <label for="start_time">Start time</label>
+                  <label for="start_time">{{$t('start_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -44,7 +44,7 @@
                     </span>
                   </div>
                   <input type="hidden" id="dtp_input1" value>
-                  <label for="end_time">End time</label>
+                  <label for="end_time">{{$t('end_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -77,7 +77,7 @@
                     });
                   </script>
                 </div>
-                <label for="value">Value</label>
+                <label for="value">{{$t('value')}}</label>
                 <input
                   class="form-control"
                   type="number"
@@ -87,17 +87,17 @@
                   required
                   v-model="add_act.value"
                 >
-                <label for="amount">Amount available ( -1 is unlimited )</label>
+                <label for="amount">{{$t('amount_avialable_unlimited')}}</label>
                 <input
                   class="form-control"
                   type="number"
                   id="amount"
                   name="reward_points"
-                  placeholder="Amount available"
+                  :placeholder="$t('amount_avialable_unlimited')"
                   required
                   v-model="add_act.amount"
                 >
-                <label for="file">Image should be 1600 X 800</label>
+                <label for="file">{{$t('image_should_be')}}</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
                 <div class="button">
                   <input

@@ -92,6 +92,37 @@ let userSchema = new mongoose.Schema({
       }
     }
   ],
+  points_given_by_admin: [
+    {
+      amount: {
+        type: Number,
+        required: true
+      },
+      reason: {
+        type: String,
+        required: true
+      },
+      time: {
+        type: Date,
+        default: Date.now
+      },
+      given_by: {
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        },
+        first_name: {
+          type: String,
+          required: true
+        },
+        last_name: {
+          type: String,
+          required: true
+        }
+      }
+    }
+  ],
   acts: [
     {
       id: {

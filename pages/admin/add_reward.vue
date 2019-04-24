@@ -16,7 +16,7 @@
                   <input type="hidden" name="id" value="this_user._id">
                   <label for="name">{{$t('name')}}</label>
                   <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
-                  <label for="summernote">Description</label>
+                  <label for="summernote">{{$t('description')}}</label>
                   <textarea id="summernote" name="editordata"></textarea>
                   <label for="reward_points">{{$t('value')}}</label>
                   <input
@@ -34,7 +34,7 @@
                     id="amount"
                     v-model="amount"
                   >
-                  <label for="file">Image should be 1600 X 800</label>
+                  <label for="file">{{$t('image_should_be')}}</label>
                   <input
                     class="form-control"
                     @change="fileChanged"

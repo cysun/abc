@@ -25,7 +25,7 @@
               <br>
               <!-- <h4>Add Act</h4> -->
               <form @submit.prevent="addAct">
-                <label for="name">Name</label>
+                <label for="name">{{$t('name')}}</label>
                 <input
                   class="form-control"
                   v-model="add_act.name"
@@ -36,11 +36,11 @@
                   required
                 >
                 
-                <label for="summernote">Description</label>
+                <label for="summernote">{{$t('description')}}</label>
                 <textarea id="summernote" name="editordata"></textarea>
                 <br>
                 <div v-if="upload_type == 'event'" class="control-group">
-                  <label for="start_time">Start time</label>
+                  <label for="start_time">{{$t('start_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -63,7 +63,7 @@
                     </span>
                   </div>
                   <input type="hidden" id="dtp_input1" value>
-                  <label for="end_time">End time</label>
+                  <label for="end_time">{{$t('end_time')}}</label>
                   <div
                     class="controls input-append date form_datetime"
                     data-date-format="yyyy-mm-ddThh:ii"
@@ -98,17 +98,17 @@
                     });
                   </script>
                 </div>
-                <label for="amount">Amount of users who can execute this act ( -1 is unlimited )</label>
+                <label for="amount">{{$t('amount_of_users')}}</label>
                 <input
                   class="form-control"
                   type="number"
                   id="amount"
                   name="amount"
-                  placeholder="Amount of users who can execute this act"
+                  :placeholder="$t('amount_of_users')"
                   required
                   v-model="add_act.amount"
                 >
-                <label for="reward">Reward points</label>
+                <label for="reward">{{$t('Reward_points')}}</label>
                 <input
                   class="form-control"
                   type="number"
@@ -120,9 +120,9 @@
                 >
                 <div>
                 <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="add_act.repeatable" type="checkbox" id="repeatable" name="repeatable">
-                <label for="repeatable">Repeatable</label>
+                <label for="repeatable">{{$t('repeatable')}}</label>
                 </div>
-                <label for="tags">Tags</label>
+                <label for="tags">{{$t('tags')}}</label>
                 <input
                   class="form-control"
                   type="text"
@@ -131,22 +131,22 @@
                   :placeholder="$t('tags_placeholder')"
                   v-model="add_act.tags"
                 >
-                <label for="file">Image should be 1600 X 800</label>
+                <label for="file">{{$t('image_should_be')}}</label>
                 <input class="form-control" @change="fileChanged" id="file" type="file" name="file">
-                <label for="importance">Importance</label>
+                <label for="importance">{{$t('importance')}}</label>
                 <input
                   class="form-control"
                   type="number"
                   id="importance"
                   name="importance"
-                  placeholder="Importance"
+                  :placeholder="$t('importance')"
                   required
                   v-model="add_act.importance"
                 >
-                <label for="expiration_date">Expiration date</label>
+                <label for="expiration_date">{{$t('expiration_date')}}</label>
                 <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
                   <input
-                    placeholder="Expiration date"
+                    :placeholder="$t('expiration_date')"
                     readonly
                     class="span2 form-control"
                     size="16"

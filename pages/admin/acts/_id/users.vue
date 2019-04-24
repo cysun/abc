@@ -8,7 +8,7 @@
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
             <div class="text-center">
-              <h1>Users relationship with this act</h1>
+              <h1>{{$t('users_relationship')}}</h1>
             </div>
             <div class="chit-chat-layer1">
               <div class="col-md-2"></div>
@@ -30,12 +30,12 @@
                           <option
                             value="first_name"
                             :selected="query.sort == 'first_name'"
-                          >First name</option>
+                          >{{$t('first_name')}}</option>
                           <option
                             value="last_name"
                             :selected="query.sort == 'last_name'"
-                          >Last name</option>
-                          <option value="time" :selected="query.sort == 'time'">Date</option>
+                          >{{$t('last_name')}}</option>
+                          <option value="time" :selected="query.sort == 'time'">{{$t('date')}}</option>
                         </select>
 
                         <select class="form-control" name="order" v-model="query.order">
@@ -85,11 +85,11 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>User's name</th>
-                          <th>Proof of completion</th>
-                          <th v-if="query.type == 'REJECTED'">Review of proof</th>
-                          <th>Reviewer's name</th>
-                          <th>Time</th>
+                          <th>{{$t('users_name')}}</th>
+                          <th>{{$t('proof_of_completion')}}</th>
+                          <th v-if="query.type == 'REJECTED'">{{$t('review_of_proof')}}</th>
+                          <th>{{$t('reviewers_name')}}</th>
+                          <th>{{t('time')}}</th>
                           
                         </tr>
                       </thead>

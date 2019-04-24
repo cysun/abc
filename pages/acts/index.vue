@@ -8,7 +8,7 @@
         <span
           v-if="query.type == 'COMPLETED'"
           class="badge badge-secondary float-left"
-        >{{data.act_count}} completed acts</span>
+        >{{data.act_count}} {{$t('completed_acts')}}</span>
         <span
           class="badge badge-primary float-right"
         >{{data.reward_points.points}} {{$t('reward_points')}}</span>

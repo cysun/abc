@@ -5,8 +5,8 @@
     <about-sidebar/>
     <section class="team py-5" style="margin-top: -80px">
       <div class="container py-md-3">
-        <h3 class="heading mb-lg-5 mb-4">Our core members</h3>
-        <p>ABC’s founding member is Joanna [P: ; she/her/hers] K. Doran, PhD, MSW, and assistant professor in the School of Social Work in California State University in Los Angeles. Dr. Doran currently manages ABC and welcomes anyone to join us in expanding ABC’s operations.</p>
+        <h3 class="heading mb-lg-5 mb-4">{{$t('our_core_members')}}</h3>
+        <p>{{$t('abc_founding_member')}}</p>
         <br>
         <div class="row team-grids">
           <div
@@ -17,8 +17,8 @@
                 <img src="~/assets/images/founder_formatted.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Joanna Doran PhD MSW</h4>
-                <span>Founding Member</span>
+                <h4>{{$t('joanna_doran')}}</h4>
+                <span>{{$t('founding_member')}}</span>
               </div>
             </div>
           </div>
@@ -28,8 +28,8 @@
                 <img src="~/assets/images/cysun.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Chengyu Sun PhD</h4>
-                <span>Technical Consultant</span>
+                <h4>{{$t('chengyu_sun')}}</h4>
+                <span>{{$t('technical_consultant')}}</span>
               </div>
             </div>
           </div>
@@ -39,8 +39,8 @@
                 <img src="~/assets/images/resercher_formatted.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Agnes Karczewska MS</h4>
-                <span>Program Development</span>
+                <h4>{{$t('agnes_kar')}}</h4>
+                <span>{{$t('program_development')}}</span>
               </div>
             </div>
           </div>
@@ -50,8 +50,8 @@
                 <img src="~/assets/images/jv.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Jennifer Vega</h4>
-                <span>Web Master</span>
+                <h4>{{$t('jennifer_vega')}}</h4>
+                <span>{{$t('web_master')}}</span>
               </div>
             </div>
           </div>
@@ -65,8 +65,8 @@
                 >
               </div>
               <div class="team-desc agile-info">
-                <h4>Victor Ahuwanya</h4>
-                <span>Web Developer</span>
+                <h4>{{$t('victor')}}</h4>
+                <span>{{$t('web_developer')}}</span>
               </div>
             </div>
           </div>
@@ -76,8 +76,8 @@
                 <img src="~/assets/images/hm.jpg" class="img-fluid" alt="image">
               </div>
               <div class="team-desc agile-info">
-                <h4>Hermila Melero MSW LCSW</h4>
-                <span>Clinical Consultant</span>
+                <h4>{{$t('hermila')}}</h4>
+                <span>{{$t('clinical')}}</span>
               </div>
             </div>
           </div>
@@ -87,10 +87,10 @@
 
     <section class="about py-5" style="margin-top: -80px">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4">Acknowledgements</h3>
+        <h3 class="heading mb-md-5 mb-4">{{$t('acknowledgements')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
-            <p>ABC is deeply grateful for the support we received from institutions.</p>
+            <p>{{$t('abc_is_grateful')}}</p>
             <br>            
             <ul>
               <li>
@@ -98,86 +98,86 @@
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.barrioaction.org/index.php?lang=en"
-                >Barrio Action Youth & Family Center</a>
+                >{{$t('barrio')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.elacc.org/"
-                >East Los Angeles Community Corporation (ELACC)</a>
+                >{{$t('east_los')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://elcentrodeayuda.org/"
-                >El Centro de Ayuda (ECDA)</a>
+                >{{$t('el_centro')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="https://www.kyccla.org/"
-                >Koreatown Youth Community Center (KYCC)</a>
+                >{{$t('korea')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.laccnp.org/"
-                >LA-CCNP Central City Neighborhood Partners</a>
+                >{{$t('la_ccnp')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="https://www.liftcommunities.org/los-angeles/"
-                >LIFT Communities</a>
+                >{{$t('lift_communities')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.maof.org/"
-                >Mexican American Opportunity Foundation (MAOF)</a>
+                >{{$t('mexican_american')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.neweconomicsforwomen.org/"
-                >New Economics for Women (NEW)</a>
+                >{{$t('new_economies')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://pacela.org/"
-                >Pacific Asian Consortium in Employment (PACE)</a>
+                >{{$t('pacific_asian')}}</a>
               </li>
               <li>
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   target="_blank"
                   href="http://www.ypiusa.org/"
-                >Youth Policy Institute (YPI)</a>
+                >{{$t('youth_policy')}}</a>
               </li>
             </ul>
             <br>
-            <p>We contacted these organizations for partnership because of the programs and services they offer to the community. They responded generously, providing our students with free financial counseling and coaching, savings programs, and supervision during our navigation at VITA sites. We recommend others try their excellent programs.</p>
+            <p>{{$t('we_contacted')}}</p>
             <br>
             <br>
             <h4 class="text-left" style="font-size: 50px">Additional Partners</h4>
             <br>
             <br>
             <p>
-              <b>Alliance for Economic Inclusion (AEI)</b>. The Los Angeles AEI is an FDIC initiative focused primarily in the City of Los Angeles, California, and is comprised of a broad-base of participating organizations representing financial institutions, community nonprofit organizations, and government agencies. ABC promotes saving pledges through
+              <b>{{$t('alliance_for')}}</b>{{$t('the_los_angeles')}}
               <a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://www.assetbuildingclinic.org/jd-choose-your-next-act"
-              >LA Saves</a>.
+              >{{$t('la_saves')}}</a>.
             </p>
             <br>
             <p>
@@ -185,7 +185,7 @@
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="http://www.calstatela.edu/engagement"
-              ><b>Cal State LA Center for Engagement, Service, and the Public Good</b></a>. The Center’s High Impact Community Engagement Mentorship Project provides stipends to many of the students performing the navigation, and seed funding for the project.
+              ><b>{{$t('cal_state_la_center')}}</b></a>{{$t('the_centers_high')}}
             </p>
             <br>
             <p>
@@ -193,34 +193,33 @@
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://www.calstatela-fcu.org/"
-              ><b>Cal State LA Federal Credit Union</b></a>
+              ><b>{{$t('cal_state_la')}}</b></a>
 
-              . The credit union has supported ABC's Annual Celebrations from the beginning.
-              Thank you!
+              {{$t('the_credit_union')}}
             </p>
             <br>
             <p>
-              <b>Center for Social Development (CSD)</b>. We also used the <a
+              <b>{{$t('center_for_social_development')}}</b>{{$t('we_also_used')}}<a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://csd.wustl.edu/OurWork/FinIncl/FinCap-AccessAbilities/Pages/FCAB.aspx"
-              >Financial Capability and Asset Building (FCAB)</a> training for social workers in the Financial Empowerment class. Cal State LA is the first Hispanic-Serving University to partner with CSD FCAB project.
+              >{{$t('financial_capacity')}}</a>{{$t('traning_for_social')}}
             </p>
             <br>
             <p>
-              <b>Consumer Financial Protection Bureau (CFBP)</b>. ABC is proud to have been selected as one of the 61 organizations nation-wide in the <a
+              <b>{{$t('consumer_financial')}}</b>{{$t('abc_is_proud')}}<a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://www.consumerfinance.gov/about-us/blog/sixty-one-organizations-join-2018-your-money-your-goals-cohort/"
-              >2018 Training Cohort</a>. We used CFBP’s Your Money, Your Goals Toolkit for Social Service workers to train students in the Financial Empowerment elective.  The CFBP also sent us free materials to promote savings at tax time, and additional training for volunteers. The CFBP provides all these products and services free to the community.
+              >{{$t('2018')}}</a>{{$t('we_used_cfbp')}}
             </p>
             <br>
             <p>
-              <b>Los Angeles Public Library (LAPD)</b>. We partnered with LAPD to provide financially empowering services for their <a
+              <b>{{$t('los_angeles')}}</b>{{$t('we_partnered')}}<a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://www.lapl.org/newamericans"
-              >New Americans Initiative</a> in four libraries and on Financial Literacy and Financial Planning Days.
+              >{{$t('new_americans')}}</a>{{$t('in_four')}}
             </p>
           </div>
         </div>

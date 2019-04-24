@@ -3,44 +3,42 @@
     <div class="nav_w3l">
       <ul>
         <li>
-          <nuxt-link class="hvr-sweep-to-bottom" to="/">Home</nuxt-link>
+          <nuxt-link class="hvr-sweep-to-bottom" to="/">{{$t('home')}}</nuxt-link>
         </li>
         <li>
-          <nuxt-link class="hvr-sweep-to-bottom" to="/about">About Us</nuxt-link>
+          <nuxt-link class="hvr-sweep-to-bottom" to="/about">{{$t('about_us')}}</nuxt-link>
         </li>
         <li>
-          <nuxt-link class="hvr-sweep-to-bottom" to="/contact">Contact Us</nuxt-link>
+          <nuxt-link class="hvr-sweep-to-bottom" to="/contact">{{$t('contact_us')}}</nuxt-link>
         </li>
       </ul>
     </div>
     <h1>404</h1>
-    <h2>ooops, something goes wrong</h2>
+    <h2>{{$t('oops')}}</h2>
     <div class="more_w3ls">
-      <nuxt-link :to="$route.path">Try Once Again</nuxt-link>
+      <nuxt-link :to="$route.path">{{$t('try_again')}}</nuxt-link>
     </div>
     <div class="wthree_social_icons">
       <div>
         <a href="#">
-          <span>Facebook</span>
+          <span>{{$t('facebook')}}</span>
         </a>
         <a href="#">
-          <span>Twitter</span>
+          <span>{{$t('twitter')}}</span>
         </a>
         <a href="#">
-          <span>Tumblr</span>
+          <span>{{$t('tumbler')}}</span>
         </a>
         <a href="#">
-          <span>LinkedIn</span>
+          <span>{{$t('linked_in')}}</span>
         </a>
         <a href="#">
-          <span>Vimeo</span>
+          <span>{{$t('vimeo')}}</span>
         </a>
       </div>
     </div>
     <div class="copyright">
-      <p>© 2019 Cool 404 Page Widget. All rights reserved | Design by
-        <a href="http://w3layouts.com">W3layouts</a>
-      </p>
+      <p>{{$t('footer_text')}}</p>
     </div>
   </div>
 </template>
