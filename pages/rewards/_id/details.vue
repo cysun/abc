@@ -68,7 +68,7 @@
             <thead>
               <th scope="col" data-type="string">{{$t('users_name')}}</th>
               <th scope="col" data-type="string">{{$t('email')}}</th>
-              <th scope="col" data-type="number">Date reward was {{data.requested}}</th>
+              <th scope="col" data-type="number">{{$t('date_reward_was')}} {{data.requested}}</th>
               <th
                 v-if="data.query.type == 'OPEN'"
                 scope="col"

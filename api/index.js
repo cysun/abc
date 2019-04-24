@@ -18,7 +18,7 @@ i18n.configure({
   directory: __dirname + "/locales"
 });
 
-// Create express instnace
+// Create express instance
 const app = express();
 
 app.use(express.json());

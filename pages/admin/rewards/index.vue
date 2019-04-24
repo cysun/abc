@@ -74,7 +74,7 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
-                          <th>Edit</th>
+                          <th>{{$t('edit')}}</th>
                           <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
@@ -101,7 +101,7 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/rewards/' + act._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                           

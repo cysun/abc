@@ -8,92 +8,31 @@
           <!--inner block start here-->
           <div class="inner-block" ref="acts_come_here">
             <div class="text-center">
-              <h1>{{$t('acts_relationship_with_user')}}</h1>
+              <h1>{{$t('points_given_to_this_user')}}</h1>
             </div>
             <div class="chit-chat-layer1">
               <div class="col-md-2"></div>
               <div class="col-md-8 chit-chat-layer1">
                 <div class="work-progres">
-                  <div class="form-inline text-center">
-                    <div class="form-group" style="margin-right: 10px">
-                      <span style="margin-right: 10px">
-                        <input
-                          type="text"
-                          name="search"
-                          v-model="query.search"
-                          class="form-control"
-                          placeholder="Search (Name)"
-                          @keyup.enter="search"
-                        >
-                        <select class="form-control" name="sort" v-model="query.sort">
-                          <option value disabled :selected="!query.sort">{{$t('sort_by')}}</option>
-                          <option value="name" :selected="query.sort == 'name'">{{$t('name')}}</option>
-                          
-                          <option value="time" :selected="query.sort == 'time'">{{$t('date')}}</option>
-                          
-                        </select>
-
-                        <select class="form-control" name="order" v-model="query.order">
-                          <option value disabled :selected="!query.order">{{$t('sort_direction')}}</option>
-                          <option value="1" :selected="query.order == '1'">{{$t('ascending')}}</option>
-                          <option value="-1" :selected="query.order == '-1'">{{$t('descending')}}</option>
-                        </select>
-
-                        <select
-                          @change="type_changed"
-                          class="form-control"
-                          name="type"
-                          v-model="query.type"
-                        >
-                          <option
-                            value="COMPLETED"
-                            :selected="!query.type == 'COMPLETED'"
-                          >{{$t('completed')}}</option>
-                          <option
-                            value="UNDER_REVIEW"
-                            :selected="!query.type == 'UNDER_REVIEW'"
-                          >{{$t('under_review')}}</option>
-                          <option
-                            value="REJECTED"
-                            :selected="!query.type == 'REJECTED'"
-                          >{{$t('rejected')}}</option>
-                        </select>
-                      </span>
-                      <button
-                        type="submit"
-                        @click="search"
-                        class="btn btn-primary"
-                        style="margin-right: 10px"
-                      >{{$t('search')}}</button>
-                      <input
-                        @click="reset"
-                        type="button"
-                        class="btn btn-danger"
-                        :value="$t('reset')"
-                      >
-                    </div>
-                  </div>
-                  <br>
                   <!-- <div class="chit-chat-heading">{{$t('acts')}}</div> -->
                   <div class="table-responsive">
                     <table class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>{{$t('act_name')}}</th>
-                          <th>{{$t('poster_first_name')}}</th>
-                          <th>{{$t('poster_last_name')}}</th>
+                          <th>{{$t('admins_name')}}</th>
+                          <th>{{$t('amount')}}</th>
+                          <th>{{$t('reason')}}</th>
                           <th>{{$t('time')}}</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="(act, index) in data.acts">
                           <td>{{index + 1}}</td>
-                          <td>{{act.populated_act[0].name}}</td>
-                          <td>{{act.populated_act[0].act_provider.first_name}}</td>
-                          <td>{{act.populated_act[0].act_provider.last_name}}</td>
-                          <td>{{act.acts.time}}</td>
-                          
+                          <td>{{act.points_given_by_admin.given_by.first_name}} {{act.points_given_by_admin.given_by.last_name}}</td>
+                          <td>{{act.points_given_by_admin.amount}}</td>
+                          <td>{{act.points_given_by_admin.reason}}</td>
+                          <td>{{act.points_given_by_admin.time}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -125,7 +64,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="clearfix"></div>
             </div>
           </div>
@@ -185,11 +124,7 @@ export default {
     let data;
     await axios
       .get(
-        `/api/admin/users/${context.params.id}/acts/${
-          context.query.page
-        }?search=${context.query.search}&type=${context.query.type}&sort=${
-          context.query.sort
-        }&order=${context.query.order}&page=${context.query.page}`,
+        `/api/admin/users/${context.params.id}/points/${context.query.page}`,
         {
           headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
         }
@@ -198,9 +133,11 @@ export default {
         data = res.data;
         // Loop through data and format date
         //Create popover of proofs
-        console.log(data);
+        // console.log(data);
         data.acts.forEach(element => {
-          element.acts.time = moment(element.acts.time).format("MMMM Do YYYY");
+          element.points_given_by_admin.time = moment(
+            element.points_given_by_admin.time
+          ).format("MMMM Do YYYY");
         });
       })
       .catch(function(err) {
@@ -223,19 +160,15 @@ export default {
 
     let data;
     await axios
-      .get(
-        `/api/admin/users/${to.params.id}/acts/${to.query.page}?type=${
-          to.query.type
-        }&sort=${to.query.sort}&search=${to.query.search}&order=${to.query.order}&page=${to.query.page}`,
-        {
-          headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
-        }
-      )
+      .get(`/api/admin/users/${to.params.id}/points/${to.query.page}`, {
+        headers: { Cookie: `token=${token}; refresh_token=${refresh_token};` }
+      })
       .then(function(res) {
         data = res.data;
-        console.log(data);
         data.acts.forEach(element => {
-          element.acts.time = moment(element.acts.time).format("MMMM Do YYYY");
+          element.points_given_by_admin.time = moment(
+            element.points_given_by_admin.time
+          ).format("MMMM Do YYYY");
         });
       })
       .catch(function(err) {
@@ -272,31 +205,13 @@ export default {
     });
   },
   methods: {
-    async search() {
-      this.$router.push(
-        `/admin/users/${this.$route.params.id}/acts?sort=${
-          this.query.sort
-        }&order=${this.query.order}&search=${this.query.search}&type=${
-          this.query.type
-        }
-        `
-      );
-    },
-    type_changed() {
-      this.$router.push(
-        `/admin/users/${this.$route.params.id}/acts?type=${this.query.type}`
-      );
-    },
     navigateTo(index) {
       var element = this.$refs["acts_come_here"];
       var top = element.offsetTop;
       scrollToElement(element);
 
       this.$router.push(
-        `/admin/acts?sort=${this.query.sort}&order=${this.query.order}&search=${
-          vue_context.query.search
-        }&page=${index}
-        `
+        `/admin/users/${vue_context.params.id}/points/${index}`
       );
     },
     previous() {
@@ -306,15 +221,6 @@ export default {
     next() {
       if (this.query.page >= this.data.count) return;
       this.navigateTo(parseInt(this.query.page) + 1);
-    },
-    reset() {
-      this.query.order = "";
-      this.query.page = 1;
-      this.query.search = "";
-      this.query.sort = "";
-      this.$router.push(
-        `/admin/users/${this.$route.params.id}/acts?type=${this.query.type}`
-      );
     }
   }
 };

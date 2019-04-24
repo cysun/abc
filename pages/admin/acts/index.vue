@@ -74,8 +74,8 @@
                           <th>{{$t('state')}}</th>
                           <th>{{$t('deleted')}}</th>
                           <th>{{$t('creation_date')}}</th>
-                          <th>More details</th>
-                          <th>Edit</th>
+                          <th>{{$t('more_details')}}</th>
+                          <th>{{$t('edit')}}</th>
                           <!-- <th>{{$t('actions')}}</th> -->
                         </tr>
                       </thead>
@@ -102,12 +102,12 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/users'">
-                              <button class="btn btn-primary">Users</button>
+                              <button class="btn btn-primary">{{$t('users')}}</button>
                             </nuxt-link>
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/acts/' + act._id + '/edit'">
-                              <button class="btn btn-primary">Edit</button>
+                              <button class="btn btn-primary">{{$t('edit')}}</button>
                             </nuxt-link>
                           </td>
                         </tr>

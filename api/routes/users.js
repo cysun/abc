@@ -3,7 +3,7 @@ const User = require("../../models/User");
 var createError = require("http-errors");
 const multer = require("multer");
 const globals = require("../../globals");
-const os = require('os');
+const os = require("os");
 const sanitize = require("sanitize-html");
 const logger = require("../../logger").winston;
 sanitize.defaults.allowedAttributes = [];
@@ -18,8 +18,7 @@ const router = Router();
 router.get("/", async function(req, res, next) {
   try {
     //Only admin can get here
-    if (!req.roles.administrator)
-      throw new Error(res.__('lack_auth'));
+    if (!req.roles.administrator) throw new Error(res.__("lack_auth"));
 
     //Return users with respect to search, sort, order and
     let search = {};
@@ -43,20 +42,94 @@ router.get("/", async function(req, res, next) {
 
     let offset = (page - 1) * 10;
 
-    let results;
+    // let results;
     let count;
-    results = User.find(search, {
-      first_name: true,
-      last_name: true,
-      enabled: true,
-      creation_date: true
-    })
-      .sort({ [sort]: order })
-      .skip(offset)
-      .limit(10)
-      .lean();
+    // results = User.find(search, {
+    //   first_name: true,
+    //   last_name: true,
+    //   enabled: true,
+    //   creation_date: true
+    // })
+    //   .sort({ [sort]: order })
+    //   .skip(offset)
+    //   .limit(10)
+    //   .lean();
 
     count = User.find(search).countDocuments();
+
+    const results = User.aggregate([
+      { $match: search },
+      {
+        $unwind: {
+          path: "$acts",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          $or: [{ "acts.state": "COMPLETED" }, { acts: { $exists: false } }]
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          data: {
+            $push: "$$ROOT"
+          },
+          acts: {
+            $push: "$acts"
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "acts",
+          localField: "acts.id",
+          foreignField: "_id",
+          as: "acts"
+        }
+      },
+      {
+        $addFields: {
+          sum: { $sum: "$acts.reward_points" },
+          data: { $arrayElemAt: ["$data", 0] }
+        }
+      },
+      {
+        $addFields: {
+          "data.acts": "$acts",
+          "data.total_points": "$sum"
+        }
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$data"
+        }
+      },
+      {
+        $addFields: {
+          total_points1: {$sum: ["$points_given_by_admin.amount"]}
+        }
+      },
+      {
+        $sort: { [sort]: order }
+      },
+      {
+        $skip: offset
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          first_name: true,
+          last_name: true,
+          enabled: true,
+          creation_date: true,
+          total_points: {$sum: ["$total_points", "$total_points1"]}
+        }
+      }
+    ]);
 
     const promises = [results, count];
     let returned_results, pages;
@@ -76,7 +149,6 @@ router.get("/", async function(req, res, next) {
 //Edit user
 router.get("/:id/edit", async function(req, res, next) {
   try {
-    
     const user = await User.findById(req.params.id);
     const roles = {};
     if (user) {
@@ -144,8 +216,7 @@ router.put("/:id", async function(req, res, next) {
     user.roles = req.body.roles;
     user.enabled = req.body.enabled;
     //Make sure that unverified email is moved to email and then removed if exists
-    if (user.unverified_email && req.body.enabled)
-    {
+    if (user.unverified_email && req.body.enabled) {
       user.email = user.unverified_email;
       user.unverified_email = undefined;
     }

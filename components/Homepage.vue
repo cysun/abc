@@ -25,29 +25,29 @@
       <div class="container py-md-3">
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
-            <p>With the nearly half of Americans (46%) unable to come up with $400 in the event of an emergency[1] and communities of color on the road to a median of zero wealth if we maintain status quo [2], it is imperative we do something. But what?</p>
+            <p>{{$t('homepage_text_1')}}</p>
           </div>
           <div class="col-lg-3 col-md-4 w3-agile-grid pr-md-0">
             <img src="~/assets/images/a.png">
-            <p class="text-right">Image by Banksy</p>
+            <p class="text-right">{{$t('image_by_banksy')}}</p>
           </div>
         </div>
       </div>
     </section>
     <section class="about py-5" style="margin-bottom: -100px">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4 text-center">Where does the money go?</h3>
-        <h3 class="heading mb-md-5 mb-4 text-center">How are we supposed to get ahead?</h3>
+        <h3 class="heading mb-md-5 mb-4 text-center">{{$t('where_does_the_money_go')}}</h3>
+        <h3 class="heading mb-md-5 mb-4 text-center">{{$t('how_are_we_supposed_to_get_ahead')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-6 mb-lg-0 w3-agile-grid mb-5">
-            <p>As we seek to do more with less, the increasing complexity of our financial world can be daunting, if not overwhelming. What is a prepaid debit card, and does it matter it is not issued by a bank? Does overdraft protection really protect you from overdrafts? Is a car title loan a good option in a financial pinch? Are CDs a good investment?</p>
+            <p>{{$t('as_we_seek_to_do')}}</p>
             <p
               class="mt-2 mb-3"
-            >We would not blame you if just thinking about your finances causes you anxiety, irritation… or tremendous boredom.</p>
+            >{{$t('we_would_not_blame')}}</p>
           </div>
           <div class="col-lg-3 col-md-4 w3-agile-grid pr-md-0">
             <img src="~/assets/images/b.png">
-            <p class="text-right">Image by Banksy</p>
+            <p class="text-right">{{$t('image_by_banksy')}}</p>
           </div>
         </div>
       </div>
@@ -57,21 +57,21 @@
       <div class="container py-md-3">
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
-            <p><b>This is why we make it easy for anyone to complete financially empowering acts, whether for themselves or by helping another person.</b></p>
+            <p><b>{{$t('this_is_why_we_make')}}</b></p>
             <br>
             <ul>
               <li>
-                A financially empowering act is something that could help you or others have
+                {{$t('a_financially_empowering')}}
                 <a
                   style="all: unset; cursor: pointer; color: blue"
                   href="https://files.consumerfinance.gov/f/201501_cfpb_digest_financial-well-being.pdf"
                   target="_blank"
-                >financial security and financial freedom of choice, in the present and in the future</a>
+                >{{$t('financial_security')}}</a>
               </li>
-              <li>We provide you with clear instructions for checking credit reports, enhancing financial education, and exploring safe financial products designed to reduce debt, grow savings, and buy assets. Most people do not know such services exist, and this is why we make it easy for you to access them.</li>
+              <li>{{$t('we_provide')}}</li>
             </ul>
             <br>
-            <p><b>We also found a way to reward each other for financially empowering ourselves and our communities. Each act is worth points, which can be redeemed for rewards.</b></p>
+            <p><b>{{$t('we_also')}}</b></p>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@
             <div class="col-md-3 col-sm-6 steps-reach w3-agile-grid">
               <span class="fab fa-algolia"></span>
               <h4>{{$t('step_1')}}</h4>
-              <p>Get an urge to act</p>
+              <p>{{$t('get_an_urge')}}</p>
               <div class="style-border">
                 <img src="images/sty1.png" alt>
               </div>
@@ -91,7 +91,7 @@
             <div class="col-md-3 col-sm-6 mt-sm-0 mt-5 steps-reach w3-agile-grid">
               <span class="fab fa-asymmetrik"></span>
               <h4>{{$t('step_2')}}</h4>
-              <p>Look through our menu to choose and complete an act that is most useful to you right now</p>
+              <p>{{$t('look_through')}}</p>
               <div class="style-border second-border">
                 <img src="images/sty2.png" alt>
               </div>
@@ -99,7 +99,7 @@
             <div class="col-md-3 col-sm-6 mt-md-0 mt-5 pt-md-0 pt-sm-5 steps-reach w3-agile-grid">
               <span class="fas fa-bug" aria-hidden="true"></span>
               <h4>{{$t('step_3')}}</h4>
-              <p>Tell us about your act to receive points</p>
+              <p>{{$t('tell_us_about')}}</p>
               <div class="style-border">
                 <img src="images/sty1.png" alt>
               </div>
@@ -107,7 +107,7 @@
             <div class="col-md-3 col-sm-6 mt-md-0 mt-5 pt-md-0 pt-sm-5 steps-reach w3-agile-grid">
               <span class="fas fa-check-square" aria-hidden="true"></span>
               <h4>{{$t('step_4')}}</h4>
-              <p>Whenever you like or need, spend your points on rewards</p>
+              <p>{{$t('whenever_you_like_or_need')}}</p>
             </div>
           </div>
         </div>
@@ -116,18 +116,18 @@
     <!-- <how-we-work/> -->
     <section class="about py-5">
       <div class="container py-md-3">
-        <h3 class="heading mb-md-5 mb-4 text-center">Where do we get the rewards?</h3>
+        <h3 class="heading mb-md-5 mb-4 text-center">{{$t('where_do_we_get')}}</h3>
         <div class="row about-grids agile-info">
           <div class="col-lg-12 mb-lg-0 w3-agile-grid mb-5">
-            <p>Our members! Everyone either knows something or has something that someone else would need or love. We make it easy for you to share.</p>
+            <p>{{$t('our_members')}}</p>
             <br>
             <p>
-              What could you offer? Perhaps you know how to cook something others find complicated? Do you have the patience to teach kids the multiplication table? Maybe you have an object that no longer
+              {{$t('what_could_you_offer')}}
               <a
                 style="all: unset; cursor: pointer; color: blue"
                 target="_blank"
                 href="https://youtu.be/9AvWs2X-bEA"
-              >sparks joy</a>, but others might find valuable? Someone should find any of these rewards to be wonderfully motivating! This is why we give you points for offering and providing rewards.
+              >{{$t('sparks_joy')}}</a>{{$t('but_others')}}
             </p>
           </div>
         </div>
@@ -140,7 +140,7 @@
             <div class="col-md-3 col-sm-6 steps-reach w3-agile-grid">
               <span class="fab fa-algolia"></span>
               <h4>{{$t('step_1')}}</h4>
-              <p>Get an urge to give</p>
+              <p>{{$t('get_an_urge_to_give')}}</p>
               <div class="style-border">
                 <img src="images/sty1.png" alt>
               </div>
@@ -148,7 +148,7 @@
             <div class="col-md-3 col-sm-6 mt-sm-0 mt-5 steps-reach w3-agile-grid">
               <span class="fab fa-asymmetrik"></span>
               <h4>{{$t('step_2')}}</h4>
-              <p>Follow instructions for offering a reward, from our Acts menu</p>
+              <p>{{$t('follow_instructions')}}</p>
               <div class="style-border second-border">
                 <img src="images/sty2.png" alt>
               </div>
@@ -156,7 +156,7 @@
             <div class="col-md-3 col-sm-6 mt-md-0 mt-5 pt-md-0 pt-sm-5 steps-reach w3-agile-grid">
               <span class="fas fa-bug" aria-hidden="true"></span>
               <h4>{{$t('step_3')}}</h4>
-              <p>Receive points when reward posts, and every time someone uses it</p>
+              <p>{{$t('receive_points')}}</p>
               <div class="style-border">
                 <img src="images/sty1.png" alt>
               </div>
@@ -164,7 +164,7 @@
             <div class="col-md-3 col-sm-6 mt-md-0 mt-5 pt-md-0 pt-sm-5 steps-reach w3-agile-grid">
               <span class="fas fa-check-square" aria-hidden="true"></span>
               <h4>{{$t('step_4')}}</h4>
-              <p>Whenever you like or need, spend your points on rewards</p>
+              <p>{{$t('whenever_you_like')}}</p>
             </div>
           </div>
         </div>
@@ -173,10 +173,10 @@
     <section class="quotes py-5 text-center">
       <div class="container py-md-3">
         <div class="quotes-info agile-info-quotes">
-          <h3 class="mb-3">Join Us!</h3>
-          <p>Become a member of ABC and join us in enhancing financial wellbeing for us all.</p>
+          <h3 class="mb-3">{{$t('join_us')}}</h3>
+          <p>{{$t('become_a_member_of_abc')}}</p>
           <br>
-          <p>We do not judge and we do not give advice. Membership is confidential and free.</p>
+          <p>{{$t('we_do_not_judge')}}</p>
           <nuxt-link
             class="bt mt-4 mr-2 text-capitalize"
             to="/sign_up"
@@ -212,7 +212,7 @@
     background-size: cover;"
           >
             <div class="layer agile-info">
-              <h3 class="heading mb-lg-5 mb-4">Our Stats</h3>
+              <h3 class="heading mb-lg-5 mb-4">{{$t('out_stats')}}</h3>
               <div class="row">
                 <div class="col-sm-6 col-6 agileits_w3layouts_about_counter_left w3-agile-grid">
                   <div class="countericon">

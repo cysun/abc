@@ -122,6 +122,22 @@ async function sendNewReviewNotice(user_email, reward_id) {
   }
 }
 
+async function sendEmail(to, subject, message) {
+  try {
+    await email.send({
+      template: "send_email",
+      message: {
+        bcc: to
+      },
+      locals: { subject, message }
+    });
+    logger.info(`Successfully sent emails to users`);
+  } catch (err) {
+    logger.error(`Failed to send emails to users`);
+    throw new Error("Something went wrong. Please try again later");
+  }
+}
+
 async function sendExpirationNotice(user_email, name, id) {
   try {
     await email.send({
@@ -256,6 +272,7 @@ async function forgot_password(user_email, token) {
 }
 
 module.exports = {
+  sendEmail,
   contactUs,
   forgot_password,
   sendNewReviewNotice,

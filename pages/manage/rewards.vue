@@ -30,7 +30,7 @@
                 <option
                   value="value"
                   :selected="query.sort == 'value'"
-                >Value</option>
+                >{{$t('value')}}</option>
               </select>
               
               <select class="form-control" name="order" v-model="query.order">

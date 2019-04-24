@@ -83,9 +83,10 @@
                           <th>{{$t('last_name')}}</th>
                           <th>{{$t('verified')}}</th>
                           <th>{{$t('registration_date')}}</th>
-                          <th>Edit</th>
-                          <th>View Acts</th>
-                          <th>Give points</th>
+                          <th>{{$t('edit')}}</th>
+                          <th>{{$t('view_acts')}}</th>
+                          <th>{{$t('give_points')}}</th>
+                          <th>{{$t('total_points')}}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -109,20 +110,31 @@
                           </td>
                           <td>
                             <nuxt-link :to="'/admin/users/' + user._id + '/acts'">
-                              <button class="btn btn-primary">View Acts</button>
+                              <button class="btn btn-primary">{{$t('view_acts')}}</button>
                             </nuxt-link>
                           </td>
                           <td>
                             <!-- Button trigger modal -->
-                            <input class="form-control" type="number" v-model="points[user._id]">
+                            <input
+                              class="form-control"
+                              :placeholder="$t('points')"
+                              type="number"
+                              v-model="points[user._id]"
+                            >
+                            <textarea
+                              class="form-control"
+                              :placeholder="$t('reason')"
+                              v-model="reason[user._id]"
+                            ></textarea>
                             <button
                               type="button"
-                              @click="givePoints(user._id)"
+                              @click="givePoints(user._id, index)"
                               class="btn btn-primary"
                               data-toggle="modal"
                               data-target="#exampleModalCenter"
-                            >Give points</button>
+                            >{{$t('give_points')}}</button>
                           </td>
+                          <td><nuxt-link :to="`/admin/users/${user._id}/points`">{{user.total_points}}</nuxt-link></td>
                         </tr>
                       </tbody>
                     </table>
@@ -154,7 +166,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="clearfix"></div>
             </div>
           </div>
@@ -196,7 +208,8 @@ export default {
   data() {
     return {
       give_points_to: "",
-      points: {}
+      points: {},
+      reason: {}
     };
   },
   head() {
@@ -357,11 +370,20 @@ export default {
     store_this_id(id) {
       this.give_points_to = id;
     },
-    givePoints(id) {
+    givePoints(id, index) {
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
+      //Ensure both fields are filled
+      if (!this.reason[id] || !this.points[id]) {
+        izitoast.error({
+          title: "Error",
+          message: "Incomplete request",
+          position: "topRight"
+        });
+        return;
+      }
       //Ensure this is a number
-      if (!isNumeric(this.points[id])) {
+      else if (!isNumeric(this.points[id])) {
         //Give error message
         izitoast.error({
           title: "Error",
@@ -369,13 +391,13 @@ export default {
           position: "topRight"
         });
       } else {
-        
-        
-        
-        
         // Add the number of points to this user
+        const params = new URLSearchParams();
+        params.append("points", this.points[id]);
+        params.append("reason", this.reason[id]);
+
         axios
-          .put(`/api/admin/users/${id}/points/${this.points[id]}`, {
+          .put(`/api/admin/users/${id}/points`, params, {
             headers: {
               Cookie: `token=${token}; refresh_token=${refresh_token};`
             }
@@ -387,8 +409,11 @@ export default {
               message: "Points were successfully added",
               position: "topRight"
             });
-            // Reset points
-            vue_context.points[id] = ""
+            //Add to total on page
+            vue_context.data.data[index].total_points += parseInt(vue_context.points[id]);
+            // Reset points and reason input fields
+            vue_context.points[id] = "";
+            vue_context.reason[id] = "";
           })
           .catch(function(err) {
             // If something goes wrong, give error message

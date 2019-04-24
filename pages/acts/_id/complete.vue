@@ -17,7 +17,7 @@
                   <div class="row">
                     <a class="col-md-9" tabindex="-1" v-if="!data.edit">{{data.act.name}}</a>
                     <h6>
-                      <span class="badge badge-secondary">COMPLETED</span>
+                      <span class="badge badge-secondary">{{$t('COMPLETED')}}</span>
                     </h6>
                   </div>
                   <input
@@ -126,7 +126,7 @@
                   v-if="!data.proofs.completed_users[0].user_review_of_act.act_rating && !data.proofs.completed_users[0].user_review_of_act.act_comments"
                   @submit.prevent="submitRating"
                 >
-                  <span class="align-top">Rate the act:</span>
+                  <span class="align-top">{{$t('rate_the_act')}}:</span>
                   <input type="radio" name="smiley" value="1" class="devil" v-model="reward_rating">
                   <input type="radio" name="smiley" value="2" class="sad" v-model="reward_rating">
                   <input
@@ -141,7 +141,7 @@
                   <textarea
                     class="form-control"
                     v-model="reward_comments"
-                    placeholder="Additional comments about the act"
+                    :placeholder="$t('additional_comments_about_the_act')"
                   ></textarea>
                   <div class='text-center'><input class='btn btn-primary' type='submit' :value="$t('submit_rating')"></div>
                 </form>
@@ -235,7 +235,7 @@
                     <i>|</i>
                   </li>
                   <li v-if="data.act.amount > 0">
-                    <span title="Amount available" class="fa fa-clone" aria-hidden="true"></span>
+                    <span :title="$t('amount_available')" class="fa fa-clone" aria-hidden="true"></span>
                     <span v-if="!data.edit">{{data.act.amount}}</span>
                     <i>|</i>
                   </li>

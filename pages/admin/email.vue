@@ -10,77 +10,17 @@
           <div class="inner-block">
             <div class="login-main">
               <div class="login-head">
-                <h1>{{$t('add_act')}}</h1>
+                <h1>{{$t('send_email')}}</h1>
               </div>
               <div class="login-block">
                 <form @submit.prevent="addAct">
                   <input type="hidden" name="id" value="this_user._id">
-                  <label for="name">{{$t('name')}}</label>
-                  <input type="text" name="name" id="name" :placeholder="$t('name')" v-model="name">
-                  <label for="summernote">{{$t('description')}}</label>
-                  
+                  <label for="name">Subject</label>
+                  <input type="text" name="name" id="name" placeholder="Subject" v-model="name">
+                  <label for="summernote">{{$t('email')}}</label>
+
                   <textarea id="summernote" name="editordata"></textarea>
-                  <label for="amount">{{$t('amount_of_users_short')}}</label>
-                  <input
-                    type="text"
-                    id="amount"
-                    name="amount"
-                    :placeholder="$t('amount_of_users_short')"
-                    required
-                    v-model="amount"
-                  >
-                  <label for="reward_points">{{$t('Reward_points')}}</label>
-                  <input
-                    type="text"
-                    name="reward_points"
-                    :placeholder="$t('Reward_points')"
-                    id="reward_points"
-                    v-model="reward_points"
-                  >
-                  <div>
-                <input placeholder="Hello" style="width: auto; box-shadow: none" v-model="repeatable" type="checkbox" id="repeatable" name="repeatable">
-                <label for="repeatable">{{$t('repeatable')}}</label>
-                </div>
-                  <label for="tags">{{$t('tags')}}</label>
-                  <input
-                    type="text"
-                    name="tags"
-                    :placeholder="$t('tags_placeholder')"
-                    id="tags"
-                    v-model="tags"
-                  >
-                  <label for="file">{{$t('image_should_be')}}</label>
-                  <input
-                    class="form-control"
-                    @change="fileChanged"
-                    id="file"
-                    type="file"
-                    name="file"
-                  >
-                  <label for="importance">{{$t('importance')}}</label>
-                <input
-                  class="form-control"
-                  type="number"
-                  id="importance"
-                  name="importance"
-                  :placeholder="$t('importance')"
-                  required
-                  v-model="importance"
-                >
-                  <label for="expiration_date">{{$t('expiration_date')}}</label>
-                  <div class="input-append date" id="dp3" data-date-format="yyyy-mm-dd">
-                    <input
-                      :placeholder="$t('expiration_date')"
-                      readonly
-                      class="span2 form-control"
-                      size="16"
-                      type="text"
-                      id="expiration_date"
-                    >
-                    <span class="add-on">
-                      <i class="icon-th"></i>
-                    </span>
-                  </div>
+                  <br>
                   <input
                     type="submit"
                     :class="{'disabled': disable_submit_button}"
@@ -126,7 +66,7 @@ export default {
 
     $(document).ready(function() {
       $("#summernote").summernote({
-        placeholder: "Description",
+        placeholder: "Email",
         height: 300,
         toolbar: [
           // [groupName, [list of button]]
@@ -136,7 +76,7 @@ export default {
           ["color", ["color"]],
           ["para", ["ul", "ol", "paragraph"]],
           ["insert", ["table"]],
-          ["insert", ["link", "picture"]],
+          ["insert", ["link"]],
           ["misc", ["fullscreen", "codeview", "help"]]
         ]
       });
@@ -181,22 +121,17 @@ export default {
       //Send act
       const token = this.$cookies.get("token");
       const refresh_token = this.$cookies.get("refresh_token");
-      const params = new FormData();
-
       this.description = $("#summernote").summernote("code");
 
+      //Subject and email must be filled
+      //Pass details to server
+
+      const params = new URLSearchParams();
       params.append("name", this.name);
       params.append("description", this.description);
-      params.append("reward_points", this.reward_points);
-      params.append("amount", this.amount);
-      params.append("repeatable", this.repeatable);
-      params.append("importance", this.importance);
-      if (this.expiration_date)
-        params.append("expiration_date", this.expiration_date);
-      if (this.image) params.append("file", this.image, this.image.name);
-      if (this.tags) params.append("tags", this.tags);
+
       await axios
-        .post(`/api/acts/act`, params, {
+        .post(`/api/admin/email`, params, {
           headers: {
             Cookie: `token=${token}; refresh_token=${refresh_token};`
           }
@@ -204,20 +139,14 @@ export default {
         .then(function(res) {
           izitoast.success({
             title: "Success",
-            message: "Your act has been successfully created",
+            message: "Email has been sent successfully",
             position: "topRight"
           });
           vue_context.name = "";
           vue_context.description = "";
           $("#summernote").summernote("code", "");
-          vue_context.amount = "";
-          vue_context.reward_points = "";
-          vue_context.tags = "";
-          document.getElementById("file").value = null;
-          document.getElementById("expiration_date").value = "";
         })
         .catch(function(err) {
-          // console.log(err);
           izitoast.error({
             title: "Error",
             message: err.response.data.message,
@@ -229,13 +158,17 @@ export default {
       this.$nuxt.$loading.finish();
     }
   },
-  head () {
+  head() {
     return {
-      title: "Asset Building Clinic : Create act",
+      title: "Asset Building Clinic : Send email",
       meta: [
-        { hid: 'description', name: 'description', content: 'Create an act' }
+        {
+          hid: "description",
+          name: "description",
+          content: "Send an email to users"
+        }
       ]
-    }
+    };
   },
   data() {
     return {
