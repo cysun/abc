@@ -869,7 +869,7 @@ router.post("/", upload.single("file"), async function(req, res, next) {
     if (req.file) {
       let buffer;
       const file_name = uuidv4();
-      const picture = os.tmpdir() + "\\" + req.file.filename;
+      const picture = os.tmpdir() + "/" + req.file.filename;
       await fs_read_file(picture)
         .then(function(data) {
           buffer = data;
@@ -967,7 +967,7 @@ router.post("/", upload.single("file"), async function(req, res, next) {
     next(createError(400, err.message));
     logger.error(`${req.user.id} failed to create reward`);
   } finally {
-    if (req.file) fs.unlinkSync(os.tmpdir() + "\\" + req.file.filename);
+    if (req.file) fs.unlinkSync(os.tmpdir() + "/" + req.file.filename);
   }
 });
 
@@ -1171,7 +1171,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
 
     if (req.file) {
       //Process image
-      const image = os.tmpdir() + "\\" + req.file.filename;
+      const image = os.tmpdir() + "/" + req.file.filename;
       let error_drawing_file = false;
       let buffer;
       const file_name = uuidv4();

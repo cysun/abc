@@ -558,7 +558,7 @@ router.post("/register", upload.single("file"), async function(req, res, next) {
     if (req.user && !req.roles.administrator)
       throw new Error(res.__("you_must_be_logged_out"));
     if (req.file)
-      req.body.profile_picture = os.tmpdir() + "\\" + req.file.filename;
+      req.body.profile_picture = os.tmpdir() + "/" + req.file.filename;
     let user = await User.initialize(req.body);
 
     // await user.save();

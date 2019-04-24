@@ -728,9 +728,9 @@ router.post("/:id/complete", upload.array("files"), async function(
     const this_promises = [];
     if (req.files) {
       for (let i = 0; i < req.files.length; i++) {
-        if (fs.existsSync(os.tmpdir() + "\\" + req.files[i].filename))
+        if (fs.existsSync(os.tmpdir() + "/" + req.files[i].filename))
           this_promises.push(
-            fs_delete_file(os.tmpdir() + "\\" + req.files[i].filename)
+            fs_delete_file(os.tmpdir() + "/" + req.files[i].filename)
           );
       }
       await Promise.all(this_promises);
@@ -1506,7 +1506,7 @@ router.post("/:type", upload.single("file"), async function(req, res, next) {
     if (!req.roles || !req.roles.act_poster) {
       throw new Error(res.__("lack_auth"));
     }
-    if (req.file) req.body.picture = os.tmpdir() + "\\" + req.file.filename;
+    if (req.file) req.body.picture = os.tmpdir() + "/" + req.file.filename;
     req.body.provider = req.user;
     const this_user = await User.findById(req.user.id, { email: true });
     req.body.provider.email = this_user.email;
@@ -1623,7 +1623,7 @@ router.put("/:id", upload.single("file"), async function(req, res, next) {
 
     if (req.file) {
       //Process image
-      const image = os.tmpdir() + "\\" + req.file.filename;
+      const image = os.tmpdir() + "/" + req.file.filename;
       let error_drawing_file = false;
       let buffer;
       const file_name = uuidv4();
