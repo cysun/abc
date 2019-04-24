@@ -52,7 +52,7 @@ function uploadMultipleFiles(re, original_name, file_name, size, req) {
     .then(function() {
       //Move the file to the acts proof folder with the new name and extension
       fs_rename_file(
-        `${os.tmpdir()}\\${file_name}`,
+        `${os.tmpdir()}/${file_name}`,
         `${process.env.files_folder}/${unique_name}${ext}`
       );
     })
