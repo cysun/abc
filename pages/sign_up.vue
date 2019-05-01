@@ -88,7 +88,7 @@ export default {
   },
   async asyncData(context) {
     if (context.app.$cookies.get("token")) {
-      context.redirect("/");
+      context.redirect("/acts");
     }
   },
   head () {

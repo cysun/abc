@@ -22,6 +22,13 @@ var upload = multer({
 
 const router = Router();
 
+async function onlyAdminCanGetHere(req, res, next) {
+  if (!req.roles || !req.roles.administrator) next(createError(400, res.__("lack_auth")));
+  else next();
+}
+
+router.use(onlyAdminCanGetHere);
+
 router.get("/acts", async function(req, res, next) {
   try {
     let type = Act;

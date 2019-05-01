@@ -1,8 +1,3 @@
-//Uncomment the line below when running tests
-// require("dotenv").load({ path: __dirname + "/../.env_test" });
-//Comment the line above during development
-require("dotenv").load();
-
 const secret = require("../secret");
 const User = require("../models/User");
 const express = require("express");
@@ -165,24 +160,17 @@ const baseRouter = require("./routes/base");
 const rewardsRouter = require("./routes/rewards");
 const adminRouter = require("./routes/admin");
 
-mongoose.connection.on(
-  "connected",
-  () => logger.info(`Mongoose connected to ${process.env.DBURL}`)
-  // console.log(`Mongoose connected to ${process.env.DBURL}`)
+mongoose.connection.on("connected", () =>
+  logger.info(`Mongoose connected to ${process.env.DBURL}`)
 );
 mongoose.connection.on("disconnected", () =>
-  // console.log('Mongoose disconnected.')
   logger.info("Mongoose disconnected")
 );
-mongoose.connect(
-  // process.env.DBURL,
-  process.env.DBURL,
-  {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    replicaSet: "rs"
-  }
-);
+mongoose.connect(process.env.DBURL, {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  replicaSet: "rs"
+});
 
 // Import API Routes
 app.use(requestLogger);
