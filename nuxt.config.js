@@ -1,5 +1,8 @@
-import path from "path";
+//Uncomment the line below when running tests
+// require("dotenv").load({ path: "./.env_test" });
+//Comment the line above during development/production
 require("dotenv").load();
+
 module.exports = {
   /*
    ** Headers of the page
@@ -76,6 +79,6 @@ module.exports = {
   ],
   plugins: ["plugins/i18n.js"],
   router: {
-    middleware: ["get_user_from_jwt", "i18n"]
+    middleware: ["get_user_from_jwt", "i18n", "only_admin_is_allowed"]
   }
 };
