@@ -89,7 +89,7 @@
                           <th>{{$t('proof_of_completion')}}</th>
                           <th v-if="query.type == 'REJECTED'">{{$t('review_of_proof')}}</th>
                           <th>{{$t('reviewers_name')}}</th>
-                          <th>{{t('time')}}</th>
+                          <th>{{$t('time')}}</th>
                           
                         </tr>
                       </thead>

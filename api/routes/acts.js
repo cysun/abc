@@ -796,10 +796,13 @@ router.get("/images/:id", async function(req, res, next) {
 //Get events
 router.get("/calendar", async function(req, res, next) {
   //Get all events in the range
+  today = new Date();
+  const todays_date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   const events = await Event_Act.find(
     {
       start_time: { $gte: req.query.start },
       end_time: { $lte: req.query.end },
+      end_time: { $gte: todays_date },
       deleted: false,
       state: "AVAILABLE",
       "enabled.state": true
