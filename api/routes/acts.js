@@ -578,7 +578,15 @@ router.post("/:id/complete", upload.array("files"), async function(
             { session }
           );
           await Act.findOneAndUpdate(
-            { "users_under_review.id": act[0].users_who_completed_this_act.id },
+            {
+              $and: [
+                { _id: req.params.id },
+                {
+                  "users_under_review.id":
+                    act[0].users_who_completed_this_act.id
+                }
+              ]
+            },
             {
               $push: {
                 "users_under_review.$.proof_of_completion":
@@ -628,9 +636,13 @@ router.post("/:id/complete", upload.array("files"), async function(
         //Add to the entry where it's under review
         promised_user_change = User.findOneAndUpdate(
           {
-            _id: user.id,
-            "acts.id": req.params.id,
-            "acts.state": "UNDER_REVIEW"
+            _id: mongoose.Types.ObjectId(user.id),
+            acts: {
+              $elemMatch: {
+                id: mongoose.Types.ObjectId(req.params.id),
+                state: "UNDER_REVIEW"
+              }
+            }
           },
           {
             $set: { "acts.$.state": "UNDER_REVIEW", "acts.$.time": Date.now() },
@@ -713,8 +725,12 @@ router.post("/:id/complete", upload.array("files"), async function(
     const act_proofs = await User.findOne(
       {
         _id: req.user.id,
-        "acts.id": req.params.id,
-        "acts.state": "UNDER_REVIEW"
+        acts: {
+          $elemMatch: {
+            id: mongoose.Types.ObjectId(req.params.id),
+            state: "UNDER_REVIEW"
+          }
+        }
       },
       { "acts.$.proof_of_completion": true, _id: false },
       { sort: { "acts.time": -1 } }
@@ -797,7 +813,8 @@ router.get("/images/:id", async function(req, res, next) {
 router.get("/calendar", async function(req, res, next) {
   //Get all events in the range
   today = new Date();
-  const todays_date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const todays_date = `${today.getFullYear()}-${today.getMonth() +
+    1}-${today.getDate()}`;
   const events = await Event_Act.find(
     {
       start_time: { $gte: req.query.start },
