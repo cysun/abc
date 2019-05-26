@@ -219,8 +219,8 @@
                     <span class="fab fa-algolia" aria-hidden="true"></span>
                   </div>
                   <div class="counterinfo agile-info">
-                    <p class="counter">{{hours}}</p>
-                    <h3>{{$t('no_of_hours')}}</h3>
+                    <p class="counter">{{lives}}</p>
+                    <h3>{{$t('no_of_members_joined')}}</h3>
                   </div>
                   <div class="clearfix"></div>
                 </div>
@@ -229,8 +229,8 @@
                     <span class="fab fa-asymmetrik" aria-hidden="true"></span>
                   </div>
                   <div class="counterinfo agile-info">
-                    <p class="counter">{{lives}}</p>
-                    <h3>{{$t('no_of_lives')}}</h3>
+                    <p class="counter">{{acts}}</p>
+                    <h3>{{$t('no_of_acts_completed')}}</h3>
                   </div>
                   <div class="clearfix"></div>
                 </div>
@@ -242,7 +242,7 @@
                   </div>
                   <div class="counterinfo agile-info">
                     <p class="counter">{{acts}}</p>
-                    <h3>{{$t('no_of_acts')}}</h3>
+                    <h3>{{$t('no_of_rewards_listed')}}</h3>
                   </div>
                   <div class="clearfix"></div>
                 </div>
@@ -253,8 +253,8 @@
                     <span class="fas fa-check-square" aria-hidden="true"></span>
                   </div>
                   <div class="counterinfo agile-info">
-                    <p class="counter">{{rewards}}</p>
-                    <h3>{{$t('no_of_rewards')}}</h3>
+                    <p class="counter">{{collected_rewards}}</p>
+                    <h3>{{$t('no_of_rewards_collected')}}</h3>
                   </div>
                   <div class="clearfix"></div>
                 </div>
@@ -290,6 +290,7 @@ export default {
         context.lives = data.lives;
         context.acts = data.acts;
         context.rewards = data.rewards;
+        context.collected_rewards = data.collected_rewards;
       })
       .catch(function(err) {
         this.lives = 0;
@@ -301,18 +302,19 @@ export default {
   },
   data() {
     return {
-      hours: 0,
+      // hours: 0,
       lives: 0,
       acts: 0,
-      rewards: 0
+      rewards: 0,
+      collected_rewards: 0
     };
   },
-  async mounted() {
-    const start_date = new Date("2019-01-01").getTime();
-    const today = new Date().getTime();
+  // async mounted() {
+  //   const start_date = new Date("2019-01-01").getTime();
+  //   const today = new Date().getTime();
 
-    const difference = today - start_date;
-    this.hours = Math.round(difference / (60 * 60 * 1000));
-  }
+  //   const difference = today - start_date;
+  //   this.hours = Math.round(difference / (60 * 60 * 1000));
+  // }
 };
 </script>

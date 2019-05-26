@@ -115,9 +115,7 @@ router.post("/forgot_password", async function(req, res, next) {
     }
     //Send success message
     res.json({ message: "Success" });
-    logger.info(
-      `Password reset instructions were sent to ${req.body.email}`
-    );
+    logger.info(`Password reset instructions were sent to ${req.body.email}`);
   } catch (err) {
     next(createError(400, err.message));
     logger.error(
@@ -160,9 +158,7 @@ router.post("/reset_password", async function(req, res, next) {
       //Return success message
       res.json({ message: "Success" });
       logger.info(
-        `Password was reset for this reset token: ${
-          req.body.reset_password
-        }`
+        `Password was reset for this reset token: ${req.body.reset_password}`
       );
     }
   } catch (err) {
@@ -438,7 +434,7 @@ router.get("/view_acts", async function(req, res, next) {
       roles: req.roles
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     logger.error(`Viewer failed to get acts`);
     next(createError(400, err.message));
   }
@@ -460,7 +456,6 @@ router.get("/:id/view_act", async function(req, res, next) {
 
     //If act does not exist, error
     if (!act) throw new Error(res.__("act_does_not_exist"));
-
 
     //If this act has been deleted
     //Only admins and users who have completed it can view it
@@ -486,18 +481,50 @@ router.get("/:id/view_act", async function(req, res, next) {
 //Get details
 router.get("/details", async function(req, res, next) {
   const promises = [];
-  promises.push(Act.find({}).countDocuments());
+  promises.push(
+    Act.aggregate([
+      {
+        $group: {
+          _id: null,
+          total_number_of_completions: {
+            $sum: "$total_number_of_completions"
+          }
+        }
+      }
+    ])
+  );
   promises.push(User.find({}).countDocuments());
   promises.push(Reward.find({}).countDocuments());
+  promises.push(
+    Reward.aggregate([
+      {
+        $group: {
+          _id: null,
+          total_number_of_users_who_got_this_reward: {
+            $sum: "$total_number_of_users_who_got_this_reward"
+          }
+        }
+      }
+    ])
+  );
 
-  let acts, lives, rewards;
+  let acts, lives, rewards, collected_rewards;
   await Promise.all(promises).then(function(values) {
     acts = values[0];
     lives = values[1];
     rewards = values[2];
+    collected_rewards = values[3];
   });
 
-  res.json({ acts, lives, rewards });
+  // console.log(acts[0].total_number_of_completions);
+
+  res.json({
+    acts: acts[0].total_number_of_completions,
+    lives,
+    rewards,
+    collected_rewards:
+      collected_rewards[0].total_number_of_users_who_got_this_reward
+  });
 });
 
 //Login User
